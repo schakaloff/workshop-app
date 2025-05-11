@@ -2,25 +2,23 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXDrawer?>
-<?import javafx.scene.control.Button?>
+<?import com.jfoenix.controls.JFXHamburger?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ActualWorkshopController">
-   <left>
-      <JFXDrawer fx:id="drawer" BorderPane.alignment="CENTER">
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ActualWorkshopController">
+    <left>
+        <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" overLayVisible="true" resizableOnDrag="true" BorderPane.alignment="CENTER">
+            <sidePane>
+                <VBox>
+                    <JFXButton text="Dashboard" />
+                    <JFXButton text="Orders" />
+                    <JFXButton text="Clients" />
+                </VBox>
+            </sidePane>
          <children>
-            <VBox fx:id="drawer" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <JFXButton prefHeight="26.0" prefWidth="101.0" text="work" />
-                  <JFXButton prefHeight="26.0" prefWidth="102.0" text="stock" />
-                  <JFXButton prefHeight="26.0" prefWidth="128.0" text="aye" />
-               </children>
-            </VBox>
+            <JFXHamburger fx:id="hamburger" onMouseClicked="#closeMenu" />
          </children>
-      </JFXDrawer>
-   </left>
-   <center>
-      <Button fx:id="closeDrawer" mnemonicParsing="false" onAction="#closeMenu" text="Button" BorderPane.alignment="CENTER" />
-   </center>
+        </JFXDrawer>
+    </left>
 </BorderPane>

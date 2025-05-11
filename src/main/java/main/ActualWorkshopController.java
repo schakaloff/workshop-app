@@ -1,18 +1,25 @@
 package main;
+
+
 import com.jfoenix.controls.JFXDrawer;
-import javafx.event.ActionEvent;
+import com.jfoenix.controls.JFXHamburger;
 import javafx.fxml.FXML;
 
-
-
+import javafx.scene.input.MouseEvent;
 
 public class ActualWorkshopController{
     @FXML
     private JFXDrawer drawer;
-    public static void main(String[] args){
+    @FXML
+    private JFXHamburger hamburger;
+    @FXML
 
+    public void closeMenu(MouseEvent e){
+        if(drawer.isOpened()){
+            drawer.close();
+        }else{
+            drawer.open();
+        }
     }
-    public void closeMenu(ActionEvent e){
-        drawer.close();
-    }
+
 }
