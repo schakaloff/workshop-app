@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.*;
 
 public class LoginController {
+    public static String tech;
     @FXML
     private TextField usernameField;
     @FXML
@@ -23,6 +24,9 @@ public class LoginController {
     private Stage stage;
     private Scene scene;
     private Parent root;
+
+
+
 
     public static void main(String[] args){
 
@@ -44,6 +48,7 @@ public class LoginController {
 
             if(rs.next()){ //checks if that tech exists
                 System.out.println("technician exists");
+                tech = username;
                 launchWorkshop(e);
             }else{
                 System.out.println("wrong data");
