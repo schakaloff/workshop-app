@@ -1,5 +1,8 @@
-# HIDE DATABASE CONFIG FILE
+# hidden files
 src/main/java/main/DbConfig.java
+src/main/resources/avatar.png
+src/main/resources/lock.png
+src/main/resources/logo.png
 
 target/
 !.mvn/wrapper/maven-wrapper.jar
