@@ -11,12 +11,14 @@ public class WorkOrder {
     private final StringProperty workorderNumber;
     private final StringProperty status;
     private final StringProperty description;
+    private final StringProperty createdAt; //
 
-    public WorkOrder(String workorderNumber, String status, String description){
+    public WorkOrder(String workorderNumber, String status, String description, String createdAt){
         this.workorderNumber = new SimpleStringProperty(workorderNumber);
         this.status = new SimpleStringProperty(status);
         this.description = new SimpleStringProperty(description);
-        }
+        this.createdAt = new SimpleStringProperty(createdAt);
+    }
         /*
         for java fx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters
         */
@@ -55,6 +57,18 @@ public class WorkOrder {
 
     public void setDescription(String value){
         description.set(value);
+    }
+
+    public StringProperty createdAtProperty() {
+        return createdAt;
+    }
+
+    public String getCreatedAt() {
+        return createdAt.get();
+    }
+
+    public void setCreatedAt(String value) {
+        createdAt.set(value);
     }
 
 
