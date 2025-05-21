@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -8,7 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="304.0" prefWidth="366.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="304.0" prefWidth="366.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.newOrderController">
    <center>
       <AnchorPane prefHeight="289.0" prefWidth="410.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
@@ -20,7 +19,6 @@
             <TextField layoutX="109.0" layoutY="72.0" prefHeight="0.0" prefWidth="123.0" />
             <Text layoutX="9.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:" />
             <TextArea layoutX="9.0" layoutY="140.0" prefHeight="124.0" prefWidth="129.0" />
-            <MFXButton layoutX="268.0" layoutY="232.0" onAction="#addNewOrder" text="Create" />
          </children>
       </AnchorPane>
    </center>

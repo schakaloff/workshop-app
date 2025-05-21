@@ -31,12 +31,9 @@ import java.sql.*;
 public class ActualWorkshopController{
     @FXML private Label welcomeTech;
     @FXML private Circle techAvatar;
-    @FXML private JFXButton signOutBtn;
 
     @FXML private StackPane rootStack;
     @FXML private BorderPane contentPane;
-
-    @FXML private JFXButton createNewOrder;
 
     @FXML private TableView<WorkOrder> ordersTable; //whole TableView
 
@@ -45,7 +42,7 @@ public class ActualWorkshopController{
     @FXML private TableColumn<WorkOrder, String> colDescription; //third
     @FXML private TableColumn<WorkOrder, String> colCreatedAt; //date
 
-    private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates/removes UI automatically
+    private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
 
 
     public void initialize(){
@@ -75,6 +72,7 @@ public class ActualWorkshopController{
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
     }
+
 
 
     public void loadOrders(){
