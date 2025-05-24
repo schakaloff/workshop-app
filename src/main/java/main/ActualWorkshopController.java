@@ -128,10 +128,10 @@ public class ActualWorkshopController{
     }
 
     public void avatar(Circle techAvatar){
-        Image im = new Image("/avatar.png"); //make
-        techAvatar.setCenterX(50);
-        techAvatar.setCenterY(50);
-        techAvatar.setFill(new ImagePattern(im));
+//        Image im = new Image("/avatar.png"); //make
+//        techAvatar.setCenterX(50);
+//        techAvatar.setCenterY(50);
+//        techAvatar.setFill(new ImagePattern(im));
     }
 
     private void playShowAnimation(MFXGenericDialog dialog) {

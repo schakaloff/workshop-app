@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="304.0" prefWidth="366.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.newOrderController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="421.0" prefWidth="616.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.newOrderController">
    <center>
       <AnchorPane prefHeight="289.0" prefWidth="410.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
@@ -19,8 +19,10 @@
             <Text layoutX="9.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number" />
             <TextField layoutX="109.0" layoutY="72.0" prefHeight="0.0" prefWidth="123.0" />
             <Text layoutX="9.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:" />
-            <TextArea layoutX="9.0" layoutY="140.0" prefHeight="124.0" prefWidth="129.0" />
-            <MFXButton layoutX="265.0" layoutY="229.0" onAction="#makeNewOrder" text="Create " />
+            <TextArea layoutX="14.0" layoutY="147.0" prefHeight="124.0" prefWidth="129.0" />
+            <MFXButton layoutX="540.0" layoutY="357.0" onAction="#makeNewOrder" text="Create " />
+            <Text layoutX="9.0" layoutY="336.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Additional Producs" />
+            <Text layoutX="10.0" layoutY="362.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition" />
          </children>
       </AnchorPane>
    </center>
