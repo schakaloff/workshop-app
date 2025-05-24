@@ -11,7 +11,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootStack" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ActualWorkshopController">
+<StackPane fx:id="rootStack" prefHeight="675.0" prefWidth="1007.0" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ActualWorkshopController">
    <children>
       <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
          <left>
