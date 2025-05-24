@@ -32,8 +32,8 @@ public class ActualWorkshopController{
     @FXML private Label welcomeTech;
     @FXML private Circle techAvatar;
 
-    @FXML private StackPane rootStack;
-    @FXML private BorderPane contentPane;
+    @FXML public StackPane rootStack;
+    @FXML public BorderPane contentPane;
 
     @FXML private TableView<WorkOrder> ordersTable; //whole TableView
 
@@ -60,10 +60,15 @@ public class ActualWorkshopController{
 
     public void createNewOrder() throws IOException {
 
-        contentPane.setEffect(new GaussianBlur(10));
+        contentPane.setEffect(new GaussianBlur(4));
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("newOrder.fxml"));
         MFXGenericDialog dialog = loader.load();
+
+        newOrderController dialogController = loader.getController();
+        dialogController.setMainController(this);
+        dialogController.setDialogInstance(dialog);
+
 
         dialog.setOpacity(0);
         dialog.setScaleX(0.8);
@@ -107,9 +112,8 @@ public class ActualWorkshopController{
 
 
 
-    private void insertOrderIntoDatabase(String status, String desc) {
-        String sql = "INSERT INTO work_order (workorder, status, item_desc, createdAt) " +
-                "VALUES ((SELECT IFNULL(MAX(workorder), 0) + 1 FROM work_order), ?, ?, NOW())";
+    public void insertOrderIntoDatabase(String status, String desc) {
+        String sql = "INSERT INTO work_order (status, item_desc, createdAt) VALUES (?, ?, NOW())";
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -122,6 +126,7 @@ public class ActualWorkshopController{
             e.printStackTrace();
         }
     }
+
     public void avatar(Circle techAvatar){
         Image im = new Image("/avatar.png"); //make
         techAvatar.setCenterX(50);

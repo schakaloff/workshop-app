@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -19,6 +20,7 @@
             <TextField layoutX="109.0" layoutY="72.0" prefHeight="0.0" prefWidth="123.0" />
             <Text layoutX="9.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:" />
             <TextArea layoutX="9.0" layoutY="140.0" prefHeight="124.0" prefWidth="129.0" />
+            <MFXButton layoutX="265.0" layoutY="229.0" onAction="#makeNewOrder" text="Create " />
          </children>
       </AnchorPane>
    </center>
