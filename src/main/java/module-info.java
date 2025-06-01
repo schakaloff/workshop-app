@@ -7,4 +7,10 @@ module main {
 
     opens main to javafx.fxml;
     exports main;
+    exports Skeletons;
+    opens Skeletons to javafx.fxml;
+    exports DB;
+    opens DB to javafx.fxml;
+    exports Controllers;
+    opens Controllers to javafx.fxml;
 }

@@ -1,8 +1,10 @@
 # hidden files
-src/main/java/main/DbConfig.java
+src/main/java/DB/DbConfig.java
 src/main/resources/avatar.png
 src/main/resources/lock.png
 src/main/resources/logo.png
+src/main/resources/style.css
+src/main/resources/VendorsList.txt
 
 target/
 !.mvn/wrapper/maven-wrapper.jar

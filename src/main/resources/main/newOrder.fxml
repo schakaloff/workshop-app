@@ -1,28 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
+<?import io.github.palexdev.mfxcore.controls.Text?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="421.0" prefWidth="616.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.newOrderController">
+
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="449.0" prefWidth="666.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.newOrderController">
    <center>
-      <AnchorPane prefHeight="289.0" prefWidth="410.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="item_description" layoutX="47.0" layoutY="3.0" prefHeight="0.0" prefWidth="123.0" />
-            <Text layoutX="7.0" layoutY="21.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:" />
-            <Text layoutX="7.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Model Number" />
-            <TextField layoutX="109.0" layoutY="35.0" prefHeight="0.0" prefWidth="123.0" />
-            <Text layoutX="9.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number" />
-            <TextField layoutX="109.0" layoutY="72.0" prefHeight="0.0" prefWidth="123.0" />
-            <Text layoutX="9.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:" />
-            <TextArea layoutX="14.0" layoutY="147.0" prefHeight="124.0" prefWidth="129.0" />
-            <MFXButton layoutX="540.0" layoutY="357.0" onAction="#makeNewOrder" text="Create " />
-            <Text layoutX="9.0" layoutY="336.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Additional Producs" />
-            <Text layoutX="10.0" layoutY="362.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition" />
+            <TextArea layoutX="7.0" layoutY="213.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" />
+            <MFXCheckbox layoutX="3.0" layoutY="66.0" minHeight="15.0" prefHeight="17.0" prefWidth="74.0" text="Warranty" />
+            <Text layoutX="7.0" layoutY="200.0" text="Problem:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <Text layoutX="7.0" layoutY="110.0" text="Type:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <Text layoutX="7.0" layoutY="140.0" text="Model:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <Text layoutX="7.0" layoutY="170.0" text="Serial Number:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <MFXTextField floatMode="BORDER" floatingText="Type" layoutX="110.0" layoutY="95.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" AnchorPane.bottomAnchor="310.0" />
+            <MFXTextField floatMode="BORDER" floatingText="Model" layoutX="110.0" layoutY="125.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+            <MFXTextField floatMode="BORDER" floatingText="Serial Number" layoutX="110.0" layoutY="155.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+            <MFXComboBox fx:id="vendorID" layoutX="333.0" layoutY="62.0" minHeight="25.0" prefHeight="25.0" prefWidth="124.0" />
+            <Text layoutX="7.0" layoutY="39.0" text="Created By:">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Text>
+            <MFXTextField fx:id="TechNewOrder" editable="false" floatMode="BORDER" layoutX="88.0" layoutY="25.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="33.0" />
          </children>
       </AnchorPane>
    </center>
