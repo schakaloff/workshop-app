@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="300.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.VendorsController">
+   <left>
+      <VBox alignment="BOTTOM_CENTER" prefHeight="132.0" prefWidth="75.0" BorderPane.alignment="CENTER">
+         <children>
+            <MFXButton text="Cancel" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" />
+         </padding>
+      </VBox>
+   </left>
+   <right>
+      <VBox alignment="BOTTOM_CENTER" prefHeight="132.0" prefWidth="75.0" BorderPane.alignment="CENTER">
+         <children>
+            <MFXButton onAction="#addNewVendorBtn" text="Ok" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" right="10.0" />
+         </padding>
+      </VBox>
+   </right>
+   <center>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <MFXTextField floatMode="BORDER" floatingText="Vendor" minHeight="25.0" prefHeight="20.0" prefWidth="90.0" />
+         </children>
+      </HBox>
+   </center>
+</MFXGenericDialog>
