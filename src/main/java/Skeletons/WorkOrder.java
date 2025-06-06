@@ -10,15 +10,26 @@ public class WorkOrder {
      */
     private final StringProperty workorderNumber;
     private final StringProperty status;
-    private final StringProperty description;
     private final StringProperty createdAt; //
 
-    public WorkOrder(String workorderNumber, String status, String description, String createdAt){
+    private final StringProperty type;
+    private final StringProperty model;
+    private final StringProperty serialNumber;
+    private final StringProperty problemDesc;
+
+    public WorkOrder(String workorderNumber, String status, String type, String createdAt,  String model, String serialNumber, String problemDesc){
         this.workorderNumber = new SimpleStringProperty(workorderNumber);
         this.status = new SimpleStringProperty(status);
-        this.description = new SimpleStringProperty(description);
+        this.type = new SimpleStringProperty(type);
         this.createdAt = new SimpleStringProperty(createdAt);
+
+
+        this.model = new SimpleStringProperty(model);
+        this.serialNumber = new SimpleStringProperty(serialNumber);
+        this.problemDesc = new SimpleStringProperty(problemDesc);
+
     }
+
         /*
         for javafx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters
         */
@@ -36,6 +47,24 @@ public class WorkOrder {
     }
 
 
+    public StringProperty typeProperty(){return type;}
+    public String getType(){return type.get();}
+    public void setType(String value){type.set(value);}
+
+    public StringProperty modelProperty(){return model; }
+    public String getModel(){return model.get();}
+    public void setModel(String value){model.set(value);}
+
+    public StringProperty serialNumberProperty(){return serialNumber;}
+    public String getSerialNumber(){return serialNumber.get();}
+    public void  setSerialNumber(String value){serialNumber.set(value);}
+
+    public StringProperty problemDescProperty(){return problemDesc;}
+    public String getProblemDesc(){return problemDesc.get();}
+    public void setProblemDesc(String value){problemDesc.set(value);}
+
+
+
     public StringProperty statusProperty(){
         return status;
     }
@@ -47,17 +76,6 @@ public class WorkOrder {
     public void setStatus(String value){
         status.set(value);
     }
-
-
-    public StringProperty descriptionProperty(){
-        return description;
-    }
-
-    public String getDescription(){
-        return description.get();
-    }
-
-    public void setDescription(String value){description.set(value);}
 
 
     public StringProperty createdAtProperty() {return createdAt;}
