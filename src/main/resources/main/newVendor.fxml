@@ -33,7 +33,7 @@
    <center>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <MFXTextField floatMode="BORDER" floatingText="Vendor" minHeight="25.0" prefHeight="20.0" prefWidth="90.0" />
+            <MFXTextField fx:id="vendorName" floatMode="BORDER" floatingText="Vendor" minHeight="25.0" prefHeight="20.0" prefWidth="90.0" />
          </children>
       </HBox>
    </center>
