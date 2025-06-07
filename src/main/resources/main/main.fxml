@@ -61,7 +61,7 @@
          <center>
             <AnchorPane BorderPane.alignment="CENTER">
                <children>
-                  <MFXTableView fx:id="table" layoutX="8.0" layoutY="66.0" prefHeight="609.0" prefWidth="771.0" />
+                  <MFXTableView fx:id="table" layoutX="14.0" layoutY="44.0" prefHeight="609.0" prefWidth="771.0" />
                </children>
             </AnchorPane>
          </center>

@@ -3,7 +3,6 @@ package Controllers;
 import DB.Vendors;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
-import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
@@ -13,7 +12,7 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 
-public class newOrderController {
+public class NewOrderController {
     @FXML private MFXTextField TechNewOrder;
 
     @FXML private MFXComboBox<String> vendorID;
