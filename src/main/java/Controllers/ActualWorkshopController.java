@@ -3,6 +3,7 @@ package Controllers;
 import DB.DbConfig;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
+import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
@@ -37,18 +38,11 @@ import java.sql.*;
 public class ActualWorkshopController{
     @FXML private Label welcomeTech;
     @FXML private Circle techAvatar;
-
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
 
-    @FXML private TableView<WorkOrder> ordersTable; //whole TableView
-
     @FXML private MFXTableView<WorkOrder> table;
 
-    @FXML private TableColumn<WorkOrder, String> colWorkorderNumber; //first column
-    @FXML private TableColumn<WorkOrder, String> colStatus; //second
-    @FXML private TableColumn<WorkOrder, String> colType; //third
-    @FXML private TableColumn<WorkOrder, String> colCreatedAt; //date
 
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
 
@@ -57,20 +51,34 @@ public class ActualWorkshopController{
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         avatar(techAvatar); //set avatar's pic
 
-//        colWorkorderNumber.setCellValueFactory(c -> c.getValue().workorderNumberProperty());
-//        colStatus.setCellValueFactory(c -> c.getValue().statusProperty()); // “Show the WorkOrder’s status property in the Status column.”
-//        colType.setCellValueFactory(c -> c.getValue().typeProperty()); // “Show the WorkOrder’s description property in the Description column.”
-//        colCreatedAt.setCellValueFactory(c -> c.getValue().createdAtProperty());
-        table.autosizeColumnsOnInitialization();
+        table.autosizeColumnsOnInitialization(); //autosize table columns
 
-        loadTable();
-        loadOrders();
+        loadTable(); //load table
+
+        loadOrders(); //load orders into table
         table.setItems(data);
 
-//        ordersTable.setItems(data);
+
+
+        table.setTableRowFactory(workOrder -> {
+            MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, workOrder);
+            row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                if (e.getClickCount() == 2) {
+                    e.consume();
+                    System.out.println("row " + workOrder.getWorkorderNumber());
+                    try {
+                        openWorkOrder(workOrder);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            return row;
+        });
     }
 
     public void loadTable(){
+
         MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder", true);
         MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", true);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", true);
@@ -84,19 +92,18 @@ public class ActualWorkshopController{
         }});
 
         date.setAlignment(Pos.CENTER_RIGHT);
-
         table.getTableColumns().addAll(workOrder,status,type,date);
 
     }
 
+
     public void createNewOrder() throws IOException {
 
         contentPane.setEffect(new GaussianBlur(4));
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/newOrder.fxml"));
         MFXGenericDialog dialog = loader.load();
 
-        newOrderController dialogController = loader.getController();
+        NewOrderController dialogController = loader.getController();
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
 
@@ -108,6 +115,24 @@ public class ActualWorkshopController{
         playShowAnimation(dialog);
     }
 
+    public void openWorkOrder(WorkOrder order) throws IOException{
+        contentPane.setEffect(new GaussianBlur(4));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
+        MFXGenericDialog dialog = loader.load();
+
+        ViewOrderController dialogController = loader.getController();
+        dialogController.setMainController(this);
+        dialogController.setDialogInstance(dialog);
+        dialogController.initData(order);
+
+        dialog.setOpacity(0);
+        dialog.setScaleX(0.8);
+        dialog.setScaleY(0.8);
+
+        rootStack.getChildren().add(dialog);
+        playShowAnimation(dialog);
+
+    }
 
     public void loadOrders() {
         String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, model, serialNumber, problemDesc FROM work_order";
@@ -117,18 +142,25 @@ public class ActualWorkshopController{
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                String woNumber = rs.getString("workorder");
-                String status = rs.getString("status");
-                String type = rs.getString("type");
-                String createdAt = rs.getString("createdAt");
-                WorkOrder wo = new WorkOrder(woNumber, status, type, createdAt, "", "", "");
+                WorkOrder wo = new WorkOrder(
+                        rs.getString("workorder"),
+                        rs.getString("status"),
+                        rs.getString("type"),
+                        rs.getString("createdAt"),
+                        rs.getString("model"),
+                        rs.getString("serialNumber"),
+                        rs.getString("problemDesc")
+                );
                 data.add(wo);
             }
+            rs.close();
+            stmt.close();
+            connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Something went wrong during loading the orders");
         }
     }
+
 
     public void insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc) {
         String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, createdAt) VALUES (?, ?, ?, ?, ?, NOW())";

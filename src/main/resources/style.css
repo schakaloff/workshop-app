@@ -1,0 +1,4 @@
+.mfx-text-field:focus-within,
+.mfx-button:focus {
+    -mfx-main: blue;
+}

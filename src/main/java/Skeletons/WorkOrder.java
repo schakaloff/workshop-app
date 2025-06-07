@@ -41,7 +41,7 @@ public class WorkOrder {
     public String getWorkorderNumber(){ //get
         return workorderNumber.get();
     }
-    //3)
+    //3
     public void setWorkorderNumber(String value){ //set
         workorderNumber.set(value);
     }
@@ -68,22 +68,18 @@ public class WorkOrder {
     public StringProperty statusProperty(){
         return status;
     }
-
     public String getStatus(){
         return status.get();
     }
-
     public void setStatus(String value){
         status.set(value);
     }
 
 
     public StringProperty createdAtProperty() {return createdAt;}
-
     public String getCreatedAt() {
         return createdAt.get();
     }
-
     public void setCreatedAt(String value) {
         createdAt.set(value);
     }

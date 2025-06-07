@@ -3,7 +3,6 @@ src/main/java/DB/DbConfig.java
 src/main/resources/avatar.png
 src/main/resources/lock.png
 src/main/resources/logo.png
-src/main/resources/style.css
 src/main/resources/VendorsList.txt
 
 target/
