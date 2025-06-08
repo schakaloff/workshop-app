@@ -63,6 +63,7 @@ public class NewOrderController {
     public void closeDialog(){
         mainController.rootStack.getChildren().remove(dialogInstance);
         mainController.contentPane.setEffect(null);
+        mainController.contentPane.setDisable(false);
     }
 
     public void makeNewOrder() throws IOException{

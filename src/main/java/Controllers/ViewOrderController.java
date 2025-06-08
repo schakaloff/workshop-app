@@ -7,6 +7,7 @@ import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 
@@ -23,10 +24,16 @@ public class ViewOrderController {
     @FXML private MFXTextField serialNumber;
     @FXML private TextArea problemDesc;
 
+    @FXML private TabPane tabPane;
+
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
 
     @FXML private StackPane rootStack;
+
+    public void initialize(){
+        tabPane.setFocusTraversable(false);
+    }
 
     public void initData(WorkOrder wo){
         type.setText(wo.getType());
@@ -39,5 +46,6 @@ public class ViewOrderController {
     public void closeDialog(){
         mainController.rootStack.getChildren().remove(dialogInstance);
         mainController.contentPane.setEffect(null);
+        mainController.contentPane.setDisable(false);
     }
 }

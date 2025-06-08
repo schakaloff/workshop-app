@@ -3,40 +3,65 @@
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
 <?import io.github.palexdev.mfxcore.controls.Text?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="450.0" prefWidth="650.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="473.0" prefWidth="657.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
    <center>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
-         <children>
-            <TextArea fx:id="problemDesc" layoutX="7.0" layoutY="213.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" />
-            <Text layoutX="7.0" layoutY="200.0" text="Problem:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <Text layoutX="7.0" layoutY="110.0" text="Type:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <Text layoutX="7.0" layoutY="140.0" text="Model:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <Text layoutX="7.0" layoutY="170.0" text="Serial Number:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="110.0" layoutY="95.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="110.0" layoutY="125.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="110.0" layoutY="155.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-         </children>
-      </AnchorPane>
+      <TabPane fx:id="tabPane" stylesheets="@../tab.css" BorderPane.alignment="CENTER">
+         <tabs>
+            <Tab closable="false" text="Main">
+               <content>
+                  <AnchorPane prefHeight="307.0" prefWidth="622.0" style="-fx-background-color: white;">
+                     <children>
+                        <TextArea fx:id="problemDesc" layoutX="12.0" layoutY="181.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" />
+                        <Text layoutX="17.0" layoutY="163.0" text="Problem:">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text layoutX="14.0" layoutY="76.0" text="Type:">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text layoutX="17.0" layoutY="103.0" text="Model:">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <Text layoutX="18.0" layoutY="134.0" text="Serial Number:">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Text>
+                        <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="62.0" layoutY="61.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+                        <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="72.0" layoutY="88.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+                        <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="124.0" layoutY="119.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab closable="false" text="Labour">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+            <Tab closable="false" text="Parts">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+            <Tab closable="false" text="Files">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+         </tabs>
+      </TabPane>
    </center>
 </MFXGenericDialog>

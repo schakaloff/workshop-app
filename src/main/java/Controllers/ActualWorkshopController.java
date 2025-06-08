@@ -41,6 +41,8 @@ public class ActualWorkshopController{
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
 
+    @FXML public TabPane tabPane;
+
     @FXML private MFXTableView<WorkOrder> table;
 
 
@@ -57,7 +59,6 @@ public class ActualWorkshopController{
 
         loadOrders(); //load orders into table
         table.setItems(data);
-
 
 
         table.setTableRowFactory(workOrder -> {
@@ -100,6 +101,8 @@ public class ActualWorkshopController{
     public void createNewOrder() throws IOException {
 
         contentPane.setEffect(new GaussianBlur(4));
+        contentPane.setDisable(true);
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/newOrder.fxml"));
         MFXGenericDialog dialog = loader.load();
 
@@ -117,6 +120,8 @@ public class ActualWorkshopController{
 
     public void openWorkOrder(WorkOrder order) throws IOException{
         contentPane.setEffect(new GaussianBlur(4));
+        contentPane.setDisable(true);
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
         MFXGenericDialog dialog = loader.load();
 
