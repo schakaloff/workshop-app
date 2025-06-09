@@ -30,9 +30,10 @@ public class WorkOrder {
 
     }
 
-        /*
-        for javafx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters
-        */
+
+    /*
+    for javafx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters
+    */
     //1)
     public StringProperty workorderNumberProperty(){ //accessor
         return workorderNumber;
@@ -63,8 +64,6 @@ public class WorkOrder {
     public String getProblemDesc(){return problemDesc.get();}
     public void setProblemDesc(String value){problemDesc.set(value);}
 
-
-
     public StringProperty statusProperty(){
         return status;
     }
@@ -74,7 +73,6 @@ public class WorkOrder {
     public void setStatus(String value){
         status.set(value);
     }
-
 
     public StringProperty createdAtProperty() {return createdAt;}
     public String getCreatedAt() {

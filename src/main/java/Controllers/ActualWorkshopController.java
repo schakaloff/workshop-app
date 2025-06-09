@@ -60,13 +60,16 @@ public class ActualWorkshopController{
         loadOrders(); //load orders into table
         table.setItems(data);
 
+        viewOrder(table);
+    }
 
+    public void viewOrder(MFXTableView<WorkOrder> table){
         table.setTableRowFactory(workOrder -> {
             MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, workOrder);
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
-                    System.out.println("row " + workOrder.getWorkorderNumber());
+                   // System.out.println("row " + workOrder.getWorkorderNumber());
                     try {
                         openWorkOrder(workOrder);
                     } catch (IOException ex) {
@@ -79,7 +82,6 @@ public class ActualWorkshopController{
     }
 
     public void loadTable(){
-
         MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder", true);
         MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", true);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", true);
@@ -88,18 +90,13 @@ public class ActualWorkshopController{
         workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
         type.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getType));
-        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt){{
-            setAlignment(Pos.CENTER_RIGHT);
-        }});
+        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt){{setAlignment(Pos.CENTER_RIGHT);}});
 
         date.setAlignment(Pos.CENTER_RIGHT);
         table.getTableColumns().addAll(workOrder,status,type,date);
-
     }
 
-
     public void createNewOrder() throws IOException {
-
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
 
@@ -165,7 +162,6 @@ public class ActualWorkshopController{
             e.printStackTrace();
         }
     }
-
 
     public void insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc) {
         String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, createdAt) VALUES (?, ?, ?, ?, ?, NOW())";

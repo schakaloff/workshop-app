@@ -1,16 +1,25 @@
 package Controllers;
 
 import DB.Vendors;
+import Controllers.ViewOrderController;
+import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.print.PrinterJob;
+import javafx.scene.Parent;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Window;
+import print.Print;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class NewOrderController {
     @FXML private MFXTextField TechNewOrder;
@@ -30,15 +39,15 @@ public class NewOrderController {
     public void setMainController(ActualWorkshopController controller) {
         this.mainController = controller;
     }
-
     public void setDialogInstance(MFXGenericDialog dialogInstance) {
         this.dialogInstance = dialogInstance;
     }
 
     @FXML private StackPane rootStack;
+    private WorkOrder currentWorkOrder;
 
     @FXML
-    public void initialize() throws IOException {
+    public void initialize(WorkOrder wo) throws IOException {
         TechNewOrder.setText(LoginController.tech);
 
         vendorID.setDisable(true);
@@ -46,6 +55,7 @@ public class NewOrderController {
 
         //vendorID.getItems().setAll(Vendors.loadIntoBox("src/main/resources/VendorsList.txt"));
         Vendors.addNewVendor(vendorID);
+        this.currentWorkOrder = wo;
 
     }
 
@@ -65,26 +75,20 @@ public class NewOrderController {
         mainController.contentPane.setEffect(null);
         mainController.contentPane.setDisable(false);
     }
-
-    public void makeNewOrder() throws IOException{
+    @FXML
+    public void makeNewOrder() throws Exception {
         String typeDB = type.getText();
         String modelDB = model.getText();
         String serialNumberDB = serialNumber.getText();
         String problemDescDB = problemDesc.getText();
-//        if (desc == null || desc.trim().isEmpty()) {
-//            System.out.println("Description is empty!");
-//            return;
-//        }
+
+
         mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB); // Always set status to "New"
         mainController.loadOrders();
 
-        // Close dialog after creating order
-        if (dialogInstance != null) {
-            mainController.rootStack.getChildren().remove(dialogInstance);
-            mainController.contentPane.setEffect(null); // remove blur
-        }
+//        Window owner = dialogInstance.getScene().getWindow();
+//        Print.printWorkOrder(currentWO, owner);
 
-
+        closeDialog();
     }
-
 }
