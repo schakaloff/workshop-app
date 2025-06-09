@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.mfxcore.controls.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="670.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrinterController">
+   <children>
+      <Label fx:id="lblWorkorderNumber" layoutX="183.0" layoutY="29.0" prefHeight="18.0" prefWidth="110.0" />
+      <Label fx:id="lblCreatedAt" layoutX="196.0" layoutY="65.0" prefHeight="18.0" prefWidth="122.0" />
+      <Label fx:id="lblModel" layoutX="183.0" layoutY="104.0" prefHeight="18.0" prefWidth="110.0" />
+      <Label fx:id="lblSerialNumber" layoutX="174.0" layoutY="155.0" prefHeight="18.0" prefWidth="144.0" />
+      <TextArea fx:id="ProblemDesc" layoutX="14.0" layoutY="447.0" prefHeight="200.0" prefWidth="200.0" />
+   </children>
+</AnchorPane>
