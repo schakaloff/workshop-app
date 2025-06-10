@@ -75,20 +75,25 @@ public class NewOrderController {
         mainController.contentPane.setEffect(null);
         mainController.contentPane.setDisable(false);
     }
+
     @FXML
     public void makeNewOrder() throws Exception {
-        String typeDB = type.getText();
-        String modelDB = model.getText();
+        String typeDB         = type.getText();
+        String modelDB        = model.getText();
         String serialNumberDB = serialNumber.getText();
-        String problemDescDB = problemDesc.getText();
+        String problemDescDB  = problemDesc.getText();
 
-
-        mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB); // Always set status to "New"
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB);
         mainController.loadOrders();
 
-//        Window owner = dialogInstance.getScene().getWindow();
-//        Print.printWorkOrder(currentWO, owner);
+        String createdAtDB = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, modelDB, serialNumberDB, problemDescDB
+        );
+
+        Window owner = dialogInstance.getScene().getWindow();
+        Print.printWorkOrder(wo, owner);
 
         closeDialog();
     }
+
 }

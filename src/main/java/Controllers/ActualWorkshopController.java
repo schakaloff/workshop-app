@@ -159,28 +159,37 @@ public class ActualWorkshopController{
             stmt.close();
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("issue during loaders");
         }
     }
 
-    public void insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc) {
+    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc) {
         String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, createdAt) VALUES (?, ?, ?, ?, ?, NOW())";
-
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, status);
             stmt.setString(2, type);
             stmt.setString(3, model);
             stmt.setString(4, serialNumber);
             stmt.setString(5, problemDesc);
             stmt.executeUpdate();
-
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int newId = rs.getInt(1);
+                    stmt.close();
+                    conn.close();
+                    return newId;
+                }
+            }
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("issue during inserting");
         }
-
+        return -1;
     }
+
 
     public void signOut(MouseEvent e) throws IOException { //sign out button
         LoginController.tech = null;
