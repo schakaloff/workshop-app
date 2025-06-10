@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-
 <MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="450.0" prefWidth="650.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewOrderController">
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
@@ -50,6 +49,13 @@
             <MFXTextField fx:id="TechNewOrder" editable="false" floatMode="BORDER" layoutX="85.0" layoutY="4.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="33.0" />
             <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Number" layoutX="243.0" layoutY="65.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
             <MFXButton layoutX="572.0" layoutY="376.0" onAction="#makeNewOrder" text="Save" />
+            <MFXTextField floatingText="Name" layoutX="417.0" layoutY="71.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+            <MFXButton layoutX="435.0" layoutY="261.0" onAction="#selectCustomer" text="Press" />
+            <MFXTextField floatingText="Last Name" layoutX="418.0" layoutY="103.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
+            <MFXTextField floatingText="Phone" layoutX="418.0" layoutY="133.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
+            <MFXTextField floatingText="Address" layoutX="418.0" layoutY="163.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
+            <MFXTextField floatingText="Town" layoutX="418.0" layoutY="193.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
+            <MFXTextField floatingText="ZIP" layoutX="418.0" layoutY="226.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
          </children>
       </AnchorPane>
    </center>

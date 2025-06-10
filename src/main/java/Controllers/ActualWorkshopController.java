@@ -54,13 +54,12 @@ public class ActualWorkshopController{
         avatar(techAvatar); //set avatar's pic
 
         table.autosizeColumnsOnInitialization(); //autosize table columns
-
         loadTable(); //load table
-
         loadOrders(); //load orders into table
         table.setItems(data);
-
         viewOrder(table);
+
+
     }
 
     public void viewOrder(MFXTableView<WorkOrder> table){
