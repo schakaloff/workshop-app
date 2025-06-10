@@ -1,7 +1,6 @@
 package Controllers;
 
 import DB.Vendors;
-import Controllers.ViewOrderController;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -10,10 +9,11 @@ import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.print.PrinterJob;
-import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
 
@@ -46,8 +46,8 @@ public class NewOrderController {
     @FXML private StackPane rootStack;
     private WorkOrder currentWorkOrder;
 
-    @FXML
-    public void initialize(WorkOrder wo) throws IOException {
+
+    public void initialize() throws IOException {
         TechNewOrder.setText(LoginController.tech);
 
         vendorID.setDisable(true);
@@ -55,7 +55,6 @@ public class NewOrderController {
 
         //vendorID.getItems().setAll(Vendors.loadIntoBox("src/main/resources/VendorsList.txt"));
         Vendors.addNewVendor(vendorID);
-        this.currentWorkOrder = wo;
 
     }
 
@@ -69,31 +68,49 @@ public class NewOrderController {
         }
     }
 
-    @FXML
-    public void closeDialog(){
-        mainController.rootStack.getChildren().remove(dialogInstance);
-        mainController.contentPane.setEffect(null);
-        mainController.contentPane.setDisable(false);
+    public void selectCustomer() throws IOException {
+        FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/customer.fxml"));
+        MFXGenericDialog dialog = loader.load();
+        Stage dialogStage = new Stage();
+        /*
+        we are telling javafx that new stage should be modal
+        It will prevent user from interacting with other windows.
+
+        Modality.APPLICATION blocks mouse and keyboard input to all other windows in this app.
+         */
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.setTitle("Customer");
+
+        Scene scene = new Scene(dialog);
+        dialogStage.setScene(scene);
+        dialogStage.showAndWait();
     }
+
 
     @FXML
     public void makeNewOrder() throws Exception {
-        String typeDB         = type.getText();
-        String modelDB        = model.getText();
+        String typeDB = type.getText();
+        String modelDB = model.getText();
         String serialNumberDB = serialNumber.getText();
-        String problemDescDB  = problemDesc.getText();
+        String problemDescDB = problemDesc.getText();
 
         int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB);
         mainController.loadOrders();
 
         String createdAtDB = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, modelDB, serialNumberDB, problemDescDB
-        );
+        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, modelDB, serialNumberDB, problemDescDB);
 
         Window owner = dialogInstance.getScene().getWindow();
         Print.printWorkOrder(wo, owner);
 
         closeDialog();
+    }
+
+    @FXML
+    public void closeDialog(){
+        mainController.rootStack.getChildren().remove(dialogInstance);
+        mainController.contentPane.setEffect(null);
+        mainController.contentPane.setDisable(false);
     }
 
 }
