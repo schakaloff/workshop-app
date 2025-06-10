@@ -47,12 +47,13 @@ public class ViewOrderController {
         problemDesc.setText(wo.getProblemDesc());
         this.currentWorkOrder = wo;
     }
+    @FXML
+    public void printOrder() throws Exception {
 
-    public void printOrder(WorkOrder wo, Window owner) throws Exception {
-
+        WorkOrder wo = currentWorkOrder;
+        Window owner = dialogInstance.getScene().getWindow();
         owner = dialogInstance.getScene().getWindow();
         Print.printWorkOrder(wo, owner);
-
 
 //        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/printOrder.fxml"));
 //        Parent printNode = loader.load();
