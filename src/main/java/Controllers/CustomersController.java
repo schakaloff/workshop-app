@@ -91,7 +91,9 @@ public class CustomersController {
 
     public void addNewCustomer() throws IOException {
         FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/newCustomer.fxml"));
+
         MFXGenericDialog dialog = loader.load();
+
         Stage dialogStage = new Stage();
         /*
         we are telling javafx that new stage should be modal
@@ -106,5 +108,10 @@ public class CustomersController {
         Scene scene = new Scene(dialog);
         dialogStage.setScene(scene);
         dialogStage.showAndWait();
+
+        NewCustomerController ctrl = loader.getController();
+        Customer created = ctrl.getCustomer();
+        data.add(created);
+        table.setItems(data);
     }
 }
