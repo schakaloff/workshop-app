@@ -43,7 +43,6 @@ public class ActualWorkshopController{
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
 
-    @FXML public TabPane tabPane;
 
     @FXML private MFXTableView<WorkOrder> table;
 
