@@ -1,6 +1,7 @@
 package Controllers;
 
 import DB.Vendors;
+import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -33,8 +34,17 @@ public class NewOrderController {
     @FXML private MFXTextField serialNumber;
     @FXML private TextArea problemDesc;
 
+    @FXML private MFXTextField idTFX;
+    @FXML private MFXTextField firstNameTXF;
+    @FXML private MFXTextField lastNameTXF;
+    @FXML private MFXTextField phoneTFX;
+    @FXML private MFXTextField addressTFX;
+    @FXML private MFXTextField townTFX;
+    @FXML private MFXTextField zipTFX;
+
     @FXML private ActualWorkshopController mainController;
     @FXML private MFXGenericDialog dialogInstance;
+    @FXML private CustomersController customerCntrl;
 
     public void setMainController(ActualWorkshopController controller) {
         this.mainController = controller;
@@ -42,9 +52,6 @@ public class NewOrderController {
     public void setDialogInstance(MFXGenericDialog dialogInstance) {
         this.dialogInstance = dialogInstance;
     }
-
-    @FXML private StackPane rootStack;
-    private WorkOrder currentWorkOrder;
 
 
     public void initialize() throws IOException {
@@ -84,6 +91,18 @@ public class NewOrderController {
         Scene scene = new Scene(dialog);
         dialogStage.setScene(scene);
         dialogStage.showAndWait();
+
+
+        CustomersController picker = loader.getController();
+        Customer cus = picker.getSelectedCustomer();
+        idTFX        .setText(cus.getId());
+        firstNameTXF .setText(cus.getFirstName());
+        lastNameTXF  .setText(cus.getLastName());
+        phoneTFX     .setText(cus.getPhone());
+        addressTFX   .setText(cus.getAddress());
+        townTFX      .setText(cus.getTown());
+        zipTFX       .setText(cus.getPostalCode());
+
     }
 
 
