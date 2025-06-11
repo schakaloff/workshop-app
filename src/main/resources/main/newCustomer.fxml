@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controllers.NewCustomerController"
-            prefHeight="400.0" prefWidth="600.0">
 
-</AnchorPane>
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="238.0" prefWidth="279.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewCustomerController">
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox layoutX="14.0" layoutY="14.0" prefHeight="84.0" prefWidth="33.0" spacing="10.0">
+               <children>
+                  <MFXTextField fx:id="firstName" floatingText="Name" minHeight="25.0" />
+                  <MFXTextField fx:id="lastName" floatingText="Last Name" minHeight="25.0" />
+                  <MFXTextField fx:id="phone" floatingText="Phone" minHeight="25.0" />
+                  <MFXTextField fx:id="address" floatingText="Address" minHeight="25.0" />
+               </children>
+            </VBox>
+            <VBox layoutX="149.0" layoutY="14.0" prefHeight="84.0" prefWidth="33.0" spacing="10.0">
+               <children>
+                  <MFXTextField fx:id="postalCode" floatingText="Postal Code" minHeight="25.0" />
+                  <MFXTextField fx:id="town" floatingText="Town" minHeight="25.0" />
+               </children>
+            </VBox>
+            <MFXButton layoutX="179.0" layoutY="155.0" onAction="#addNewCustomerIntoDB" text="Save" />
+         </children>
+      </AnchorPane>
+   </center>
+</MFXGenericDialog>

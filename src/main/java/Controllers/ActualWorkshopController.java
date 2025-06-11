@@ -1,6 +1,7 @@
 package Controllers;
 
 import DB.DbConfig;
+import DB.Vendors;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
@@ -25,6 +26,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 
@@ -112,6 +114,21 @@ public class ActualWorkshopController{
 
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
+//        FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/newOrder.fxml"));
+//        MFXGenericDialog dialog = loader.load();
+//        Stage dialogStage = new Stage();
+//        /*
+//        we are telling javafx that new stage should be modal
+//        It will prevent user from interacting with other windows.
+//
+//        Modality.APPLICATION blocks mouse and keyboard input to all other windows in this app.
+//         */
+//        dialogStage.initModality(Modality.APPLICATION_MODAL);
+//        dialogStage.setTitle("New Order");
+//
+//        Scene scene = new Scene(dialog);
+//        dialogStage.setScene(scene);
+//        dialogStage.showAndWait();
     }
 
     public void openWorkOrder(WorkOrder order) throws IOException{

@@ -69,7 +69,7 @@ public class NewOrderController {
     }
 
     public void selectCustomer() throws IOException {
-        FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/customer.fxml"));
+        FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/customers.fxml"));
         MFXGenericDialog dialog = loader.load();
         Stage dialogStage = new Stage();
         /*
@@ -79,7 +79,7 @@ public class NewOrderController {
         Modality.APPLICATION blocks mouse and keyboard input to all other windows in this app.
          */
         dialogStage.initModality(Modality.APPLICATION_MODAL);
-        dialogStage.setTitle("Customer");
+        dialogStage.setTitle("Customers");
 
         Scene scene = new Scene(dialog);
         dialogStage.setScene(scene);
