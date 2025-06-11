@@ -3,8 +3,8 @@ package Controllers;
 import DB.DbConfig;
 import DB.Vendors;
 import Skeletons.Customer;
-import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
+import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
@@ -18,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import javafx.scene.input.MouseEvent;
 import java.sql.*;
 
 
@@ -27,11 +28,32 @@ public class CustomersController {
     private MFXTableView<Customer> table;
     private final ObservableList<Customer> data = FXCollections.observableArrayList();
 
+    private Customer selectedCustomer;
+    public Customer getSelectedCustomer() {
+        return selectedCustomer;
+    }
+
+    public void chooseCustomer(){
+        table.setTableRowFactory( customer ->{
+            MFXTableRow<Customer> row = new MFXTableRow<>(table, customer);
+            row.addEventFilter(MouseEvent.MOUSE_CLICKED, e ->{
+                if (e.getClickCount() == 2){
+                    e.consume();
+                    selectedCustomer = customer;
+                    Stage stage = (Stage) table.getScene().getWindow();
+                    stage.close();
+                }
+            });
+            return  row;
+        });
+    }
+
     public void initialize(){
         table.autosizeColumnsOnInitialization();
         loadTable();
         loadCustomers();
         table.setItems(data);
+        chooseCustomer();
     }
 
     public void loadTable(){
@@ -114,4 +136,7 @@ public class CustomersController {
         data.add(created);
         table.setItems(data);
     }
+
+    
+
 }
