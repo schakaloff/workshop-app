@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Group?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Line?>
@@ -7,13 +8,13 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="720.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrinterController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrinterController">
    <children>
-      <Text layoutX="14.0" layoutY="41.0" text="Teltronics Service Centre">
+      <Text layoutX="14.0" layoutY="36.0" text="Teltronics Service Centre">
          <font>
             <Font size="25.0" />
          </font></Text>
-      <Text layoutX="14.0" layoutY="57.0" text="6 -1551 Sutherland Ave, Kelowna BC V1Y 9M9">
+      <Text layoutX="14.0" layoutY="54.0" text="6 -1551 Sutherland Ave, Kelowna BC V1Y 9M9">
          <font>
             <Font size="11.0" />
          </font></Text>
@@ -22,15 +23,15 @@
             <Font size="11.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="18.0" layoutX="119.0" layoutY="60.0" stroke="BLACK" strokeType="INSIDE" width="184.0" />
-      <Text layoutX="124.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data/Time Recvd: " />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" height="52.0" layoutX="339.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="146.0" />
-      <Text fill="WHITE" layoutX="341.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Work Order" wrappingWidth="145.86399841308594">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="18.0" layoutX="10.0" layoutY="81.0" stroke="BLACK" strokeType="INSIDE" width="184.0" />
+      <Text layoutX="15.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data/Time Recvd: " />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" height="52.0" layoutX="336.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="146.0" />
+      <Text fill="WHITE" layoutX="338.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Work Order" wrappingWidth="145.86399841308594">
          <font>
             <Font size="25.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutX="481.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="4.0" width="110.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutX="475.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="4.0" width="110.0" />
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="10.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="283.0" />
       <Text layoutX="15.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer">
          <font>
@@ -89,38 +90,51 @@
             <Font size="11.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="231.0" layoutX="24.0" layoutY="425.0" stroke="BLACK" strokeType="INSIDE" width="548.0" />
-      <Line endX="448.0" layoutX="124.0" layoutY="524.0" startX="-100.0" />
-      <Line endX="446.0" layoutX="126.0" layoutY="559.0" startX="-100.0" />
-      <Line endX="446.0" layoutX="126.0" layoutY="454.0" startX="-100.0" />
-      <Line endX="445.0" endY="1.0" layoutX="127.0" layoutY="487.0" startX="-103.0" startY="1.0" />
+      <Group layoutX="149.0" layoutY="429.0">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="232.0" layoutX="-109.0" layoutY="-8.0" stroke="BLACK" strokeType="INSIDE" width="400.0" />
+            <Line endX="-251.0" endY="297.0" layoutX="235.0" layoutY="-73.0" startX="-251.0" startY="65.0" />
+            <Line endX="-251.0" endY="297.0" layoutX="190.0" layoutY="-73.0" startX="-251.0" startY="65.0" />
+            <Line endX="299.0" layoutX="-8.0" layoutY="23.0" startX="-100.0" />
+            <Text layoutX="-104.0" layoutY="12.0" strokeType="OUTSIDE" strokeWidth="0.0" text="TechID">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Text>
+            <Text layoutX="-53.0" layoutY="12.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Date">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Text>
+            <Text layoutX="-10.0" layoutY="12.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Work Performed">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Text>
+            <Line endX="299.0" layoutX="-8.0" layoutY="56.0" startX="-100.0" />
+            <Line endX="299.0" layoutX="-8.0" layoutY="89.0" startX="-100.0" />
+            <Line endX="298.0" layoutX="-7.0" layoutY="124.0" startX="-100.0" />
+            <Line endX="298.0" layoutX="-7.0" layoutY="159.0" startX="-100.0" />
+            <Line endX="298.0" layoutX="-7.0" layoutY="191.0" startX="-100.0" />
+         </children>
+      </Group>
       <Text layoutX="300.0" layoutY="218.0" text="Problem:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <TextArea layoutX="298.0" layoutY="224.0" prefHeight="58.0" prefWidth="200.0" style="-fx-border-radius: 4; -fx-border-color: black;" />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="24.0" layoutY="670.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
-      <Line endX="-88.0" endY="19.0" layoutX="130.0" layoutY="677.0" startX="-100.0" />
-      <Line endX="-77.70709228515625" endY="14.70709228515625" layoutX="107.0" layoutY="681.0" startX="-65.0" startY="-4.0" />
-      <Line endX="446.0" layoutX="126.0" layoutY="592.0" startX="-100.0" />
-      <Line endX="446.0" layoutX="125.0" layoutY="625.0" startX="-100.0" />
-      <Line endX="-100.0" endY="230.0" layoutX="179.0" layoutY="426.0" startX="-100.0" />
-      <Line endX="-100.0" endY="230.0" layoutX="231.0" layoutY="425.0" startX="-100.0" />
-      <Text layoutX="31.0" layoutY="445.0" strokeType="OUTSIDE" strokeWidth="0.0" text="TechID">
+      <TextArea layoutX="293.0" layoutY="228.0" prefHeight="58.0" prefWidth="200.0" style="-fx-border-radius: 4; -fx-border-color: black;" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="13.0" layoutY="796.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+      <Text layoutX="151.0" layoutY="686.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1 hour minimum charge applies to all items not covered under manufacture's warranty.">
          <font>
-            <Font size="12.0" />
+            <Font size="9.0" />
          </font>
       </Text>
-      <Text layoutX="92.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Date">
+      <Text layoutX="153.0" layoutY="699.0" strokeType="OUTSIDE" strokeWidth="0.0" text="30 days after a minimum of three notification will become the property of Teltronics.">
          <font>
-            <Font size="12.0" />
+            <Font size="9.0" />
          </font>
       </Text>
-      <Text layoutX="140.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Work Performed">
-         <font>
-            <Font size="12.0" />
-         </font>
-      </Text>
+      <Text fx:id="customerNameText" layoutX="14.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="162.17499542236328" />
    </children>
 </AnchorPane>
