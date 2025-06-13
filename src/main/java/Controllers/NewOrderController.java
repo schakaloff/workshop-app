@@ -46,6 +46,7 @@ public class NewOrderController {
     @FXML private MFXGenericDialog dialogInstance;
     @FXML private CustomersController customerCntrl;
 
+
     public void setMainController(ActualWorkshopController controller) {
         this.mainController = controller;
     }
@@ -92,16 +93,15 @@ public class NewOrderController {
         dialogStage.setScene(scene);
         dialogStage.showAndWait();
 
-
         CustomersController picker = loader.getController();
         Customer cus = picker.getSelectedCustomer();
-        idTFX        .setText(cus.getId());
-        firstNameTXF .setText(cus.getFirstName());
-        lastNameTXF  .setText(cus.getLastName());
-        phoneTFX     .setText(cus.getPhone());
-        addressTFX   .setText(cus.getAddress());
-        townTFX      .setText(cus.getTown());
-        zipTFX       .setText(cus.getPostalCode());
+        idTFX.setText(cus.getId());
+        firstNameTXF.setText(cus.getFirstName());
+        lastNameTXF.setText(cus.getLastName());
+        phoneTFX.setText(cus.getPhone());
+        addressTFX.setText(cus.getAddress());
+        townTFX.setText(cus.getTown());
+        zipTFX.setText(cus.getPostalCode());
 
     }
 
@@ -113,14 +113,24 @@ public class NewOrderController {
         String serialNumberDB = serialNumber.getText();
         String problemDescDB = problemDesc.getText();
 
+        String cusID = idTFX.getText();
+        String cusFirstName = firstNameTXF.getText();
+        String cusLastName = lastNameTXF.getText();
+        String cusPhone = phoneTFX.getText();
+        String cusAddress = addressTFX.getText();
+        String cusTown = townTFX.getText();
+        String cusZIP = zipTFX.getText();
+
+
+
         int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB);
-        mainController.loadOrders();
+        mainController.loadOrdersIntoTable();
 
         String createdAtDB = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, modelDB, serialNumberDB, problemDescDB);
-
+        Customer co = new Customer(cusID, cusFirstName, cusLastName,"", cusPhone, "", cusAddress, cusTown, cusZIP);
         Window owner = dialogInstance.getScene().getWindow();
-        Print.printWorkOrder(wo, owner);
+        Print.printWorkOrder(wo, co, owner);
 
         closeDialog();
     }

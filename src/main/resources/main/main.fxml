@@ -30,17 +30,17 @@
                               <Font size="15.0" />
                            </font>
                         </Label>
-                        <JFXButton alignment="CENTER" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Dashboard">
+                        <JFXButton alignment="CENTER" onAction="#LoadOrders" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Dashboard">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
-                        <JFXButton alignment="CENTER" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Orders">
+                        <JFXButton alignment="CENTER" onAction="#LoadCustomers" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Customers">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
-                        <JFXButton alignment="CENTER" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Stocks">
+                        <JFXButton alignment="CENTER" onAction="#LoadInvoices" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Invoices">
                            <font>
                               <Font size="14.0" />
                            </font>

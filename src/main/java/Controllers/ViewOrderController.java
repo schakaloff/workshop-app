@@ -1,5 +1,6 @@
 package Controllers;
 
+import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
@@ -33,6 +34,7 @@ public class ViewOrderController {
     @FXML private TextArea problemDesc;
 
     private WorkOrder currentWorkOrder;
+    private Customer currentCustomer;
     @FXML private TabPane tabPane;
 
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
@@ -51,9 +53,10 @@ public class ViewOrderController {
     public void printOrder() throws Exception {
 
         WorkOrder wo = currentWorkOrder;
+        Customer co = currentCustomer;
         Window owner = dialogInstance.getScene().getWindow();
         owner = dialogInstance.getScene().getWindow();
-        Print.printWorkOrder(wo, owner);
+        Print.printWorkOrder(wo, co, owner);
 
 //        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/printOrder.fxml"));
 //        Parent printNode = loader.load();

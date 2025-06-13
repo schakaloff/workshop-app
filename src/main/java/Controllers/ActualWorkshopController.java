@@ -56,10 +56,25 @@ public class ActualWorkshopController{
 
         table.autosizeColumnsOnInitialization(); //autosize table columns
         loadTable(); //load table
-        loadOrders(); //load orders into table
+        loadOrdersIntoTable(); //load orders into table
         table.setItems(data);
+
         viewOrder(table);
 
+
+    }
+
+
+    public void LoadOrders(){
+
+    }
+
+    public void LoadCustomers(){
+        table.getTableColumns().clear();
+        table.getItems().clear();
+    }
+
+    public void LoadInvoices(){
 
     }
 
@@ -113,6 +128,7 @@ public class ActualWorkshopController{
 
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
+
 //        FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/newOrder.fxml"));
 //        MFXGenericDialog dialog = loader.load();
 //        Stage dialogStage = new Stage();
@@ -151,7 +167,7 @@ public class ActualWorkshopController{
 
     }
 
-    public void loadOrders() {
+    public void loadOrdersIntoTable() {
         String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, model, serialNumber, problemDesc FROM work_order";
         data.clear();
         try {
