@@ -50,13 +50,13 @@ public class CustomersController {
 
     public void initialize(){
         table.autosizeColumnsOnInitialization();
-        loadTable();
+        loadCustomersTable();
         loadCustomers();
         table.setItems(data);
         chooseCustomer();
     }
 
-    public void loadTable(){
+    public void loadCustomersTable(){
         MFXTableColumn<Customer> id = new MFXTableColumn<>("ID", true);
         MFXTableColumn<Customer> firstName = new MFXTableColumn<>("First Name", true);
         MFXTableColumn<Customer> lastName = new MFXTableColumn<>("Last Name", true);

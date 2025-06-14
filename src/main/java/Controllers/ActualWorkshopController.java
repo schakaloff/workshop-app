@@ -1,7 +1,7 @@
 package Controllers;
 
 import DB.DbConfig;
-import DB.Vendors;
+import Controllers.CustomersController;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
@@ -26,7 +26,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.stage.Modality;
+
 import javafx.stage.Stage;
 
 
@@ -53,30 +53,25 @@ public class ActualWorkshopController{
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         avatar(techAvatar); //set avatar's pic
-
-        table.autosizeColumnsOnInitialization(); //autosize table columns
-        loadTable(); //load table
-        loadOrdersIntoTable(); //load orders into table
-        table.setItems(data);
-
-        viewOrder(table);
-
-
+        LoadOrders();
     }
 
-
     public void LoadOrders(){
-
+        table.autosizeColumnsOnInitialization(); //autosize table columns
+        loadOrdersTable(); //load table
+        loadOrdersIntoTable(); //load orders into table
+        table.setItems(data);
+        viewOrder(table);
     }
 
     public void LoadCustomers(){
         table.getTableColumns().clear();
         table.getItems().clear();
+
+        table.autosizeColumnsOnInitialization(); //autosize table columns
     }
 
-    public void LoadInvoices(){
-
-    }
+    public void LoadInvoices(){}
 
     public void viewOrder(MFXTableView<WorkOrder> table){
         table.setTableRowFactory(workOrder -> {
@@ -96,7 +91,7 @@ public class ActualWorkshopController{
         });
     }
 
-    public void loadTable(){
+    public void loadOrdersTable(){
         MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder", true);
         MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", true);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", true);
