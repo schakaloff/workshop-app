@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
 <?import io.github.palexdev.mfxcore.controls.Text?>
@@ -43,8 +44,17 @@
                         <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="62.0" layoutY="61.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="72.0" layoutY="88.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="124.0" layoutY="119.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-                        <MFXButton layoutX="534.0" layoutY="345.0" prefHeight="36.0" prefWidth="109.0" text="Save" />
-                        <MFXButton layoutX="565.0" layoutY="319.0" onAction="#printOrder" text="Print" />
+                        <MFXButton layoutX="487.0" layoutY="363.0" prefHeight="36.0" prefWidth="109.0" text="Save" />
+                        <MFXButton layoutX="596.0" layoutY="368.0" onAction="#printOrder" text="Print" />
+                        <MFXTextField fx:id="idTFX" floatMode="BORDER" floatingText="ID" layoutX="427.0" layoutY="56.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="firstNameTXF" floatMode="BORDER" floatingText="Name" layoutX="427.0" layoutY="86.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="lastNameTXF" floatMode="BORDER" floatingText="Last Name" layoutX="427.0" layoutY="117.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="phoneTFX" floatMode="BORDER" floatingText="Phone" layoutX="427.0" layoutY="149.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="addressTFX" floatMode="BORDER" floatingText="Address" layoutX="427.0" layoutY="181.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="townTFX" floatMode="BORDER" floatingText="Town" layoutX="427.0" layoutY="212.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="zipTFX" floatMode="BORDER" floatingText="ZIP" layoutX="427.0" layoutY="245.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXComboBox fx:id="vendorId" layoutX="267.0" layoutY="27.0" />
+                        <MFXTextField fx:id="warrantyNumber" layoutX="256.0" layoutY="80.0" prefHeight="51.0" prefWidth="146.0" />
                      </children>
                   </AnchorPane>
                </content>

@@ -12,24 +12,36 @@ public class WorkOrder {
     private final StringProperty status;
     private final StringProperty createdAt; //
 
+    private final StringProperty vendorId;
+    private final StringProperty warrantyNumber;
+
     private final StringProperty type;
     private final StringProperty model;
     private final StringProperty serialNumber;
     private final StringProperty problemDesc;
 
-    public WorkOrder(String workorderNumber, String status, String type, String createdAt,  String model, String serialNumber, String problemDesc){
+    public WorkOrder(String workorderNumber, String status, String type, String createdAt, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc){
         this.workorderNumber = new SimpleStringProperty(workorderNumber);
-        this.status = new SimpleStringProperty(status);
-        this.type = new SimpleStringProperty(type);
-        this.createdAt = new SimpleStringProperty(createdAt);
+        this.status          = new SimpleStringProperty(status);
+        this.type            = new SimpleStringProperty(type);
+        this.createdAt       = new SimpleStringProperty(createdAt);
 
+        this.vendorId        = new SimpleStringProperty(vendorId);
+        this.warrantyNumber  = new SimpleStringProperty(warrantyNumber);
 
-        this.model = new SimpleStringProperty(model);
-        this.serialNumber = new SimpleStringProperty(serialNumber);
-        this.problemDesc = new SimpleStringProperty(problemDesc);
+        this.model           = new SimpleStringProperty(model);
+        this.serialNumber    = new SimpleStringProperty(serialNumber);
+        this.problemDesc     = new SimpleStringProperty(problemDesc);
 
     }
 
+    public StringProperty vendorIdProperty(){return vendorId;}
+    public String getVendorId(){return vendorId.get();}
+    public void setVendorId(String value){vendorId.set(value);}
+
+    public StringProperty  warrantyNumberProperty(){return warrantyNumber;}
+    public String getWarrantyNumber(){return warrantyNumber.get();}
+    public void setWarrantyNumber(String value){warrantyNumber.set(value);}
 
     /*
     for javafx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters

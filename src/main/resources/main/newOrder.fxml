@@ -40,14 +40,14 @@
             <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="110.0" layoutY="95.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
             <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="110.0" layoutY="125.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
             <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="110.0" layoutY="155.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXComboBox fx:id="vendorID" layoutX="110.0" layoutY="62.0" minHeight="25.0" prefHeight="25.0" prefWidth="124.0" promptText="Vendor" />
+            <MFXComboBox fx:id="vendorId" layoutX="110.0" layoutY="62.0" minHeight="25.0" prefHeight="25.0" prefWidth="124.0" promptText="Vendor" />
             <Text layoutX="4.0" layoutY="19.0" text="Created By:">
                <font>
                   <Font size="14.0" />
                </font>
             </Text>
             <MFXTextField fx:id="TechNewOrder" editable="false" floatMode="BORDER" layoutX="85.0" layoutY="4.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="33.0" />
-            <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Number" layoutX="243.0" layoutY="65.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+            <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Number" layoutX="243.0" layoutY="64.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
             <MFXButton layoutX="572.0" layoutY="376.0" onAction="#makeNewOrder" text="Save" />
             <MFXTextField fx:id="firstNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Name" layoutX="417.0" layoutY="71.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
             <MFXButton layoutX="405.0" layoutY="258.0" onAction="#selectCustomer" text="Choose Customer" />

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.Group?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Rectangle?>
@@ -10,92 +9,92 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrinterController">
    <children>
-      <Text layoutX="14.0" layoutY="36.0" text="Teltronics Service Centre">
+      <Text layoutX="1.0" layoutY="28.0" text="Teltronics Service Centre">
          <font>
             <Font size="25.0" />
          </font></Text>
-      <Text layoutX="14.0" layoutY="54.0" text="6 -1551 Sutherland Ave, Kelowna BC V1Y 9M9">
+      <Text layoutX="2.0" layoutY="44.0" text="6 -1551 Sutherland Ave, Kelowna BC V1Y 9M9">
          <font>
             <Font size="11.0" />
          </font></Text>
-      <Text layoutX="14.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Recvd By: ">
+      <Text layoutX="1.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Recvd By: ">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="18.0" layoutX="10.0" layoutY="81.0" stroke="BLACK" strokeType="INSIDE" width="184.0" />
-      <Text layoutX="15.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data/Time Recvd: " />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" height="52.0" layoutX="336.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="146.0" />
-      <Text fill="WHITE" layoutX="338.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Work Order" wrappingWidth="145.86399841308594">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="18.0" layoutX="2.0" layoutY="81.0" stroke="BLACK" strokeType="INSIDE" width="234.0" />
+      <Text layoutX="3.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Data/Time Recvd: " />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" height="52.0" layoutX="318.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="162.0" />
+      <Text fill="WHITE" layoutX="331.0" layoutY="49.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Work Order" wrappingWidth="145.86399841308594">
          <font>
             <Font size="25.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutX="475.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="4.0" width="110.0" />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="10.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="283.0" />
-      <Text layoutX="15.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutX="476.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="4.0" width="117.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="2.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
+      <Text layoutX="3.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="14.0" layoutY="164.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Contact">
+      <Text layoutX="3.0" layoutY="164.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Contact">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="230.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CustID">
+      <Text layoutX="218.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CustID">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="230.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phone">
+      <Text layoutX="218.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phone">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="300.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
-      <Text layoutX="303.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Repair Location">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="304.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
+      <Text layoutX="305.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Repair Location">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="10.0" layoutY="211.0" strokeType="OUTSIDE" strokeWidth="0.0" text="On-Site">
+      <Text layoutX="3.0" layoutY="211.0" strokeType="OUTSIDE" strokeWidth="0.0" text="On-Site">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="58.0" layoutX="10.0" layoutY="224.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
-      <Text layoutX="11.0" layoutY="236.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty:">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="3.0" layoutY="224.0" stroke="BLACK" strokeType="INSIDE" width="591.0" />
+      <Text layoutX="6.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="12.0" layoutY="254.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty Number:">
+      <Text layoutX="159.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty Number:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="12.0" layoutY="272.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:">
+      <Text layoutX="359.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="9.0" layoutY="305.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Additional Products:">
+      <Text layoutX="4.0" layoutY="387.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Additional Products:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="9.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition:">
+      <Text layoutX="4.0" layoutY="403.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Group layoutX="149.0" layoutY="429.0">
+      <Group layoutX="112.0" layoutY="495.0">
          <children>
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="232.0" layoutX="-109.0" layoutY="-8.0" stroke="BLACK" strokeType="INSIDE" width="400.0" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="232.0" layoutX="-109.0" layoutY="-8.0" stroke="BLACK" strokeType="INSIDE" width="590.0" />
             <Line endX="-251.0" endY="297.0" layoutX="235.0" layoutY="-73.0" startX="-251.0" startY="65.0" />
             <Line endX="-251.0" endY="297.0" layoutX="190.0" layoutY="-73.0" startX="-251.0" startY="65.0" />
-            <Line endX="299.0" layoutX="-8.0" layoutY="23.0" startX="-100.0" />
+            <Line endX="489.0" layoutX="-8.0" layoutY="23.0" startX="-100.0" />
             <Text layoutX="-104.0" layoutY="12.0" strokeType="OUTSIDE" strokeWidth="0.0" text="TechID">
                <font>
                   <Font size="12.0" />
@@ -111,30 +110,65 @@
                   <Font size="12.0" />
                </font>
             </Text>
-            <Line endX="299.0" layoutX="-8.0" layoutY="56.0" startX="-100.0" />
-            <Line endX="299.0" layoutX="-8.0" layoutY="89.0" startX="-100.0" />
-            <Line endX="298.0" layoutX="-7.0" layoutY="124.0" startX="-100.0" />
-            <Line endX="298.0" layoutX="-7.0" layoutY="159.0" startX="-100.0" />
-            <Line endX="298.0" layoutX="-7.0" layoutY="191.0" startX="-100.0" />
+            <Line endX="489.0" layoutX="-8.0" layoutY="56.0" startX="-100.0" />
+            <Line endX="489.0" layoutX="-8.0" layoutY="89.0" startX="-100.0" />
+            <Line endX="488.0" layoutX="-7.0" layoutY="124.0" startX="-100.0" />
+            <Line endX="488.0" layoutX="-7.0" layoutY="159.0" startX="-100.0" />
+            <Line endX="488.0" layoutX="-7.0" layoutY="191.0" startX="-100.0" />
          </children>
       </Group>
-      <Text layoutX="300.0" layoutY="218.0" text="Problem:">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="13.0" layoutY="796.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+      <Text layoutX="218.0" layoutY="810.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1 hour minimum charge applies to all items not covered under manufacture's warranty.">
+         <font>
+            <Font size="9.0" />
+         </font>
+      </Text>
+      <Text layoutX="220.0" layoutY="823.0" strokeType="OUTSIDE" strokeWidth="0.0" text="30 days after a minimum of three notification will become the property of Teltronics.">
+         <font>
+            <Font size="9.0" />
+         </font>
+      </Text>
+      <Text fx:id="customerNameText" layoutX="4.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="162.17499542236328" />
+      <Text layoutX="155.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <TextArea layoutX="293.0" layoutY="228.0" prefHeight="58.0" prefWidth="200.0" style="-fx-border-radius: 4; -fx-border-color: black;" />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="13.0" layoutY="796.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
-      <Text layoutX="151.0" layoutY="686.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1 hour minimum charge applies to all items not covered under manufacture's warranty.">
+      <Text layoutX="293.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number:">
          <font>
-            <Font size="9.0" />
+            <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="153.0" layoutY="699.0" strokeType="OUTSIDE" strokeWidth="0.0" text="30 days after a minimum of three notification will become the property of Teltronics.">
+      <Text layoutX="431.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:">
          <font>
-            <Font size="9.0" />
+            <Font size="11.0" />
          </font>
       </Text>
-      <Text fx:id="customerNameText" layoutX="14.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="162.17499542236328" />
+      <Text layoutX="1.0" layoutY="59.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ph: (250) 860-9888">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text fx:id="workIDText" layoutX="479.0" layoutY="52.0" smooth="false" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="110.17499542236328">
+         <font>
+            <Font size="32.0" />
+         </font>
+      </Text>
+      <Text fx:id="custIDText" layoutX="221.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" />
+      <Text fx:id="contactText" layoutX="4.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="phoneText" layoutX="193.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="warrantyText" layoutX="60.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="warrantyNumText" layoutX="258.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text layoutX="386.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="None" />
+      <Text fx:id="descriptionText" layoutX="155.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="serialNumberText" layoutX="292.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text layoutX="4.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text fx:id="typeText" layoutX="4.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="dateText" layoutX="114.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="problemTextArea" layoutX="431.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="137.13000106811523" />
    </children>
 </AnchorPane>

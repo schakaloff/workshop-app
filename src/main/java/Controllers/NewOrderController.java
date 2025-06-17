@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 public class NewOrderController {
     @FXML private MFXTextField TechNewOrder;
 
-    @FXML private MFXComboBox<String> vendorID;
+    @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXCheckbox warrantyCheckBox;
     @FXML private MFXTextField warrantyNumber;
 
@@ -58,20 +58,20 @@ public class NewOrderController {
     public void initialize() throws IOException {
         TechNewOrder.setText(LoginController.tech);
 
-        vendorID.setDisable(true);
+        vendorId.setDisable(true);
         warrantyNumber.setDisable(true);
 
         //vendorID.getItems().setAll(Vendors.loadIntoBox("src/main/resources/VendorsList.txt"));
-        Vendors.addNewVendor(vendorID);
+        Vendors.addNewVendor(vendorId);
 
     }
 
     public void warrantySelected(){
         if(!warrantyCheckBox.isSelected()){
-            vendorID.setDisable(true);
+            vendorId.setDisable(true);
             warrantyNumber.setDisable(true);
         }else{
-            vendorID.setDisable(false);
+            vendorId.setDisable(false);
             warrantyNumber.setDisable(false);
         }
     }
@@ -113,6 +113,9 @@ public class NewOrderController {
         String serialNumberDB = serialNumber.getText();
         String problemDescDB = problemDesc.getText();
 
+        String vendorIdDb = vendorId.getText();
+        String warrantyDB = warrantyNumber.getText();
+
         String cusID = idTFX.getText();
         String cusFirstName = firstNameTXF.getText();
         String cusLastName = lastNameTXF.getText();
@@ -123,11 +126,12 @@ public class NewOrderController {
 
 
 
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB);
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, vendorIdDb, warrantyDB, modelDB, serialNumberDB, problemDescDB);
         mainController.loadOrdersIntoTable();
 
         String createdAtDB = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, modelDB, serialNumberDB, problemDescDB);
+        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, vendorIdDb, warrantyDB, modelDB, serialNumberDB, problemDescDB
+        );
         Customer co = new Customer(cusID, cusFirstName, cusLastName,"", cusPhone, "", cusAddress, cusTown, cusZIP);
         Window owner = dialogInstance.getScene().getWindow();
         Print.printWorkOrder(wo, co, owner);

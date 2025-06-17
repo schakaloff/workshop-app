@@ -8,29 +8,40 @@ import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
 
 public class PrinterController {
-    @FXML private Label lblWorkorderNumber;
-    @FXML private Label lblCreatedAt;
-    @FXML private Label lblModel;
-    @FXML private Label lblSerialNumber;
-    @FXML private TextArea ProblemDesc;
+    @FXML private Text workIDText;
+    @FXML private Text dateText;
 
     @FXML private Text customerNameText;
+    @FXML private Text custIDText;
+    @FXML private Text contactText;
+    @FXML private Text phoneText;
+
+    @FXML private Text warrantyText;
+    @FXML private Text warrantyNumText;
+
+    @FXML private Text typeText;
+    @FXML private Text descriptionText;
+    @FXML private Text serialNumberText;
+    @FXML private Text problemTextArea;
+
 
     public void initData(WorkOrder wo, Customer co){
-//        lblWorkorderNumber.setText("WO#: "     + wo.getWorkorderNumber());
-//        lblCreatedAt.setText("Created: "+ wo.getCreatedAt());
-//        lblModel.setText("Model: "  + wo.getModel());
-//        lblSerialNumber.setText("SN: "     + wo.getSerialNumber());
-//        ProblemDesc.setText("Problem: "+ wo.getProblemDesc());
+        String firstName = co.getFirstName();
+        String lastName = co.getLastName();
+        String fullName = lastName + ", " + firstName;
+        String firstNLast = firstName +" "+ lastName;
 
-//        String firstName = co.getFirstName();
-//        String lastName = co.getLastName();
-//        String fullName = lastName + ", " + firstName;
-//
-//
-//        customerNameText.setText(fullName);
+        workIDText.setText(wo.getWorkorderNumber());
+        dateText.setText(wo.getCreatedAt());
+        customerNameText.setText(fullName);
+        custIDText.setText(co.getId());
+        contactText.setText(firstNLast);
+        phoneText.setText("+1" + co.getPhone());
 
-
+        typeText.setText(wo.getType());
+        descriptionText.setText(wo.getModel());
+        serialNumberText.setText(wo.getSerialNumber());
+        problemTextArea.setText(wo.getProblemDesc());
 
     }
 }

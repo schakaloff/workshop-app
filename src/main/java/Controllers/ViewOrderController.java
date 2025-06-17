@@ -24,8 +24,7 @@ public class ViewOrderController {
     @FXML private ActualWorkshopController mainController;
     @FXML private MFXGenericDialog dialogInstance;
 
-    @FXML private MFXComboBox<String> vendorID;
-    @FXML private MFXCheckbox warrantyCheckBox;
+    @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXTextField warrantyNumber;
 
     @FXML private MFXTextField type;
@@ -47,11 +46,15 @@ public class ViewOrderController {
         model.setText(wo.getModel());
         serialNumber.setText(wo.getSerialNumber());
         problemDesc.setText(wo.getProblemDesc());
+
+        vendorId.setText(wo.getVendorId());
+        warrantyNumber.setText(wo.getWarrantyNumber());
+
+
         this.currentWorkOrder = wo;
     }
     @FXML
     public void printOrder() throws Exception {
-
         WorkOrder wo = currentWorkOrder;
         Customer co = currentCustomer;
         Window owner = dialogInstance.getScene().getWindow();
