@@ -79,7 +79,7 @@ public class ActualWorkshopController{
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
-                   // System.out.println("row " + workOrder.getWorkorderNumber());
+                    // System.out.println("row " + workOrder.getWorkorderNumber());
                     try {
                         openWorkOrder(workOrder);
                     } catch (IOException ex) {
@@ -163,7 +163,10 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersIntoTable() {
-        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, model, serialNumber, problemDesc FROM work_order";
+        String sql = "SELECT workorder, status, type, "
+                + "DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, "
+                + "vendorId, warrantyNumber, model, serialNumber, problemDesc "
+                + "FROM work_order";
         data.clear();
         try {
             Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
@@ -175,6 +178,8 @@ public class ActualWorkshopController{
                         rs.getString("status"),
                         rs.getString("type"),
                         rs.getString("createdAt"),
+                        rs.getString("vendorId"),
+                        rs.getString("warrantyNumber"),
                         rs.getString("model"),
                         rs.getString("serialNumber"),
                         rs.getString("problemDesc")
@@ -189,16 +194,19 @@ public class ActualWorkshopController{
         }
     }
 
-    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc) {
-        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, createdAt) VALUES (?, ?, ?, ?, ?, NOW())";
-        try {
+    public int insertOrderIntoDatabase(String status, String type, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc) {
+        String sql = "INSERT INTO work_order "
+                + "(status, type, vendorId, warrantyNumber, model, serialNumber, problemDesc, createdAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";        try {
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, status);
             stmt.setString(2, type);
-            stmt.setString(3, model);
-            stmt.setString(4, serialNumber);
-            stmt.setString(5, problemDesc);
+            stmt.setString(3, vendorId);
+            stmt.setString(4, warrantyNumber);
+            stmt.setString(5, model);
+            stmt.setString(6, serialNumber);
+            stmt.setString(7, problemDesc);
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
