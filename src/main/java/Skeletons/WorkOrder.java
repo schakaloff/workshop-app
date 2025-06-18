@@ -1,5 +1,7 @@
 package Skeletons;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -19,20 +21,34 @@ public class WorkOrder {
     private final StringProperty model;
     private final StringProperty serialNumber;
     private final StringProperty problemDesc;
+    private final IntegerProperty customerId;
 
-    public WorkOrder(String workorderNumber, String status, String type, String createdAt, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc){
+    public WorkOrder(String workorderNumber, String status, String type, String createdAt, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc, int customerId){
         this.workorderNumber = new SimpleStringProperty(workorderNumber);
-        this.status          = new SimpleStringProperty(status);
-        this.type            = new SimpleStringProperty(type);
-        this.createdAt       = new SimpleStringProperty(createdAt);
+        this.status = new SimpleStringProperty(status);
+        this.type = new SimpleStringProperty(type);
+        this.createdAt = new SimpleStringProperty(createdAt);
 
-        this.vendorId        = new SimpleStringProperty(vendorId);
-        this.warrantyNumber  = new SimpleStringProperty(warrantyNumber);
+        this.vendorId = new SimpleStringProperty(vendorId);
+        this.warrantyNumber = new SimpleStringProperty(warrantyNumber);
 
-        this.model           = new SimpleStringProperty(model);
-        this.serialNumber    = new SimpleStringProperty(serialNumber);
-        this.problemDesc     = new SimpleStringProperty(problemDesc);
+        this.model = new SimpleStringProperty(model);
+        this.serialNumber = new SimpleStringProperty(serialNumber);
+        this.problemDesc = new SimpleStringProperty(problemDesc);
+        this.customerId = new SimpleIntegerProperty(customerId);
 
+    }
+
+    public int getCustomerId() {
+        return customerId.get();
+    }
+
+    public void setCustomerId(int value) {
+        customerId.set(value);
+    }
+
+    public IntegerProperty customerIdProperty() {
+        return customerId;
     }
 
     public StringProperty vendorIdProperty(){return vendorId;}

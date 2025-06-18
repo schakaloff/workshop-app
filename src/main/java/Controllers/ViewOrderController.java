@@ -32,6 +32,15 @@ public class ViewOrderController {
     @FXML private MFXTextField serialNumber;
     @FXML private TextArea problemDesc;
 
+    @FXML private MFXTextField idTFX;
+    @FXML private MFXTextField firstNameTXF;
+    @FXML private MFXTextField lastNameTXF;
+    @FXML private MFXTextField phoneTFX;
+    @FXML private MFXTextField addressTFX;
+    @FXML private MFXTextField townTFX;
+    @FXML private MFXTextField zipTFX;
+
+
     private WorkOrder currentWorkOrder;
     private Customer currentCustomer;
     @FXML private TabPane tabPane;
@@ -41,7 +50,7 @@ public class ViewOrderController {
 
     public void initialize(){tabPane.setFocusTraversable(false);}
 
-    public void initData(WorkOrder wo){
+    public void initData(WorkOrder wo, Customer co){
         type.setText(wo.getType());
         model.setText(wo.getModel());
         serialNumber.setText(wo.getSerialNumber());
@@ -50,8 +59,17 @@ public class ViewOrderController {
         vendorId.setText(wo.getVendorId());
         warrantyNumber.setText(wo.getWarrantyNumber());
 
+        idTFX.setText(co.getId());
+        firstNameTXF.setText(co.getFirstName());
+        lastNameTXF.setText(co.getLastName());
+        phoneTFX.setText(co.getPhone());
+        addressTFX.setText(co.getAddress());
+        townTFX.setText(co.getTown());
+        zipTFX.setText(co.getPostalCode());
+
 
         this.currentWorkOrder = wo;
+        this.currentCustomer = co;
     }
     @FXML
     public void printOrder() throws Exception {

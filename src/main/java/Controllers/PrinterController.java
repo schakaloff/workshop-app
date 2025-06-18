@@ -38,6 +38,10 @@ public class PrinterController {
         contactText.setText(firstNLast);
         phoneText.setText("+1" + co.getPhone());
 
+
+        warrantyText.setText(wo.getVendorId());
+        warrantyNumText.setText(wo.getWarrantyNumber());
+
         typeText.setText(wo.getType());
         descriptionText.setText(wo.getModel());
         serialNumberText.setText(wo.getSerialNumber());

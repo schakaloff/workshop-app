@@ -2,6 +2,7 @@ package Controllers;
 
 import DB.DbConfig;
 import Controllers.CustomersController;
+import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
@@ -45,6 +46,7 @@ public class ActualWorkshopController{
 
 
     @FXML private MFXTableView<WorkOrder> table;
+    CustomersController co;
 
 
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
@@ -73,15 +75,15 @@ public class ActualWorkshopController{
 
     public void LoadInvoices(){}
 
-    public void viewOrder(MFXTableView<WorkOrder> table){
+    public void viewOrder(MFXTableView<WorkOrder> table) {
         table.setTableRowFactory(workOrder -> {
             MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, workOrder);
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
-                    // System.out.println("row " + workOrder.getWorkorderNumber());
                     try {
-                        openWorkOrder(workOrder);
+                        Customer customer = getCustomerById(workOrder.getCustomerId());
+                        openWorkOrder(workOrder, customer);
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -89,6 +91,100 @@ public class ActualWorkshopController{
             });
             return row;
         });
+    }
+    public Customer getCustomerById(int customerId) {
+        String sql = "SELECT * FROM customer WHERE id = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Customer c = new Customer(
+                        rs.getString("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        "",
+                        rs.getString("phone"),
+                        "",
+                        rs.getString("address"),
+                        rs.getString("postal_code"),
+                        rs.getString("town")
+
+                );
+                rs.close();
+                stmt.close();
+                conn.close();
+                return c;
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void loadOrdersIntoTable() {
+        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id FROM work_order";
+        data.clear();
+        try {
+            Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                WorkOrder wo = new WorkOrder(
+                        rs.getString("workorder"),
+                        rs.getString("status"),
+                        rs.getString("type"),
+                        rs.getString("createdAt"),
+                        rs.getString("vendorId"),
+                        rs.getString("warrantyNumber"),
+                        rs.getString("model"),
+                        rs.getString("serialNumber"),
+                        rs.getString("problemDesc"),
+                        rs.getInt("customer_id")
+                );
+                data.add(wo);
+            }
+            rs.close();
+            stmt.close();
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println("issue during loading into table");
+        }
+    }
+
+    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber) {
+        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, status);
+            stmt.setString(2, type);
+            stmt.setString(3, model);
+            stmt.setString(4, serialNumber);
+            stmt.setString(5, problemDesc);
+            stmt.setInt(6, customerId);
+            stmt.setString(7, vendorId);
+            stmt.setString(8, warrantyNumber);
+            stmt.executeUpdate();
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                int id = rs.getInt(1);
+                rs.close();
+                stmt.close();
+                conn.close();
+                return id;
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println("issues during inserting into table");
+        }
+        return -1;
     }
 
     public void loadOrdersTable(){
@@ -141,7 +237,7 @@ public class ActualWorkshopController{
 //        dialogStage.showAndWait();
     }
 
-    public void openWorkOrder(WorkOrder order) throws IOException{
+    public void openWorkOrder(WorkOrder order, Customer co) throws IOException{
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
 
@@ -151,7 +247,7 @@ public class ActualWorkshopController{
         ViewOrderController dialogController = loader.getController();
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
-        dialogController.initData(order);
+        dialogController.initData(order, co);
 
         dialog.setOpacity(0);
         dialog.setScaleX(0.8);
@@ -160,78 +256,6 @@ public class ActualWorkshopController{
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
 
-    }
-
-    public void loadOrdersIntoTable() {
-        String sql = "SELECT workorder, status, type, "
-                + "DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, "
-                + "vendorId, warrantyNumber, model, serialNumber, problemDesc "
-                + "FROM work_order";
-        data.clear();
-        try {
-            Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                WorkOrder wo = new WorkOrder(
-                        rs.getString("workorder"),
-                        rs.getString("status"),
-                        rs.getString("type"),
-                        rs.getString("createdAt"),
-                        rs.getString("vendorId"),
-                        rs.getString("warrantyNumber"),
-                        rs.getString("model"),
-                        rs.getString("serialNumber"),
-                        rs.getString("problemDesc")
-                );
-                data.add(wo);
-            }
-            rs.close();
-            stmt.close();
-            connection.close();
-        } catch (SQLException e) {
-            System.out.println("issue during loaders");
-        }
-    }
-
-    public int insertOrderIntoDatabase(String status, String type, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc) {
-        String sql = "INSERT INTO work_order "
-                + "(status, type, vendorId, warrantyNumber, model, serialNumber, problemDesc, createdAt) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, status);
-            stmt.setString(2, type);
-            stmt.setString(3, vendorId);
-            stmt.setString(4, warrantyNumber);
-            stmt.setString(5, model);
-            stmt.setString(6, serialNumber);
-            stmt.setString(7, problemDesc);
-            stmt.executeUpdate();
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    int newId = rs.getInt(1);
-                    stmt.close();
-                    conn.close();
-                    return newId;
-                }
-            }
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("issue during inserting");
-        }
-        return -1;
-    }
-
-
-    public void signOut(MouseEvent e) throws IOException { //sign out button
-        LoginController.tech = null;
-        Parent root = FXMLLoader.load(Main.class.getResource("/main/login.fxml"));
-        Stage stage = (Stage)((Node)e.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
     }
 
     public void avatar(Circle techAvatar){
@@ -257,5 +281,13 @@ public class ActualWorkshopController{
         // Play both at once
         ParallelTransition pt = new ParallelTransition(fade, scale);
         pt.play();
+    }
+    public void signOut(MouseEvent e) throws IOException { //sign out button
+        LoginController.tech = null;
+        Parent root = FXMLLoader.load(Main.class.getResource("/main/login.fxml"));
+        Stage stage = (Stage)((Node)e.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 }
