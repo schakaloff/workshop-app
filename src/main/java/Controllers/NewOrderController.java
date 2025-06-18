@@ -108,34 +108,19 @@ public class NewOrderController {
 
     @FXML
     public void makeNewOrder() throws Exception {
-        String typeDB = type.getText();
-        String modelDB = model.getText();
-        String serialNumberDB = serialNumber.getText();
-        String problemDescDB = problemDesc.getText();
+        String typeDB          = type.getText();
+        String modelDB         = model.getText();
+        String serialNumberDB  = serialNumber.getText();
+        String problemDescDB   = problemDesc.getText();
+        int customerId         = Integer.parseInt(idTFX.getText());
+        String vendorIdDb      = vendorId.getText();
+        String warrantyNumberDb= warrantyNumber.getText();
 
-        String vendorIdDb = vendorId.getText();
-        String warrantyDB = warrantyNumber.getText();
-
-        String cusID = idTFX.getText();
-        String cusFirstName = firstNameTXF.getText();
-        String cusLastName = lastNameTXF.getText();
-        String cusPhone = phoneTFX.getText();
-        String cusAddress = addressTFX.getText();
-        String cusTown = townTFX.getText();
-        String cusZIP = zipTFX.getText();
-
-
-
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, vendorIdDb, warrantyDB, modelDB, serialNumberDB, problemDescDB);
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb);
         mainController.loadOrdersIntoTable();
-
-        String createdAtDB = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, createdAtDB, vendorIdDb, warrantyDB, modelDB, serialNumberDB, problemDescDB
-        );
-        Customer co = new Customer(cusID, cusFirstName, cusLastName,"", cusPhone, "", cusAddress, cusTown, cusZIP);
-        Window owner = dialogInstance.getScene().getWindow();
-        Print.printWorkOrder(wo, co, owner);
-
+        WorkOrder wo = new WorkOrder(String.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId);
+        Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
+        Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
         closeDialog();
     }
 
