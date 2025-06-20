@@ -32,6 +32,8 @@ public class Customer {
     public StringProperty idProperty(){ return id;}
     public String getId(){return id.get();}
     public void setId(String value){id.set(value);}
+
+
     public StringProperty firstNameProperty() {
         return firstName;
     }

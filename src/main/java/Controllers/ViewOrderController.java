@@ -1,5 +1,6 @@
 package Controllers;
 
+import DB.DbConfig;
 import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
@@ -19,6 +20,10 @@ import print.Print;
 
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class ViewOrderController {
     @FXML private ActualWorkshopController mainController;
@@ -71,6 +76,38 @@ public class ViewOrderController {
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
     }
+
+    @FXML
+    public void updateOrder(){
+        String newType = type.getText();
+        String newModel = model.getText();
+        String newSerialNumber = serialNumber.getText();
+        String newProblemDesc = problemDesc.getText();
+        String newVendorId = vendorId.getText();
+        String newWarrantyNumber = warrantyNumber.getText();
+        int woNumber = currentWorkOrder.getWorkorderNumber();
+
+        String newSQL = "update work_order set type = ?, model = ?, serialNumber = ?, problemDesc = ?, vendorId = ?, warrantyNumber = ? WHERE workorder = ?";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(newSQL);
+            ps.setString(1, newType);
+            ps.setString(2, newModel);
+            ps.setString(3, newSerialNumber);
+            ps.setString(4, newProblemDesc);
+            ps.setString(5, newVendorId);
+            ps.setString(6, newWarrantyNumber);
+            ps.setInt   (7, woNumber);
+            int updated = ps.executeUpdate();
+            ps.close();
+            conn.close();
+        }catch (SQLException e){
+            System.out.println("error during updating order");
+        }
+        System.out.println("updated order");
+        mainController.LoadOrders();
+    }
+
     @FXML
     public void printOrder() throws Exception {
         WorkOrder wo = currentWorkOrder;
