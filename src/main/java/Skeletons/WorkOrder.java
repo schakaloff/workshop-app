@@ -10,7 +10,7 @@ public class WorkOrder {
     We use StringProperty because they will let watch and update UI automatically (but its an abstract class)
     there for we use SimpleStringProperty (like a build in array);
      */
-    private final StringProperty workorderNumber;
+    private final IntegerProperty workorderNumber;
     private final StringProperty status;
     private final StringProperty createdAt; //
 
@@ -23,8 +23,8 @@ public class WorkOrder {
     private final StringProperty problemDesc;
     private final IntegerProperty customerId;
 
-    public WorkOrder(String workorderNumber, String status, String type, String createdAt, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc, int customerId){
-        this.workorderNumber = new SimpleStringProperty(workorderNumber);
+    public WorkOrder(int workorderNumber, String status, String type, String createdAt, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc, int customerId){
+        this.workorderNumber = new SimpleIntegerProperty(workorderNumber);
         this.status = new SimpleStringProperty(status);
         this.type = new SimpleStringProperty(type);
         this.createdAt = new SimpleStringProperty(createdAt);
@@ -38,6 +38,19 @@ public class WorkOrder {
         this.customerId = new SimpleIntegerProperty(customerId);
 
     }
+
+    public IntegerProperty workorderNumberProperty(){ //accessor
+        return workorderNumber;
+    }
+    //2)
+    public int getWorkorderNumber(){ //get
+        return workorderNumber.get();
+    }
+    //3
+    public void setWorkorderNumber(int value){ //set
+        workorderNumber.set(value);
+    }
+
 
     public int getCustomerId() {
         return customerId.get();
@@ -63,17 +76,17 @@ public class WorkOrder {
     for javafx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters
     */
     //1)
-    public StringProperty workorderNumberProperty(){ //accessor
-        return workorderNumber;
-    }
-    //2)
-    public String getWorkorderNumber(){ //get
-        return workorderNumber.get();
-    }
-    //3
-    public void setWorkorderNumber(String value){ //set
-        workorderNumber.set(value);
-    }
+//    public StringProperty workorderNumberProperty(){ //accessor
+//        return workorderNumber;
+//    }
+//    //2)
+//    public String getWorkorderNumber(){ //get
+//        return workorderNumber.get();
+//    }
+//    //3
+//    public void setWorkorderNumber(String value){ //set
+//        workorderNumber.set(value);
+//    }
 
 
     public StringProperty typeProperty(){return type;}
