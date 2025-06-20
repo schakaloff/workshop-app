@@ -4,11 +4,14 @@ import DB.DbConfig;
 import Controllers.CustomersController;
 import Skeletons.Customer;
 import Skeletons.WorkOrder;
+import io.github.palexdev.materialfx.controls.MFXPaginatedTableView;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
+import io.github.palexdev.materialfx.filter.IntegerFilter;
+import io.github.palexdev.materialfx.filter.StringFilter;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
@@ -37,6 +40,7 @@ import main.Main;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.Comparator;
 
 public class ActualWorkshopController{
     @FXML private Label welcomeTech;
@@ -45,7 +49,7 @@ public class ActualWorkshopController{
     @FXML public BorderPane contentPane;
 
 
-    @FXML private MFXTableView<WorkOrder> table;
+    @FXML private MFXPaginatedTableView<WorkOrder> table;
     CustomersController co;
 
 
@@ -55,6 +59,8 @@ public class ActualWorkshopController{
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         avatar(techAvatar); //set avatar's pic
+        table.setRowsPerPage(15);
+        table.setPagesToShow(5);
         LoadOrders();
     }
 
@@ -110,7 +116,6 @@ public class ActualWorkshopController{
                         rs.getString("address"),
                         rs.getString("postal_code"),
                         rs.getString("town")
-
                 );
                 rs.close();
                 stmt.close();
@@ -127,15 +132,14 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersIntoTable() {
-        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id FROM work_order";
-        data.clear();
+        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id FROM work_order ORDER BY work_order.createdAt DESC";        data.clear();
         try {
             Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 WorkOrder wo = new WorkOrder(
-                        rs.getString("workorder"),
+                        rs.getInt("workorder"),
                         rs.getString("status"),
                         rs.getString("type"),
                         rs.getString("createdAt"),
@@ -188,10 +192,10 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersTable(){
-        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder", true);
-        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", true);
-        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", true);
-        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", true);
+        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder", true, Comparator.comparing(WorkOrder::getWorkorderNumber));
+        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", true,Comparator.comparing(WorkOrder::getStatus));
+        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", true,Comparator.comparing(WorkOrder::getType));
+        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", true,Comparator.comparing(WorkOrder::getCreatedAt));
 
         workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
@@ -200,6 +204,13 @@ public class ActualWorkshopController{
 
         date.setAlignment(Pos.CENTER_RIGHT);
         table.getTableColumns().addAll(workOrder,status,type,date);
+
+        table.getFilters().addAll(new IntegerFilter<>("WorkOrder", WorkOrder::getWorkorderNumber));
+        table.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
+        table.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
+        table.getFilters().addAll(new StringFilter<>("Warranty Number", WorkOrder::getWarrantyNumber));
+
+
     }
 
     public void createNewOrder() throws IOException {

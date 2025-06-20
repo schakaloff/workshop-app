@@ -31,7 +31,9 @@ public class PrinterController {
         String fullName = lastName + ", " + firstName;
         String firstNLast = firstName +" "+ lastName;
 
-        workIDText.setText(wo.getWorkorderNumber());
+        String orderID = String.valueOf(wo.getWorkorderNumber());
+
+        workIDText.setText(orderID);
         dateText.setText(wo.getCreatedAt());
         customerNameText.setText(fullName);
         custIDText.setText(co.getId());
