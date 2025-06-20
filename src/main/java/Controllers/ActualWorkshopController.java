@@ -59,12 +59,14 @@ public class ActualWorkshopController{
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         avatar(techAvatar); //set avatar's pic
-        table.setRowsPerPage(15);
+        table.setRowsPerPage(5);
         table.setPagesToShow(5);
         LoadOrders();
     }
 
     public void LoadOrders(){
+        table.getTableColumns().clear();
+        table.getItems().clear();
         table.autosizeColumnsOnInitialization(); //autosize table columns
         loadOrdersTable(); //load table
         loadOrdersIntoTable(); //load orders into table
