@@ -11,6 +11,9 @@ import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
@@ -108,18 +111,35 @@ public class NewOrderController {
 
     @FXML
     public void makeNewOrder() throws Exception {
-        String typeDB          = type.getText();
-        String modelDB         = model.getText();
-        String serialNumberDB  = serialNumber.getText();
-        String problemDescDB   = problemDesc.getText();
-        int customerId         = Integer.parseInt(idTFX.getText());
-        String vendorIdDb      = vendorId.getText();
+        String typeDB = type.getText();
+        String modelDB = model.getText();
+        String serialNumberDB = serialNumber.getText();
+        String problemDescDB  = problemDesc.getText();
+
+        String vendorIdDb = vendorId.getText();
         String warrantyNumberDb= warrantyNumber.getText();
 
+        String stringId = idTFX.getText();
+
+        if(typeDB.isBlank() || modelDB.isBlank() || stringId.isBlank()){
+            new Alert(Alert.AlertType.WARNING, "Please fill out the fields", ButtonType.OK).showAndWait();
+            return;
+        }
+        int customerId;
+        try{
+            customerId = Integer.parseInt(idTFX.getText());
+        }catch (NumberFormatException e){
+            new Alert(Alert.AlertType.ERROR, "Customer ID should be me a number.", ButtonType.OK).showAndWait();
+            return;
+        }
+
         int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb);
+
         mainController.loadOrdersIntoTable();
+
         WorkOrder wo = new WorkOrder(Integer.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
+
         Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
         closeDialog();
     }
