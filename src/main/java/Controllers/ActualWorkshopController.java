@@ -48,13 +48,10 @@ public class ActualWorkshopController{
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
 
-
     @FXML private MFXPaginatedTableView<WorkOrder> table;
     CustomersController co;
 
-
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
-
 
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
