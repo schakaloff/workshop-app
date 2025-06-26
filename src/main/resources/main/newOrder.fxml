@@ -15,7 +15,7 @@
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
-            <TextArea fx:id="problemDesc" layoutX="7.0" layoutY="213.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" />
+            <TextArea fx:id="problemDesc" layoutX="7.0" layoutY="213.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" wrapText="true" />
             <MFXCheckbox fx:id="warrantyCheckBox" layoutX="3.0" layoutY="66.0" minHeight="15.0" onAction="#warrantySelected" prefHeight="17.0" prefWidth="74.0" text="Warranty" />
             <Text layoutX="7.0" layoutY="200.0" text="Problem:">
                <font>
