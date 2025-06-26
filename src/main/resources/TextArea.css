@@ -1,0 +1,52 @@
+.text-area {
+  -fx-background-color: white;
+  -fx-background-insets: 0;
+  -fx-background-radius: 8;
+  -fx-border-color: #CCCCCC;
+  -fx-border-radius: 8;
+  -fx-border-width: 1;
+  -fx-padding: 8;               /* inner padding */
+  -fx-font-size: 11px;
+  -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -fx-text-fill: #333333;
+  -fx-highlight-fill: #C5D3EB;  /* selection color */
+  -fx-highlight-text-fill: #222222;
+  -fx-cursor: text;
+}
+
+/* Focused TextArea */
+.text-area:focused {
+  -fx-border-color: #3F51B5;    /* accent color */
+  -fx-effect:
+    dropshadow(gaussian, rgba(63,81,181,0.25), 4, 0.0, 0, 2);
+}
+
+/* Transparent contents, so background-radius applies cleanly */
+.text-area .content,
+.text-area .scroll-pane .viewport {
+  -fx-background-color: transparent;
+}
+
+/* Prompt (placeholder) text style */
+.text-area .prompt-text {
+  -fx-fill: derive(#888888, -20%);
+  -fx-font-style: italic;
+}
+
+/* Scrollbar thumb styling */
+.text-area .scroll-bar .thumb {
+  -fx-background-color: #BBBBBB;
+  -fx-background-insets: 0;
+  -fx-background-radius: 4;
+}
+
+/* Scrollbar thumb hover */
+.text-area .scroll-bar .thumb:hover {
+  -fx-background-color: #999999;
+}
+
+/* Optional: make the horizontal scrollbar track subtle/hidden */
+.text-area .scroll-bar:horizontal .track {
+  -fx-background-color: transparent;
+  -fx-pref-height: 4;
+}

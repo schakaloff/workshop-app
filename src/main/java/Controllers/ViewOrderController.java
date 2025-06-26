@@ -3,27 +3,22 @@ package Controllers;
 import DB.DbConfig;
 import Skeletons.Customer;
 import Skeletons.WorkOrder;
-import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.print.Printer;
-import javafx.print.PrinterJob;
-import javafx.scene.Parent;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
 import print.Print;
 
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ViewOrderController {
     @FXML private ActualWorkshopController mainController;
@@ -45,10 +40,11 @@ public class ViewOrderController {
     @FXML private MFXTextField townTFX;
     @FXML private MFXTextField zipTFX;
 
+    @FXML private TabPane tabPane;
+    @FXML private TextArea serviceNotesTXT;
 
     private WorkOrder currentWorkOrder;
     private Customer currentCustomer;
-    @FXML private TabPane tabPane;
 
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
@@ -56,6 +52,7 @@ public class ViewOrderController {
     public void initialize(){tabPane.setFocusTraversable(false);}
 
     public void initData(WorkOrder wo, Customer co){
+        //info tab
         type.setText(wo.getType());
         model.setText(wo.getModel());
         serialNumber.setText(wo.getSerialNumber());
@@ -72,22 +69,64 @@ public class ViewOrderController {
         townTFX.setText(co.getTown());
         zipTFX.setText(co.getPostalCode());
 
-
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
+
+        //work tab
+
+        loadServiceNotes();
+
+        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{ //attach mouse event to service notes function
+            if(e.getButton() == MouseButton.PRIMARY){
+                insertNotes(serviceNotesTXT);
+                e.consume();
+            }
+        });
+    }
+
+
+
+    public void insertNotes(TextArea area){  //service notes function
+        String stamp = "[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "]: ";
+        String text = area.getText();
+        int caret = area.getCaretPosition();
+
+        if (caret > 0 && text.charAt(caret - 1) != '\n') {
+            stamp = "\n" + stamp;
+        }
+        area.insertText(caret, stamp);
+        area.positionCaret(caret + stamp.length());
+    }
+
+    public void loadServiceNotes(){
+        String sql = "SELECT service_notes FROM work_order WHERE workorder = ?";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                serviceNotesTXT.setText(rs.getString("service_notes"));
+            }else{
+                serviceNotesTXT.clear();
+            }
+        }catch (SQLException e){
+            System.out.println("issue during loading service notes");
+        }
     }
 
     @FXML
-    public void updateOrder(){
+    public void updateOrder(){ //update the work order
         String newType = type.getText();
         String newModel = model.getText();
         String newSerialNumber = serialNumber.getText();
         String newProblemDesc = problemDesc.getText();
         String newVendorId = vendorId.getText();
         String newWarrantyNumber = warrantyNumber.getText();
+        String newServiceNotes = serviceNotesTXT.getText();
         int woNumber = currentWorkOrder.getWorkorderNumber();
 
-        String newSQL = "update work_order set type = ?, model = ?, serialNumber = ?, problemDesc = ?, vendorId = ?, warrantyNumber = ? WHERE workorder = ?";
+        String newSQL = "update work_order set type = ?, model = ?, serialNumber = ?, problemDesc = ?, vendorId = ?, warrantyNumber = ?, service_notes = ? WHERE workorder = ?";
         try{
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement ps = conn.prepareStatement(newSQL);
@@ -97,7 +136,8 @@ public class ViewOrderController {
             ps.setString(4, newProblemDesc);
             ps.setString(5, newVendorId);
             ps.setString(6, newWarrantyNumber);
-            ps.setInt   (7, woNumber);
+            ps.setString(7, newServiceNotes);
+            ps.setInt   (8, woNumber);
             int updated = ps.executeUpdate();
             ps.close();
             conn.close();
@@ -109,34 +149,11 @@ public class ViewOrderController {
     }
 
     @FXML
-    public void printOrder() throws Exception {
+    public void printOrder() throws Exception { //print function
         WorkOrder wo = currentWorkOrder;
         Customer co = currentCustomer;
         Window owner = dialogInstance.getScene().getWindow();
-        owner = dialogInstance.getScene().getWindow();
         Print.printWorkOrder(wo, co, owner);
-
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/printOrder.fxml"));
-//        Parent printNode = loader.load();
-//
-//        PrinterController pc = loader.getController();
-//        pc.initData(currentWorkOrder);
-//        printNode.applyCss();
-//        printNode.layout();
-//
-//        PrinterJob job = PrinterJob.createPrinterJob();
-//        Window owner = mainController.rootStack.getScene().getWindow();
-//        if (!job.showPrintDialog(owner)) {
-//            job.endJob();
-//            return;
-//        }
-//        boolean success = job.printPage(printNode);
-//        if (success) {
-//            job.endJob();
-//        } else {
-//            System.err.println("Print failed");
-//        }
-
     }
 
     @FXML
