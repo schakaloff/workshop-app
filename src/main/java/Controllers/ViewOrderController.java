@@ -27,6 +27,7 @@ public class ViewOrderController {
     @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXTextField warrantyNumber;
 
+    @FXML private MFXTextField status;
     @FXML private MFXTextField type;
     @FXML private MFXTextField model;
     @FXML private MFXTextField serialNumber;
@@ -53,6 +54,8 @@ public class ViewOrderController {
 
     public void initData(WorkOrder wo, Customer co){
         //info tab
+        status.setText(wo.getStatus());
+
         type.setText(wo.getType());
         model.setText(wo.getModel());
         serialNumber.setText(wo.getSerialNumber());
@@ -84,6 +87,25 @@ public class ViewOrderController {
         });
     }
 
+    @FXML
+    public void repairComplete(){
+        String sql = "UPDATe work_order SET status = ? where workorder = ?";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, "Repaired");
+            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+            int rs = ps.executeUpdate();
+            if(rs > 0){
+                currentWorkOrder.setStatus("Repaired");
+                System.out.println("order is closed");
+                mainController.LoadOrders();
+            }
+        }catch (SQLException e){
+            System.out.println("error during closing the order");
+        }
+        status.setText(currentWorkOrder.getStatus());
+    }
 
 
     public void insertNotes(TextArea area){  //service notes function
