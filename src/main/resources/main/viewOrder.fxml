@@ -61,7 +61,8 @@
                            </font>
                         </Text>
                         <MFXTextField fx:id="status" floatMode="BORDER" floatingText="Status" layoutX="67.0" layoutY="27.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-                        <MFXButton layoutX="469.0" layoutY="294.0" text="Pay" />
+                        <MFXButton layoutX="469.0" layoutY="294.0" onAction="#Pay" text="Pay" />
+                        <MFXTextField fx:id="mainNumberTFX" floatMode="BORDER" floatingText="W/O" layoutX="428.0" layoutY="24.0" minHeight="25.0" minWidth="100.0" />
                      </children>
                   </AnchorPane>
                </content>
@@ -78,12 +79,26 @@
                         <Text layoutX="8.0" layoutY="209.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Notes" />
                         <MFXButton layoutX="381.0" layoutY="349.0" onAction="#updateOrder" prefHeight="36.0" prefWidth="109.0" text="Save" />
                         <MFXButton layoutX="490.0" layoutY="354.0" onAction="#repairComplete" text="Repair Complete" />
+                        <Text layoutX="6.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer Name" />
+                        <Text layoutX="219.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Status" />
+                        <Text layoutX="381.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="W/O Num" />
+                        <MFXTextField fx:id="customerTFX" floatMode="BORDER" floatingText="Name" layoutX="109.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="statusTFX" floatMode="BORDER" floatingText="Status" layoutX="264.0" layoutY="10.0" minHeight="25.0" minWidth="100.0" />
+                        <MFXTextField fx:id="numberTFX" floatMode="BORDER" floatingText="W/O" layoutX="450.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" />
                      </children></AnchorPane>
               </content>
             </Tab>
             <Tab closable="false" text="Parts">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Text layoutX="14.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer Name:" />
+                        <Text layoutX="246.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Status" />
+                        <Text layoutX="430.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="W/O" />
+                        <MFXTextField fx:id="partsCustomerTFX" layoutX="125.0" layoutY="10.0" minHeight="25.0" minWidth="100.0" />
+                        <MFXTextField fx:id="partsStatusTFX" layoutX="295.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" />
+                        <MFXTextField fx:id="partsNumberTFX" layoutX="467.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" />
+                     </children></AnchorPane>
               </content>
             </Tab>
             <Tab closable="false" text="Files">

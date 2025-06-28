@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="650.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PaymentController">
+   <center>
+      <AnchorPane prefHeight="488.0" prefWidth="650.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox layoutX="114.0" layoutY="170.0" prefHeight="115.0" prefWidth="106.0">
+               <children>
+                  <MFXCheckbox text="Visa" />
+                  <MFXCheckbox text="Debit" />
+                  <MFXCheckbox text="Mastercard" />
+                  <MFXCheckbox text="Cash" />
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+   </center>
+</MFXGenericDialog>
