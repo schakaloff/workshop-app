@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane prefHeight="842.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.InvoiceSheet">
+   <children>
+      <Text layoutX="11.0" layoutY="38.0" text="Teltronics Service Centre">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Text>
+      <Text layoutX="12.0" layoutY="54.0" text="6 -1551 Sutherland Ave, Kelowna BC V1Y 9M9">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text layoutX="11.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ph: (250) 860-9888">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text layoutX="380.0" layoutY="38.0" text="Payment On Acct">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Text>
+   </children>
+</AnchorPane>
