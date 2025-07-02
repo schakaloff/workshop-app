@@ -63,8 +63,8 @@ public class ViewOrderController {
     @FXML private MFXTextField partsStatusTFX;
     @FXML private MFXTextField partsNumberTFX;
 
-    private WorkOrder currentWorkOrder;
-    private Customer currentCustomer;
+    public WorkOrder currentWorkOrder;
+    public Customer currentCustomer;
 
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
@@ -167,7 +167,7 @@ public class ViewOrderController {
 
     @FXML
     public void repairComplete(){
-        String sql = "UPDATe work_order SET status = ? where workorder = ?";
+        String sql = "UPDATE work_order SET status = ? where workorder = ?";
         try{
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -207,7 +207,7 @@ public class ViewOrderController {
             ps.setString(5, newVendorId);
             ps.setString(6, newWarrantyNumber);
             ps.setString(7, newServiceNotes);
-            ps.setInt   (8, woNumber);
+            ps.setInt(8, woNumber);
             int updated = ps.executeUpdate();
             ps.close();
             conn.close();
