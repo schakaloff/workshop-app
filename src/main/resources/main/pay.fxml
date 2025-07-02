@@ -1,22 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-
+<?import javafx.scene.text.Text?>
 
 <MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="650.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PaymentController">
    <center>
       <AnchorPane prefHeight="488.0" prefWidth="650.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox layoutX="114.0" layoutY="170.0" prefHeight="115.0" prefWidth="106.0">
+            <VBox layoutX="114.0" layoutY="170.0" prefHeight="115.0" prefWidth="105.0">
                <children>
-                  <MFXCheckbox text="Visa" />
-                  <MFXCheckbox text="Debit" />
-                  <MFXCheckbox text="Mastercard" />
-                  <MFXCheckbox text="Cash" />
+                  <MFXCheckbox fx:id="visaCB" onAction="#paymentTypeSelection" text="Visa" />
+                  <MFXCheckbox fx:id="debitCB" onAction="#paymentTypeSelection" text="Debit" />
+                  <MFXCheckbox fx:id="masterCardCB" onAction="#paymentTypeSelection" text="Mastercard" />
+                  <MFXCheckbox fx:id="cashCB" onAction="#paymentTypeSelection" text="Cash" />
+               </children>
+            </VBox>
+            <MFXTextField fx:id="techIDTXF" alignment="CENTER" allowEdit="false" layoutX="57.0" layoutY="3.0" minHeight="25.0" minWidth="28.0" prefHeight="25.0" prefWidth="35.0" />
+            <Text layoutX="8.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="TechID:" />
+            <MFXButton layoutX="448.0" layoutY="322.0" text="Save/Print" />
+            <MFXTextField fx:id="dateTXF" alignment="CENTER" allowEdit="false" layoutX="450.0" layoutY="16.0" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="137.0" />
+            <Text layoutX="419.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Date" />
+            <VBox layoutX="230.0" layoutY="170.0" prefHeight="115.0" prefWidth="105.0" spacing="5.0">
+               <children>
+                  <MFXTextField fx:id="visaTXF" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
+                  <MFXTextField fx:id="debitTXF" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
+                  <MFXTextField fx:id="cashTXF" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
+                  <MFXTextField fx:id="masterCardTXF" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
                </children>
             </VBox>
          </children>
