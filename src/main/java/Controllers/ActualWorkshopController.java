@@ -130,7 +130,7 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersIntoTable() {
-        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id FROM work_order ORDER BY work_order.createdAt DESC";        data.clear();
+        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id, deposit_amount FROM work_order ORDER BY work_order.createdAt DESC";        data.clear();
         try {
             Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -146,7 +146,8 @@ public class ActualWorkshopController{
                         rs.getString("model"),
                         rs.getString("serialNumber"),
                         rs.getString("problemDesc"),
-                        rs.getInt("customer_id")
+                        rs.getInt("customer_id"),
+                        rs.getDouble("deposit_amount")
                 );
                 data.add(wo);
             }
@@ -158,8 +159,8 @@ public class ActualWorkshopController{
         }
     }
 
-    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber) {
-        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber, double deposit) {
+        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         try {
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -171,6 +172,8 @@ public class ActualWorkshopController{
             stmt.setInt(6, customerId);
             stmt.setString(7, vendorId);
             stmt.setString(8, warrantyNumber);
+            stmt.setDouble(9, deposit);
+
             stmt.executeUpdate();
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
