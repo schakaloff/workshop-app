@@ -45,6 +45,8 @@ public class NewOrderController {
     @FXML private MFXTextField townTFX;
     @FXML private MFXTextField zipTFX;
 
+    @FXML private MFXTextField depositTXF;
+
     @FXML private ActualWorkshopController mainController;
     @FXML private MFXGenericDialog dialogInstance;
     @FXML private CustomersController customerCntrl;
@@ -120,6 +122,7 @@ public class NewOrderController {
         String warrantyNumberDb= warrantyNumber.getText();
 
         String stringId = idTFX.getText();
+        Double depositDB = Double.valueOf(depositTXF.getText());
 
         if(typeDB.isBlank() || modelDB.isBlank() || stringId.isBlank()){
             new Alert(Alert.AlertType.WARNING, "Please fill out the fields", ButtonType.OK).showAndWait();
@@ -133,11 +136,11 @@ public class NewOrderController {
             return;
         }
 
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb);
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB);
 
         mainController.loadOrdersIntoTable();
 
-        WorkOrder wo = new WorkOrder(Integer.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId);
+        WorkOrder wo = new WorkOrder(Integer.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId, depositDB);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
         Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());

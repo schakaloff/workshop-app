@@ -4,6 +4,7 @@ import DB.DbConfig;
 import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
+import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
@@ -45,6 +46,7 @@ public class ViewOrderController {
     @FXML private MFXTextField addressTFX;
     @FXML private MFXTextField townTFX;
     @FXML private MFXTextField zipTFX;
+    @FXML private MFXTextField depositTXF;
 
     @FXML private TabPane tabPane;
     @FXML private TextArea serviceNotesTXT;
@@ -57,6 +59,7 @@ public class ViewOrderController {
     @FXML private MFXTextField customerTFX;
     @FXML private MFXTextField statusTFX;
     @FXML private MFXTextField numberTFX;
+    @FXML private MFXTableView table;
 
     //parts
     @FXML private MFXTextField partsCustomerTFX;
@@ -68,7 +71,10 @@ public class ViewOrderController {
 
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
-    public void initialize(){tabPane.setFocusTraversable(false);}
+    public void initialize(){
+        tabPane.setFocusTraversable(false);
+        table.setFooterVisible(false);
+    }
 
     public void initData(WorkOrder wo, Customer co){
         String firstName = co.getFirstName();
@@ -95,6 +101,7 @@ public class ViewOrderController {
         zipTFX.setText(co.getPostalCode());
 
         mainNumberTFX.setText((String.valueOf(wo.getWorkorderNumber())));
+        depositTXF.setText("$"+String.valueOf(wo.getDepositAmount()));
 
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
