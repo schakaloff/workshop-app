@@ -73,7 +73,6 @@ public class ActualWorkshopController{
     public void LoadCustomers(){
         table.getTableColumns().clear();
         table.getItems().clear();
-
         table.autosizeColumnsOnInitialization(); //autosize table columns
     }
 
@@ -193,10 +192,10 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersTable(){
-        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder", true, Comparator.comparing(WorkOrder::getWorkorderNumber));
-        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", true,Comparator.comparing(WorkOrder::getStatus));
-        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", true,Comparator.comparing(WorkOrder::getType));
-        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", true,Comparator.comparing(WorkOrder::getCreatedAt));
+        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder",  Comparator.comparing(WorkOrder::getWorkorderNumber));
+        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", Comparator.comparing(WorkOrder::getStatus));
+        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", Comparator.comparing(WorkOrder::getType));
+        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", Comparator.comparing(WorkOrder::getCreatedAt));
 
         workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
