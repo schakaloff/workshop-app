@@ -77,16 +77,39 @@ public class ViewOrderController {
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
 
     public void initialize(){
+        final double COLLAPSED_HEIGHT = 40;
+        final double EXPANDED_HEIGHT  = 160;
+
         tabPane.setFocusTraversable(false);
         table.setFooterVisible(false);
         loadRepairTable();
         table.setItems(data);
 
+        serviceNotesTXT.setPrefHeight(COLLAPSED_HEIGHT);
+        serviceNotesTXT.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                serviceNotesTXT.setPrefHeight(EXPANDED_HEIGHT);
+            } else {
+                serviceNotesTXT.setPrefHeight(COLLAPSED_HEIGHT);
+            }
+        });
+        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
+            if(e.getButton() == MouseButton.PRIMARY){
+                insertNotes(serviceNotesTXT);
+                e.consume();
+            }
+        });
     }
 
     public void loadRepairTable() {
         table.getTableColumns().clear();
         data.clear();
+
+        table.setTableRowFactory(workTable -> {
+            MFXTableRow<WorkTable> row = new MFXTableRow<>(table, workTable);
+            row.setPrefHeight(80);
+            return row;
+        });
 
         MFXTableColumn<WorkTable> dateCol = new MFXTableColumn<>("Date");
         dateCol.setPrefWidth(150);
@@ -130,7 +153,6 @@ public class ViewOrderController {
 
         data.add(new WorkTable(LocalDate.now(), "", "", 0.0));
         table.getTableColumns().addAll(dateCol, techCol, descCol, priceCol);
-
         table.setItems(data);
     }
 
@@ -173,14 +195,7 @@ public class ViewOrderController {
         customerTFX.setText(fullName);
         statusTFX.setText(wo.getStatus());
         numberTFX.setText((String.valueOf(wo.getWorkorderNumber())));
-
         loadServiceNotes();
-        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{ //attach mouse event to service notes function
-            if(e.getButton() == MouseButton.PRIMARY){
-                insertNotes(serviceNotesTXT);
-                e.consume();
-            }
-        });
 
         //parts tab
         partsCustomerTFX.setText(fullName);
