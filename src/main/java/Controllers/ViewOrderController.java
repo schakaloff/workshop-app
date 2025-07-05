@@ -17,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -32,6 +33,8 @@ import java.time.format.DateTimeFormatter;
 public class ViewOrderController {
     @FXML private ActualWorkshopController mainController;
     @FXML private MFXGenericDialog dialogInstance;
+
+    @FXML private StackPane notesContainer;
 
     @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXTextField warrantyNumber;
@@ -77,28 +80,18 @@ public class ViewOrderController {
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
 
     public void initialize(){
-        final double COLLAPSED_HEIGHT = 40;
-        final double EXPANDED_HEIGHT  = 160;
 
         tabPane.setFocusTraversable(false);
         table.setFooterVisible(false);
         loadRepairTable();
         table.setItems(data);
-
-        serviceNotesTXT.setPrefHeight(COLLAPSED_HEIGHT);
-        serviceNotesTXT.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-            if (isNowFocused) {
-                serviceNotesTXT.setPrefHeight(EXPANDED_HEIGHT);
-            } else {
-                serviceNotesTXT.setPrefHeight(COLLAPSED_HEIGHT);
-            }
-        });
-        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
-            if(e.getButton() == MouseButton.PRIMARY){
-                insertNotes(serviceNotesTXT);
-                e.consume();
-            }
-        });
+        
+//        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
+//            if(e.getButton() == MouseButton.PRIMARY){
+//                insertNotes(serviceNotesTXT);
+//                e.consume();
+//            }
+//        });
     }
 
     public void loadRepairTable() {
