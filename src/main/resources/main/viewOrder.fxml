@@ -76,7 +76,6 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="384.0" prefWidth="639.0">
                      <children>
                         <StackPane fx:id="notesContainer" layoutX="6.0" layoutY="353.0" />
-                        <Text layoutX="14.0" layoutY="240.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Notes" />
                         <MFXButton layoutX="463.0" layoutY="378.0" onAction="#updateOrder" prefHeight="36.0" prefWidth="109.0" text="Save" />
                         <MFXButton layoutX="572.0" layoutY="396.0" onAction="#repairComplete" text="Repair Complete" />
                         <Text layoutX="6.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer Name" />
@@ -85,9 +84,9 @@
                         <MFXTextField fx:id="customerTFX" floatMode="BORDER" floatingText="Name" layoutX="109.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="statusTFX" floatMode="BORDER" floatingText="Status" layoutX="264.0" layoutY="10.0" minHeight="25.0" minWidth="100.0" />
                         <MFXTextField fx:id="numberTFX" floatMode="BORDER" floatingText="W/O" layoutX="450.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" />
-                        <MFXTableView fx:id="table" layoutX="6.0" layoutY="39.0" prefHeight="188.0" prefWidth="724.0" />
+                        <MFXTableView fx:id="table" layoutX="6.0" layoutY="39.0" prefHeight="307.0" prefWidth="737.0" />
                         <MFXButton layoutX="409.0" layoutY="383.0" onAction="#onAddStep" text="Add Notes" />
-                        <TextArea fx:id="serviceNotesTXT" layoutX="12.0" layoutY="251.0" prefHeight="178.0" prefWidth="180.0" stylesheets="@../TextArea.css" wrapText="true">
+                        <TextArea fx:id="serviceNotesTXT" layoutX="12.0" layoutY="351.0" minHeight="60.0" prefHeight="60.0" prefWidth="180.0" stylesheets="@../TextArea.css" wrapText="true">
                            <font>
                               <Font size="11.0" />
                            </font>
