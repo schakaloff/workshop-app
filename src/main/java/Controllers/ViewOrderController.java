@@ -92,6 +92,22 @@ public class ViewOrderController {
 //                e.consume();
 //            }
 //        });
+
+        final double COLLAPSED_H = 60;
+        final double EXPANDED_H  = 180;
+        serviceNotesTXT.setPrefHeight(COLLAPSED_H);
+        serviceNotesTXT.setTranslateY(0);
+        serviceNotesTXT.focusedProperty().addListener((obs, was, focused) -> {
+            if (focused) {
+                serviceNotesTXT.setPrefHeight(EXPANDED_H);
+                serviceNotesTXT.setTranslateY(-(EXPANDED_H - COLLAPSED_H));
+                serviceNotesTXT.toFront();
+            } else {
+                serviceNotesTXT.setTranslateY(0);
+                serviceNotesTXT.setPrefHeight(COLLAPSED_H);
+            }
+        });
+
     }
 
     public void loadRepairTable() {
@@ -100,12 +116,12 @@ public class ViewOrderController {
 
         table.setTableRowFactory(workTable -> {
             MFXTableRow<WorkTable> row = new MFXTableRow<>(table, workTable);
-            row.setPrefHeight(80);
+            row.setPrefHeight(60);
             return row;
         });
 
         MFXTableColumn<WorkTable> dateCol = new MFXTableColumn<>("Date");
-        dateCol.setPrefWidth(150);
+        dateCol.setPrefWidth(170);
         dateCol.setRowCellFactory(item -> {
             MFXTableRowCell<WorkTable, LocalDate> cell = new MFXTableRowCell<>(WorkTable::getDate);
             DatePicker picker = new DatePicker();
