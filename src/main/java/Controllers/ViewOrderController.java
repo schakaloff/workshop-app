@@ -2,6 +2,7 @@ package Controllers;
 
 import DB.DbConfig;
 import Skeletons.Customer;
+import Skeletons.PartTable;
 import Skeletons.WorkOrder;
 import Skeletons.WorkTable;
 import io.github.palexdev.materialfx.controls.*;
@@ -15,9 +16,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -33,8 +31,6 @@ import java.time.format.DateTimeFormatter;
 public class ViewOrderController {
     @FXML private ActualWorkshopController mainController;
     @FXML private MFXGenericDialog dialogInstance;
-
-    @FXML private StackPane notesContainer;
 
     @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXTextField warrantyNumber;
@@ -65,8 +61,11 @@ public class ViewOrderController {
     @FXML private MFXTextField statusTFX;
     @FXML private MFXTextField numberTFX;
 
-    @FXML private MFXTableView<WorkTable> table;
-    private final ObservableList<WorkTable> data = FXCollections.observableArrayList();
+    @FXML private MFXTableView<WorkTable> repairTable;
+    private final ObservableList<WorkTable> repairData = FXCollections.observableArrayList();
+
+    @FXML private MFXTableView<PartTable> partsTable;
+    private final ObservableList<PartTable> partsData = FXCollections.observableArrayList();
 
     //parts
     @FXML private MFXTextField partsCustomerTFX;
@@ -80,19 +79,16 @@ public class ViewOrderController {
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
 
     public void initialize(){
-
         tabPane.setFocusTraversable(false);
-        table.setFooterVisible(false);
-        loadRepairTable();
-        table.setItems(data);
-        
+        repairTable.setFooterVisible(false);
+        loadRepairsTable();
+        repairTable.setItems(repairData);
 //        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
 //            if(e.getButton() == MouseButton.PRIMARY){
 //                insertNotes(serviceNotesTXT);
 //                e.consume();
 //            }
 //        });
-
         final double COLLAPSED_H = 60;
         final double EXPANDED_H  = 180;
         serviceNotesTXT.setPrefHeight(COLLAPSED_H);
@@ -107,15 +103,70 @@ public class ViewOrderController {
                 serviceNotesTXT.setPrefHeight(COLLAPSED_H);
             }
         });
+    }
+
+    public void loadPartsTable(){
+        partsTable.getTableColumns().clear();
+        partsData.clear();
+
+        partsTable.setTableRowFactory(partTable -> {
+            MFXTableRow<PartTable> row = new MFXTableRow<>(partsTable, partTable);
+            row.setPrefHeight(60);
+            return row;
+        });
+
+        MFXTableColumn<PartTable> nameCol = new MFXTableColumn<>("Name");
+        nameCol.setPrefWidth(170);
+        nameCol.setRowCellFactory(item -> {
+            MFXTableRowCell<PartTable,String> cell = new MFXTableRowCell<>(PartTable::getName);
+            MFXTextField nameField = new MFXTextField();
+            cell.setGraphic(nameField);
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            return cell;
+        });
+
+        MFXTableColumn<PartTable> quantityCol = new MFXTableColumn<>("Quantity");
+        quantityCol.setPrefWidth(170);
+        quantityCol.setRowCellFactory(item -> {
+            MFXTableRowCell<PartTable,Integer> cell = new MFXTableRowCell<>(PartTable::getQuantity);
+            MFXTextField quantityField = new MFXTextField();
+            cell.setGraphic(quantityField);
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            return cell;
+        });
+
+        MFXTableColumn<PartTable> priceCol = new MFXTableColumn<>("Price");
+        priceCol.setPrefWidth(170);
+        priceCol.setRowCellFactory(item -> {
+            MFXTableRowCell<PartTable,Double> cell = new MFXTableRowCell<>(PartTable::getPrice);
+            MFXTextField priceField = new MFXTextField();
+            cell.setGraphic(priceField);
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            return cell;
+        });
+
+        MFXTableColumn<PartTable> totalPriceCol = new MFXTableColumn<>("Total");
+        totalPriceCol.setPrefWidth(170);
+        totalPriceCol.setRowCellFactory(item -> {
+            MFXTableRowCell<PartTable,Double> cell = new MFXTableRowCell<>(PartTable::getTotalPrice);
+            MFXTextField totalPriceField = new MFXTextField();
+            cell.setGraphic(totalPriceField);
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            return cell;
+        });
+
+        partsData.add(new PartTable("", 0, 0.0, 0.0));
+        partsTable.getTableColumns().addAll(nameCol, quantityCol, priceCol, totalPriceCol);
+        partsTable.setItems(partsData);
 
     }
 
-    public void loadRepairTable() {
-        table.getTableColumns().clear();
-        data.clear();
+    public void loadRepairsTable() {
+        repairTable.getTableColumns().clear();
+        repairData.clear();
 
-        table.setTableRowFactory(workTable -> {
-            MFXTableRow<WorkTable> row = new MFXTableRow<>(table, workTable);
+        repairTable.setTableRowFactory(workTable -> {
+            MFXTableRow<WorkTable> row = new MFXTableRow<>(repairTable, workTable);
             row.setPrefHeight(60);
             return row;
         });
@@ -160,15 +211,18 @@ public class ViewOrderController {
             return cell;
         });
 
-        data.add(new WorkTable(LocalDate.now(), "", "", 0.0));
-        table.getTableColumns().addAll(dateCol, techCol, descCol, priceCol);
-        table.setItems(data);
+        repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
+        repairTable.getTableColumns().addAll(dateCol, techCol, descCol, priceCol);
+        repairTable.setItems(repairData);
     }
 
     @FXML
     public void onAddStep() {
-        data.add(new WorkTable(LocalDate.now(), "", "", 0.0));
+        repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
     }
+
+    @FXML
+    public void addPart(){partsData.add(new PartTable("",0,0.0,0));}
 
     public void initData(WorkOrder wo, Customer co){
         String firstName = co.getFirstName();
