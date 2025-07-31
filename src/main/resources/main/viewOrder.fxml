@@ -105,6 +105,7 @@
                         <MFXTextField fx:id="partsStatusTFX" layoutX="295.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" />
                         <MFXTextField fx:id="partsNumberTFX" layoutX="467.0" layoutY="11.0" minHeight="25.0" minWidth="100.0" />
                         <MFXTableView fx:id="partsTable" layoutX="6.0" layoutY="41.0" prefHeight="307.0" prefWidth="737.0" />
+                        <MFXButton layoutX="567.0" layoutY="355.0" onAction="#addPart" text="Add Part" />
                      </children></AnchorPane>
               </content>
             </Tab>
