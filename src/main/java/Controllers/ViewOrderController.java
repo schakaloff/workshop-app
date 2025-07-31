@@ -80,9 +80,15 @@ public class ViewOrderController {
 
     public void initialize(){
         tabPane.setFocusTraversable(false);
+
         repairTable.setFooterVisible(false);
         loadRepairsTable();
         repairTable.setItems(repairData);
+
+        partsTable.setFooterVisible(false);
+        loadPartsTable();
+        partsTable.setItems(partsData);
+
 //        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
 //            if(e.getButton() == MouseButton.PRIMARY){
 //                insertNotes(serviceNotesTXT);
@@ -222,7 +228,9 @@ public class ViewOrderController {
     }
 
     @FXML
-    public void addPart(){partsData.add(new PartTable("",0,0.0,0));}
+    public void addPart(){
+        partsData.add(new PartTable("",0,0.0,0));
+    }
 
     public void initData(WorkOrder wo, Customer co){
         String firstName = co.getFirstName();
@@ -264,6 +272,7 @@ public class ViewOrderController {
         partsCustomerTFX.setText(fullName);
         partsStatusTFX.setText(wo.getStatus());
         partsNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
+        loadPartsTable();
 
     }
 
