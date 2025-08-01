@@ -14,4 +14,6 @@ module main {
     opens DB to javafx.fxml;
     exports Controllers;
     opens Controllers to javafx.fxml;
+    exports utils;
+    opens utils to javafx.fxml;
 }
