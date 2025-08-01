@@ -21,7 +21,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
 
-
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
@@ -95,6 +94,7 @@ public class ViewOrderController {
 //                e.consume();
 //            }
 //        });
+
         final double COLLAPSED_H = 60;
         final double EXPANDED_H  = 180;
         serviceNotesTXT.setPrefHeight(COLLAPSED_H);
@@ -117,7 +117,7 @@ public class ViewOrderController {
 
         partsTable.setTableRowFactory(partTable -> {
             MFXTableRow<PartTable> row = new MFXTableRow<>(partsTable, partTable);
-            row.setPrefHeight(60);
+            row.setPrefHeight(40);
             return row;
         });
 
@@ -125,7 +125,10 @@ public class ViewOrderController {
         nameCol.setPrefWidth(170);
         nameCol.setRowCellFactory(item -> {
             MFXTableRowCell<PartTable,String> cell = new MFXTableRowCell<>(PartTable::getName);
-            MFXTextField nameField = new MFXTextField();
+            TextField nameField = new TextField();
+            nameField.setPrefHeight(30);
+            nameField.setPrefWidth(200);
+
             cell.setGraphic(nameField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -135,7 +138,9 @@ public class ViewOrderController {
         quantityCol.setPrefWidth(170);
         quantityCol.setRowCellFactory(item -> {
             MFXTableRowCell<PartTable,Integer> cell = new MFXTableRowCell<>(PartTable::getQuantity);
-            MFXTextField quantityField = new MFXTextField();
+            TextField quantityField = new TextField();
+            quantityField.setPrefHeight(30);
+            quantityField.setPrefWidth(200);
             cell.setGraphic(quantityField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -145,7 +150,9 @@ public class ViewOrderController {
         priceCol.setPrefWidth(170);
         priceCol.setRowCellFactory(item -> {
             MFXTableRowCell<PartTable,Double> cell = new MFXTableRowCell<>(PartTable::getPrice);
-            MFXTextField priceField = new MFXTextField();
+            TextField priceField = new TextField();
+            priceField.setPrefHeight(30);
+            priceField.setPrefWidth(200);
             cell.setGraphic(priceField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -155,7 +162,9 @@ public class ViewOrderController {
         totalPriceCol.setPrefWidth(170);
         totalPriceCol.setRowCellFactory(item -> {
             MFXTableRowCell<PartTable,Double> cell = new MFXTableRowCell<>(PartTable::getTotalPrice);
-            MFXTextField totalPriceField = new MFXTextField();
+            TextField totalPriceField = new TextField();
+            totalPriceField.setPrefHeight(30);
+            totalPriceField.setPrefWidth(200);
             cell.setGraphic(totalPriceField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
