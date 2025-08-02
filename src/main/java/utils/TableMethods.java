@@ -6,9 +6,11 @@ import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.util.converter.NumberStringConverter;
 
 import java.time.LocalDate;
 
@@ -29,6 +31,7 @@ public class TableMethods {
         dateCol.setRowCellFactory(item -> {
             MFXTableRowCell<WorkTable, LocalDate> cell = new MFXTableRowCell<>(WorkTable::getDate);
             DatePicker picker = new DatePicker();
+            picker.valueProperty().bindBidirectional(item.dateProperty());
             cell.setGraphic(picker);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -38,6 +41,8 @@ public class TableMethods {
         techCol.setRowCellFactory(item->{
             MFXTableRowCell<WorkTable,String> cell = new MFXTableRowCell<>(WorkTable::getTech);
             ComboBox box = new ComboBox();
+            box.setItems(FXCollections.observableArrayList("Tech1","Tech2","Tech3"));
+            box.valueProperty().bindBidirectional(item.techProperty());
             cell.setGraphic(box);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -48,6 +53,7 @@ public class TableMethods {
         descCol.setRowCellFactory(item->{
             MFXTableRowCell<WorkTable, String> cell = new MFXTableRowCell<>(WorkTable::getDescription);
             TextArea area = new TextArea();
+            area.textProperty().bindBidirectional(item.descriptionProperty());
             area.setWrapText(true);
             cell.setGraphic(area);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -58,6 +64,7 @@ public class TableMethods {
         priceCol.setRowCellFactory(item->{
             MFXTableRowCell<WorkTable,Double> cell = new MFXTableRowCell<>(WorkTable::getPrice);
             TextField field = new TextField();
+            field.textProperty().bindBidirectional(item.priceProperty(), new NumberStringConverter());
             field.setAlignment(Pos.CENTER_RIGHT);
             cell.setGraphic(field);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -86,7 +93,7 @@ public class TableMethods {
             TextField nameField = new TextField();
             nameField.setPrefHeight(30);
             nameField.setPrefWidth(200);
-
+            nameField.textProperty().bindBidirectional(item.nameProperty());
             cell.setGraphic(nameField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -99,6 +106,7 @@ public class TableMethods {
             TextField quantityField = new TextField();
             quantityField.setPrefHeight(30);
             quantityField.setPrefWidth(200);
+            quantityField.textProperty().bindBidirectional(item.quantityProperty(), new NumberStringConverter());
             cell.setGraphic(quantityField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -111,6 +119,7 @@ public class TableMethods {
             TextField priceField = new TextField();
             priceField.setPrefHeight(30);
             priceField.setPrefWidth(200);
+            priceField.textProperty().bindBidirectional(item.priceProperty(), new NumberStringConverter());
             cell.setGraphic(priceField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
@@ -123,6 +132,7 @@ public class TableMethods {
             TextField totalPriceField = new TextField();
             totalPriceField.setPrefHeight(30);
             totalPriceField.setPrefWidth(200);
+            totalPriceField.textProperty().bindBidirectional(item.totalPriceProperty(), new NumberStringConverter());
             cell.setGraphic(totalPriceField);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;

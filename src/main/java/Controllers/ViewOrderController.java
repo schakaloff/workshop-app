@@ -65,6 +65,8 @@ public class ViewOrderController {
     @FXML private MFXTableView<PartTable> partsTable;
     private final ObservableList<PartTable> partsData = FXCollections.observableArrayList();
 
+    DatePicker picker;
+
     //parts
     @FXML private MFXTextField partsCustomerTFX;
     @FXML private MFXTextField partsStatusTFX;
@@ -155,12 +157,14 @@ public class ViewOrderController {
         statusTFX.setText(wo.getStatus());
         numberTFX.setText((String.valueOf(wo.getWorkorderNumber())));
         loadServiceNotes();
+        TableMethods.loadRepairsTable(repairTable, repairData);
 
         //parts tab
         partsCustomerTFX.setText(fullName);
         partsStatusTFX.setText(wo.getStatus());
         partsNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
         TableMethods.loadPartsTable(partsTable, partsData);
+        loadPartsFromDb();
 
     }
 
@@ -261,6 +265,59 @@ public class ViewOrderController {
         }
         System.out.println("updated order");
         mainController.LoadOrders();
+        savePartsToDb();
+    }
+
+    public void savePartsToDb() {
+        String deleteSQL = "DELETE FROM work_order_parts WHERE workorder_id = ?";
+        String insertSQL = "INSERT INTO work_order_parts (workorder_id, part_name, quantity, price, total_price) VALUES (?, ?, ?, ?, ?)";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement del = conn.prepareStatement(deleteSQL);
+            del.setInt(1, currentWorkOrder.getWorkorderNumber());
+            del.executeUpdate();
+            del.close();
+            PreparedStatement ps = conn.prepareStatement(insertSQL);
+            for(PartTable part : partsData) {
+                if (part.getName() == null || part.getName().isBlank()) {
+                    continue;
+                }
+                ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+                ps.setString(2, part.getName());
+                ps.setInt(3, part.getQuantity());
+                ps.setDouble(4, part.getPrice());
+                ps.setDouble(5, part.getTotalPrice());
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            ps.close();
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println("error during saving parts");
+        }
+    }
+
+    public void loadPartsFromDb() {
+        partsData.clear();
+        String sql = "SELECT part_name, quantity, price, total_price FROM work_order_parts WHERE workorder_id = ?";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                String name  = rs.getString("part_name");
+                int    qty   = rs.getInt("quantity");
+                double price = rs.getDouble("price");
+                double total = rs.getDouble("total_price");
+                partsData.add(new PartTable(name, qty, price, total));
+            }
+            rs.close();
+            ps.close();
+            conn.close();
+        }catch (SQLException e){
+            System.out.println("error during loading parts");
+        }
     }
 
     @FXML
