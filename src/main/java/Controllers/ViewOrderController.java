@@ -164,7 +164,9 @@ public class ViewOrderController {
         partsStatusTFX.setText(wo.getStatus());
         partsNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
         TableMethods.loadPartsTable(partsTable, partsData);
+
         loadPartsFromDb();
+        loadRepairsFromDb();
 
     }
 
@@ -234,8 +236,61 @@ public class ViewOrderController {
         status.setText(currentWorkOrder.getStatus());
     }
 
+    private void loadRepairsFromDb() {
+        repairData.clear();
+        String sql = "SELECT repair_date, tech, description, price FROM work_order_repairs WHERE workorder_id = ?";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                LocalDate date       = rs.getDate("repair_date").toLocalDate();
+                String    tech       = rs.getString("tech");
+                String    desc       = rs.getString("description");
+                double    price      = rs.getDouble("price");
+                repairData.add(new WorkTable(date, tech, desc, price));
+            }
+            rs.close();
+            ps.close();
+            conn.close();
+        } catch (SQLException e){
+            System.out.println("error during loading repairs");
+        }
+    }
+
+    private void saveRepairsToDb() {
+        String deleteSQL = "DELETE FROM work_order_repairs WHERE workorder_id = ?";
+        String insertSQL = "INSERT INTO work_order_repairs (workorder_id, repair_date, tech, description, price) VALUES (?, ?, ?, ?, ?)";
+        try{
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement del = conn.prepareStatement(deleteSQL);
+            del.setInt(1, currentWorkOrder.getWorkorderNumber());
+            del.executeUpdate();
+            del.close();
+
+            PreparedStatement ps = conn.prepareStatement(insertSQL);
+            for (WorkTable r : repairData) {
+                if (r.getTech() == null || r.getTech().isBlank()) {
+                    continue;
+                }
+                ps.setInt    (1, currentWorkOrder.getWorkorderNumber());
+                ps.setDate   (2, java.sql.Date.valueOf(r.getDate()));
+                ps.setString (3, r.getTech());
+                ps.setString (4, r.getDescription());
+                ps.setDouble (5, r.getPrice());
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            ps.close();
+            conn.close();
+        } catch (SQLException e){
+            System.out.println("error during saving repairs");
+        }
+    }
+
     @FXML
-    public void updateOrder(){ //update the work order
+    public void updateOrder(){
         String newType = type.getText();
         String newModel = model.getText();
         String newSerialNumber = serialNumber.getText();
@@ -265,7 +320,9 @@ public class ViewOrderController {
         }
         System.out.println("updated order");
         mainController.LoadOrders();
+
         savePartsToDb();
+        saveRepairsToDb();
     }
 
     public void savePartsToDb() {
@@ -306,8 +363,8 @@ public class ViewOrderController {
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                String name  = rs.getString("part_name");
-                int    qty   = rs.getInt("quantity");
+                String name = rs.getString("part_name");
+                int qty = rs.getInt("quantity");
                 double price = rs.getDouble("price");
                 double total = rs.getDouble("total_price");
                 partsData.add(new PartTable(name, qty, price, total));
