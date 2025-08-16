@@ -2,6 +2,7 @@
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXListView?>
 <?import io.github.palexdev.materialfx.controls.MFXTableView?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
@@ -46,12 +47,12 @@
                         <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="62.0" layoutY="61.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="72.0" layoutY="88.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="124.0" layoutY="119.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-                        <MFXButton layoutX="374.0" layoutY="289.0" onAction="#updateOrder" prefHeight="36.0" prefWidth="109.0" text="Save" />
+                        <MFXButton layoutX="373.0" layoutY="345.0" onAction="#updateOrder" prefHeight="36.0" prefWidth="109.0" text="Save" />
                         <MFXButton layoutX="490.0" layoutY="294.0" onAction="#printOrder" text="Print" />
-                        <MFXTextField fx:id="idTFX" floatMode="BORDER" floatingText="ID" layoutX="427.0" layoutY="56.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-                        <MFXTextField fx:id="firstNameTXF" floatMode="BORDER" floatingText="Name" layoutX="427.0" layoutY="86.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-                        <MFXTextField fx:id="lastNameTXF" floatMode="BORDER" floatingText="Last Name" layoutX="427.0" layoutY="117.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-                        <MFXTextField fx:id="phoneTFX" floatMode="BORDER" floatingText="Phone" layoutX="427.0" layoutY="149.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="idTFX" allowEdit="false" floatMode="BORDER" floatingText="ID" layoutX="427.0" layoutY="56.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="firstNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Name" layoutX="427.0" layoutY="86.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="lastNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Last Name" layoutX="427.0" layoutY="117.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
+                        <MFXTextField fx:id="phoneTFX" allowEdit="false" floatMode="BORDER" floatingText="Phone" layoutX="427.0" layoutY="149.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="addressTFX" floatMode="BORDER" floatingText="Address" layoutX="427.0" layoutY="181.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="townTFX" floatMode="BORDER" floatingText="Town" layoutX="427.0" layoutY="212.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="zipTFX" floatMode="BORDER" floatingText="ZIP" layoutX="427.0" layoutY="245.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
@@ -64,7 +65,7 @@
                         </Text>
                         <MFXTextField fx:id="status" floatMode="BORDER" floatingText="Status" layoutX="67.0" layoutY="27.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXButton layoutX="556.0" layoutY="294.0" onAction="#Pay" text="Pay" />
-                        <MFXTextField fx:id="mainNumberTFX" floatMode="BORDER" floatingText="W/O" layoutX="428.0" layoutY="24.0" minHeight="25.0" minWidth="100.0" />
+                        <MFXTextField fx:id="mainNumberTFX" allowEdit="false" floatMode="BORDER" floatingText="W/O" layoutX="428.0" layoutY="24.0" minHeight="25.0" minWidth="100.0" />
                         <Text layoutX="224.0" layoutY="326.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deposit:" />
                         <MFXTextField fx:id="depositTXF" alignment="CENTER" allowEdit="false" floatMode="BORDER" floatingText="\$" layoutX="279.0" layoutY="308.0" minHeight="25.0" minWidth="100.0" />
                      </children>
@@ -111,7 +112,11 @@
             </Tab>
             <Tab closable="false" text="Files">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <MFXListView fx:id="filesList" layoutX="13.0" layoutY="23.0" prefHeight="349.0" prefWidth="725.0" />
+                        <MFXButton layoutX="618.0" layoutY="387.0" onAction="#addFile" text="Add File" />
+                     </children></AnchorPane>
               </content>
             </Tab>
          </tabs>
