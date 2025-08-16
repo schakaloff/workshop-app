@@ -1,10 +1,7 @@
 package Controllers;
 
 import DB.DbConfig;
-import Skeletons.Customer;
-import Skeletons.PartTable;
-import Skeletons.WorkOrder;
-import Skeletons.WorkTable;
+import Skeletons.*;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
@@ -14,12 +11,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
 import utils.TableMethods;
 
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
@@ -64,6 +69,10 @@ public class ViewOrderController {
 
     @FXML private MFXTableView<PartTable> partsTable;
     private final ObservableList<PartTable> partsData = FXCollections.observableArrayList();
+
+    @FXML private MFXListView<Files> filesList;
+    private final ObservableList<Files> filesData = FXCollections.observableArrayList();
+
 
     DatePicker picker;
 
@@ -112,17 +121,12 @@ public class ViewOrderController {
         });
     }
 
-    @FXML
-    public void onAddStep() {
-        repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
-    }
-
-    @FXML
-    public void addPart(){
-        partsData.add(new PartTable("",0,0.0,0));
-    }
-
     public void initData(WorkOrder wo, Customer co){
+        this.currentWorkOrder = wo;
+        this.currentCustomer = co;
+        refreshWorkOrderFromDb();
+        loadFilesFromDb();
+
         String firstName = co.getFirstName();
         String lastName = co.getLastName();
         String fullName = lastName + "," + firstName;
@@ -149,9 +153,6 @@ public class ViewOrderController {
         mainNumberTFX.setText((String.valueOf(wo.getWorkorderNumber())));
         depositTXF.setText("$"+String.valueOf(wo.getDepositAmount()));
 
-        this.currentWorkOrder = wo;
-        this.currentCustomer = co;
-
         //labour tab
         customerTFX.setText(fullName);
         statusTFX.setText(wo.getStatus());
@@ -164,10 +165,10 @@ public class ViewOrderController {
         partsStatusTFX.setText(wo.getStatus());
         partsNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
         TableMethods.loadPartsTable(partsTable, partsData);
-
         loadPartsFromDb();
-        loadRepairsFromDb();
 
+        //repair
+        loadRepairsFromDb();
     }
 
     public void insertNotes(TextArea area){  //service notes function
@@ -180,6 +181,27 @@ public class ViewOrderController {
         }
         area.insertText(caret, stamp);
         area.positionCaret(caret + stamp.length());
+    }
+
+    public void refreshWorkOrderFromDb() {
+        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber FROM work_order WHERE workorder = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                currentWorkOrder.setStatus(rs.getString("status"));
+                currentWorkOrder.setType(rs.getString("type"));
+                currentWorkOrder.setModel(rs.getString("model"));
+                currentWorkOrder.setSerialNumber(rs.getString("serialNumber"));
+                currentWorkOrder.setProblemDesc(rs.getString("problemDesc"));
+                currentWorkOrder.setVendorId(rs.getString("vendorId"));
+                currentWorkOrder.setWarrantyNumber(rs.getString("warrantyNumber"));
+            }
+        } catch (SQLException e) {
+            System.out.println("issue during refreshing work order");
+        }
     }
 
     @FXML
@@ -214,6 +236,15 @@ public class ViewOrderController {
         }catch (SQLException e){
             System.out.println("issue during loading service notes");
         }
+    }
+    @FXML
+    public void onAddStep() {
+        repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
+    }
+
+    @FXML
+    public void addPart(){
+        partsData.add(new PartTable("",0,0.0,0));
     }
 
     @FXML
@@ -274,11 +305,11 @@ public class ViewOrderController {
                 if (r.getTech() == null || r.getTech().isBlank()) {
                     continue;
                 }
-                ps.setInt    (1, currentWorkOrder.getWorkorderNumber());
-                ps.setDate   (2, java.sql.Date.valueOf(r.getDate()));
-                ps.setString (3, r.getTech());
-                ps.setString (4, r.getDescription());
-                ps.setDouble (5, r.getPrice());
+                ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+                ps.setDate(2, java.sql.Date.valueOf(r.getDate()));
+                ps.setString(3, r.getTech());
+                ps.setString(4, r.getDescription());
+                ps.setDouble(5, r.getPrice());
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -325,7 +356,67 @@ public class ViewOrderController {
         saveRepairsToDb();
     }
 
-    public void savePartsToDb() {
+    @FXML
+    public void addFile() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select Files");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("All files", "*.*"));
+        File file = fc.showOpenDialog(dialogInstance.getScene().getWindow());
+        if (file == null) return; // user cancelled
+
+        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            FileInputStream fis = new FileInputStream(file);
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ps.setString(2, file.getName());
+            ps.setBinaryStream(3, fis, (long) file.length()); // send bytes
+
+            ps.executeUpdate();
+
+            fis.close();
+            ps.close();
+            conn.close();
+
+            loadFilesFromDb(); // refresh list
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void onOpenSelectedFile() {
+        Files row = filesList.getSelectionModel().getSelectedValue(); // MFX API
+        if (row == null) return;
+        openFileFromDb(row.getId());
+    }
+
+    public void initFilesUI(){
+        filesList.setItems(filesData);
+        loadFilesFromDb();
+    }
+
+    public void loadFilesFromDb() {
+        filesList.getItems().clear();
+        String sql = "SELECT id, file_name FROM work_order_files WHERE workorder_id = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber()); // make sure this is set!
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                filesList.getItems().add(new Files(rs.getInt("id"), rs.getString("file_name")));
+            }
+            rs.close(); ps.close(); conn.close();
+        } catch (SQLException e) {
+            System.out.println("issue during loading files");
+        }
+    }
+
+
+    private void savePartsToDb() {
         String deleteSQL = "DELETE FROM work_order_parts WHERE workorder_id = ?";
         String insertSQL = "INSERT INTO work_order_parts (workorder_id, part_name, quantity, price, total_price) VALUES (?, ?, ?, ?, ?)";
         try{
@@ -354,7 +445,7 @@ public class ViewOrderController {
         }
     }
 
-    public void loadPartsFromDb() {
+    private void loadPartsFromDb() {
         partsData.clear();
         String sql = "SELECT part_name, quantity, price, total_price FROM work_order_parts WHERE workorder_id = ?";
         try{
