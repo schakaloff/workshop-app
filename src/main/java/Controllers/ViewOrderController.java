@@ -5,6 +5,7 @@ import Skeletons.*;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
+import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -22,10 +23,7 @@ import print.Print;
 import utils.TableMethods;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -117,6 +115,14 @@ public class ViewOrderController {
             } else {
                 serviceNotesTXT.setTranslateY(0);
                 serviceNotesTXT.setPrefHeight(COLLAPSED_H);
+            }
+        });
+
+        filesList.addEventFilter(MouseEvent.MOUSE_CLICKED, e ->{
+            if(e.getClickCount() == 2){
+                e.consume();
+                System.out.println("double click");
+                onOpenSelectedFile();
             }
         });
     }
@@ -362,7 +368,7 @@ public class ViewOrderController {
         fc.setTitle("Select Files");
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("All files", "*.*"));
         File file = fc.showOpenDialog(dialogInstance.getScene().getWindow());
-        if (file == null) return; // user cancelled
+        if (file == null) return;
 
         String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
         try {
@@ -386,11 +392,58 @@ public class ViewOrderController {
         }
     }
 
-    @FXML
     public void onOpenSelectedFile() {
-        Files row = filesList.getSelectionModel().getSelectedValue(); // MFX API
-        if (row == null) return;
-        openFileFromDb(row.getId());
+        Files selected = filesList.getSelectionModel().getSelectedValue();
+        if(selected == null)return;
+        openFileFromDb(selected.getId());
+    }
+
+    public void openFileFromDb(int fileId){
+        String sql = "SELECT file_name, file_data FROM work_order_files WHERE id = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, fileId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String name = rs.getString("file_name");
+                InputStream in = rs.getBinaryStream("file_data");
+
+                String ext = "";
+                int dot = name.lastIndexOf('.');
+                if (dot > -1) ext = name.substring(dot);
+
+                File tmp = File.createTempFile("wo_", ext);
+                tmp.deleteOnExit();
+
+                try (OutputStream out = new FileOutputStream(tmp)) {
+                    byte[] buf = new byte[8192];
+                    int n;
+                    while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                }
+
+                openWithDesktop(tmp);
+            }
+            rs.close();
+            ps.close();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void openWithDesktop(File file){
+        Thread thread = new Thread(){
+            @Override
+            public void run(){
+                try{
+                    Desktop.getDesktop().open(file);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
     }
 
     public void initFilesUI(){
@@ -414,7 +467,6 @@ public class ViewOrderController {
             System.out.println("issue during loading files");
         }
     }
-
 
     private void savePartsToDb() {
         String deleteSQL = "DELETE FROM work_order_parts WHERE workorder_id = ?";
