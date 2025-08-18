@@ -22,9 +22,12 @@ import javafx.stage.Window;
 import print.Print;
 import utils.TableMethods;
 
+
 import java.awt.*;
 import java.io.*;
 import java.sql.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -68,8 +71,8 @@ public class ViewOrderController {
     @FXML private MFXTableView<PartTable> partsTable;
     private final ObservableList<PartTable> partsData = FXCollections.observableArrayList();
 
-    @FXML private MFXListView<Files> filesList;
-    private final ObservableList<Files> filesData = FXCollections.observableArrayList();
+    @FXML private MFXListView<FilesHandler> filesList;
+    private final ObservableList<FilesHandler> filesData = FXCollections.observableArrayList();
 
 
     DatePicker picker;
@@ -393,7 +396,7 @@ public class ViewOrderController {
     }
 
     public void onOpenSelectedFile() {
-        Files selected = filesList.getSelectionModel().getSelectedValue();
+        FilesHandler selected = filesList.getSelectionModel().getSelectedValue();
         if(selected == null)return;
         openFileFromDb(selected.getId());
     }
@@ -411,16 +414,14 @@ public class ViewOrderController {
 
                 String ext = "";
                 int dot = name.lastIndexOf('.');
-                if (dot > -1) ext = name.substring(dot);
-
+                if (dot > -1){
+                    ext = name.substring(dot);
+                }
                 File tmp = File.createTempFile("wo_", ext);
                 tmp.deleteOnExit();
 
-                try (OutputStream out = new FileOutputStream(tmp)) {
-                    byte[] buf = new byte[8192];
-                    int n;
-                    while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-                }
+                Files.copy(in, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                in.close();
 
                 openWithDesktop(tmp);
             }
@@ -460,7 +461,7 @@ public class ViewOrderController {
             ps.setInt(1, currentWorkOrder.getWorkorderNumber()); // make sure this is set!
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                filesList.getItems().add(new Files(rs.getInt("id"), rs.getString("file_name")));
+                filesList.getItems().add(new FilesHandler(rs.getInt("id"), rs.getString("file_name")));
             }
             rs.close(); ps.close(); conn.close();
         } catch (SQLException e) {
