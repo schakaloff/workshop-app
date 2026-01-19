@@ -40,6 +40,10 @@ import main.Main;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
 public class ActualWorkshopController{
@@ -47,27 +51,41 @@ public class ActualWorkshopController{
     @FXML private Circle techAvatar;
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
+    @FXML private Button btnOldNew;
+    @FXML private Button btnRepairedNotPaid;
 
     @FXML private MFXPaginatedTableView<WorkOrder> table;
 
+    private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
+
+    private final ObservableList<WorkOrder> allData = FXCollections.observableArrayList();
+    private boolean oldNewFilterEnabled = false;
+    private boolean repairedNotBilledFilterEnabled = false;
 
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         avatar(techAvatar); //set avatar's pic
-        table.setRowsPerPage(5);
+        table.setRowsPerPage(15);
         table.setPagesToShow(5);
         LoadOrders();
     }
 
-    public void LoadOrders(){
+    public void LoadOrders() {
         table.getTableColumns().clear();
         table.getItems().clear();
-        table.autosizeColumnsOnInitialization(); //autosize table columns
-        loadOrdersTable(); //load table
-        loadOrdersIntoTable(); //load orders into table
-        table.setItems(data);
+        table.autosizeColumnsOnInitialization();
+
+        loadOrdersTable();
+
+        loadOrdersIntoTable();
+        allData.setAll(data);
+
+        table.setItems(allData);
         viewOrder(table);
+
+        updateOldNewButtonCount();
+        updateRepairedNotBilledButtonCount();
     }
 
     public void LoadCustomers(){
@@ -78,20 +96,153 @@ public class ActualWorkshopController{
 
     public void LoadInvoices(){}
 
+
+
+
+    private boolean isStatusNew(String status) {
+        if (status == null) return false;
+        String s = status.trim().toLowerCase();
+        return s.equals("new");
+    }
+
+    private boolean isStatusComplete(String status) {
+        if (status == null) return false;
+        String s = status.trim().toLowerCase();
+        return s.equals("repaired");
+    }
+
+    private int countOldNewOver10() {
+        return (int) allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).count();
+    }
+
+    private int countRepairedNotBilled() {
+        return (int) allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).count();
+    }
+
+    @FXML
+    public void showOldNewOver10() {
+        oldNewFilterEnabled = !oldNewFilterEnabled;
+        if (oldNewFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                    allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).toList()
+            );
+            table.setItems(filtered);
+            btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
+            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.35);");
+        } else {
+            table.setItems(allData);
+            updateOldNewButtonCount();
+        }
+    }
+
+    @FXML
+    public void showRepairedNotPaid() {
+        repairedNotBilledFilterEnabled = !repairedNotBilledFilterEnabled;
+
+        // If you want only ONE filter active at a time, turn the other off:
+        if (repairedNotBilledFilterEnabled) {
+            oldNewFilterEnabled = false;
+            updateOldNewButtonCount();
+            btnOldNew.setStyle(""); // optional, resets the red state
+        }
+
+        if (repairedNotBilledFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                    allData.stream()
+                            .filter(wo -> isStatusComplete(wo.getStatus()))
+                            .toList()
+            );
+
+            table.setItems(filtered);
+            btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
+            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.35);");
+        } else {
+            table.setItems(allData);
+            updateRepairedNotBilledButtonCount();
+        }
+    }
+
+
+
+    private void updateOldNewButtonCount() {
+        if (btnOldNew == null) return;
+        int count = countOldNewOver10();
+        btnOldNew.setText("OLD OPENED WO: " + count);
+        if (count > 0) {
+            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.20);");
+        } else {
+            btnOldNew.setStyle("");
+        }
+    }
+
+    private void updateRepairedNotBilledButtonCount() {
+        if (btnRepairedNotPaid == null) return;
+        int count = countRepairedNotBilled();
+        btnRepairedNotPaid.setText("REPAIRED NOT BILLED: " + count);
+
+        if (count > 0) {
+            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.20);");
+        } else {
+            btnRepairedNotPaid.setStyle("");
+        }
+    }
+
+    private boolean isAgingStatus(String status) {
+        if (status == null) return false;
+        String s = status.trim().toLowerCase();
+        return s.equals("new") || s.equals("in progress") || s.equals("in_progress");
+    }
+
+    private long ageDays(WorkOrder wo) {
+        try {
+            LocalDateTime created = LocalDateTime.parse(wo.getCreatedAt(), DB_DT);
+            LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+            return ChronoUnit.DAYS.between(created, now);
+        } catch (Exception ignored) {
+            return 0;
+        }
+    }
+
+    private void applyRowStyle(MFXTableRow<WorkOrder> row, WorkOrder wo) {
+        row.setStyle("");
+        if (wo == null) return;
+
+        // 1) Blue for repaired complete(not billed)
+        if (isStatusComplete(wo.getStatus())) {
+            row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);");
+            return;
+        }
+
+        // 2) Red/yellow for aging new/in-progress
+        if (isAgingStatus(wo.getStatus())) {
+            long days = ageDays(wo);
+            if (days > 10) {
+                row.setStyle("-fx-background-color: rgba(255, 0, 0, 0.25);");
+            } else if (days > 5) {
+                row.setStyle("-fx-background-color: rgba(255, 215, 0, 0.25);");
+            }
+        }
+    }
+
     public void viewOrder(MFXTableView<WorkOrder> table) {
-        table.setTableRowFactory(workOrder -> {
-            MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, workOrder);
+        table.setTableRowFactory(wo -> {
+            MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, wo);
+
+            applyRowStyle(row, wo);
+            try {row.dataProperty().addListener((obs, oldVal, newVal) -> applyRowStyle(row, newVal));} catch (Exception ignored) {}
+
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
                     try {
-                        Customer customer = getCustomerById(workOrder.getCustomerId());
-                        openWorkOrder(workOrder, customer);
+                        Customer customer = getCustomerById(wo.getCustomerId());
+                        openWorkOrder(wo, customer);
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
             });
+
             return row;
         });
     }
@@ -197,10 +348,18 @@ public class ActualWorkshopController{
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", Comparator.comparing(WorkOrder::getType));
         MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", Comparator.comparing(WorkOrder::getCreatedAt));
 
+        workOrder.setColumnResizable(true);
+        status.setColumnResizable(true);
+        type.setColumnResizable(true);
+        date.setColumnResizable(true);
+
         workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
         type.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getType));
         date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt){{setAlignment(Pos.CENTER_RIGHT);}});
+
+
+
 
         date.setAlignment(Pos.CENTER_RIGHT);
         table.getTableColumns().addAll(workOrder,status,type,date);
