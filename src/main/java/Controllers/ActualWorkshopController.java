@@ -138,21 +138,13 @@ public class ActualWorkshopController{
     @FXML
     public void showRepairedNotPaid() {
         repairedNotBilledFilterEnabled = !repairedNotBilledFilterEnabled;
-
-        // If you want only ONE filter active at a time, turn the other off:
         if (repairedNotBilledFilterEnabled) {
             oldNewFilterEnabled = false;
             updateOldNewButtonCount();
-            btnOldNew.setStyle(""); // optional, resets the red state
+            btnOldNew.setStyle("");
         }
-
         if (repairedNotBilledFilterEnabled) {
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream()
-                            .filter(wo -> isStatusComplete(wo.getStatus()))
-                            .toList()
-            );
-
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).toList());
             table.setItems(filtered);
             btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
             btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.35);");
@@ -161,8 +153,6 @@ public class ActualWorkshopController{
             updateRepairedNotBilledButtonCount();
         }
     }
-
-
 
     private void updateOldNewButtonCount() {
         if (btnOldNew == null) return;
@@ -207,13 +197,11 @@ public class ActualWorkshopController{
         row.setStyle("");
         if (wo == null) return;
 
-        // 1) Blue for repaired complete(not billed)
         if (isStatusComplete(wo.getStatus())) {
             row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);");
             return;
         }
 
-        // 2) Red/yellow for aging new/in-progress
         if (isAgingStatus(wo.getStatus())) {
             long days = ageDays(wo);
             if (days > 10) {
@@ -246,6 +234,7 @@ public class ActualWorkshopController{
             return row;
         });
     }
+
     public Customer getCustomerById(int customerId) {
         String sql = "SELECT * FROM customer WHERE id = ?";
         try {
@@ -372,6 +361,26 @@ public class ActualWorkshopController{
 
     }
 
+    public void openSettingsMenu() throws IOException {
+        contentPane.setEffect(new GaussianBlur(4));
+        contentPane.setDisable(true);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/settings.fxml"));
+        MFXGenericDialog dialog = loader.load();
+
+        SettingsController dialogController = loader.getController();
+        dialogController.setMainController(this);
+        dialogController.setDialogInstance(dialog);
+
+        dialog.setOpacity(0);
+        dialog.setScaleX(0.8);
+        dialog.setScaleY(0.8);
+
+        rootStack.getChildren().add(dialog);
+        playShowAnimation(dialog);
+
+    }
+
     public void createNewOrder() throws IOException {
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
@@ -427,6 +436,8 @@ public class ActualWorkshopController{
         playShowAnimation(dialog);
 
     }
+
+
 
     public void avatar(Circle techAvatar){
         Image im = new Image("/avatar.png"); //make

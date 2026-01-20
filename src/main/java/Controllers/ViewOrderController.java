@@ -74,6 +74,8 @@ public class ViewOrderController {
     @FXML private MFXListView<FilesHandler> filesList;
     private final ObservableList<FilesHandler> filesData = FXCollections.observableArrayList();
 
+    private final ObservableList<String> techNames = FXCollections.observableArrayList();
+
 
     DatePicker picker;
 
@@ -91,8 +93,10 @@ public class ViewOrderController {
     public void initialize(){
         tabPane.setFocusTraversable(false);
 
+        techNames.setAll(TableMethods.loadTechnicianUsernames());
+
         repairTable.setFooterVisible(false);
-        TableMethods.loadRepairsTable(repairTable, repairData);
+        TableMethods.loadRepairsTable(repairTable, repairData, techNames);
         repairTable.setItems(repairData);
 
         partsTable.setFooterVisible(false);
@@ -167,7 +171,7 @@ public class ViewOrderController {
         statusTFX.setText(wo.getStatus());
         numberTFX.setText((String.valueOf(wo.getWorkorderNumber())));
         loadServiceNotes();
-        TableMethods.loadRepairsTable(repairTable, repairData);
+        TableMethods.loadRepairsTable(repairTable, repairData, techNames);
 
         //parts tab
         partsCustomerTFX.setText(fullName);

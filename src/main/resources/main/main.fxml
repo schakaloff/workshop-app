@@ -53,6 +53,11 @@
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
+                        <JFXButton alignment="CENTER" onAction="#openSettingsMenu" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Settings">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXButton>
                      </children>
                   </VBox>
                </children>

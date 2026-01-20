@@ -3,6 +3,7 @@ module main {
     requires com.jfoenix;
     requires javafx.controls;
     requires MaterialFX;
+    requires javafx.fxml;
     //requires org.apache.poi.ooxml;
     opens main to javafx.fxml;
     exports main;
