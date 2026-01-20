@@ -1,5 +1,6 @@
 package utils;
 
+import DB.DbConfig;
 import Skeletons.PartTable;
 import Skeletons.WorkTable;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
@@ -12,11 +13,35 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.util.converter.NumberStringConverter;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TableMethods {
 
-    public static void loadRepairsTable(MFXTableView<WorkTable> repairTable, ObservableList<WorkTable> repairData) {
+    public static List<String> loadTechnicianUsernames() {
+        List<String> techs = new ArrayList<>();
+        String sql = "SELECT username FROM technician ORDER BY username";
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                techs.add(rs.getString("username"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return techs;
+    }
+
+    public static void loadRepairsTable(MFXTableView<WorkTable> repairTable, ObservableList<WorkTable> repairData, ObservableList<String> techNames) {
+
         repairTable.getTableColumns().clear();
         repairData.clear();
 
@@ -40,8 +65,8 @@ public class TableMethods {
         MFXTableColumn<WorkTable> techCol = new MFXTableColumn<>("Tech");
         techCol.setRowCellFactory(item->{
             MFXTableRowCell<WorkTable,String> cell = new MFXTableRowCell<>(WorkTable::getTech);
-            ComboBox box = new ComboBox();
-            box.setItems(FXCollections.observableArrayList("Tech1","Tech2","Tech3"));
+            ComboBox<String> box = new ComboBox<>();
+            box.setItems(techNames);
             box.valueProperty().bindBidirectional(item.techProperty());
             cell.setGraphic(box);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
