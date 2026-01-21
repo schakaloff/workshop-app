@@ -15,7 +15,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="500.0" prefWidth="750.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="500.0" prefWidth="750.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
    <center>
       <TabPane fx:id="tabPane" prefHeight="519.0" prefWidth="708.0" stylesheets="@../tab.css" BorderPane.alignment="CENTER">
          <tabs>
@@ -63,11 +63,11 @@
                               <Font size="14.0" />
                            </font>
                         </Text>
-                        <MFXTextField fx:id="status" floatMode="BORDER" floatingText="Status" layoutX="67.0" layoutY="27.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXButton layoutX="556.0" layoutY="294.0" onAction="#Pay" text="Pay" />
                         <MFXTextField fx:id="mainNumberTFX" allowEdit="false" floatMode="BORDER" floatingText="W/O" layoutX="428.0" layoutY="24.0" minHeight="25.0" minWidth="100.0" />
                         <Text layoutX="224.0" layoutY="326.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deposit:" />
                         <MFXTextField fx:id="depositTXF" alignment="CENTER" allowEdit="false" floatMode="BORDER" floatingText="\$" layoutX="279.0" layoutY="308.0" minHeight="25.0" minWidth="100.0" />
+                        <MFXComboBox fx:id="statusCombo" layoutX="62.0" layoutY="16.0" prefHeight="42.0" prefWidth="164.0" />
                      </children>
                   </AnchorPane>
                </content>

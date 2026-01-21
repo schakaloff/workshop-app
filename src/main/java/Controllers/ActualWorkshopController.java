@@ -65,7 +65,7 @@ public class ActualWorkshopController{
 
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
-        avatar(techAvatar); //set avatar's pic
+        //avatar(techAvatar); //set avatar's pic
         table.setRowsPerPage(15);
         table.setPagesToShow(5);
         LoadOrders();
@@ -108,7 +108,7 @@ public class ActualWorkshopController{
     private boolean isStatusComplete(String status) {
         if (status == null) return false;
         String s = status.trim().toLowerCase();
-        return s.equals("repaired");
+        return s.equals("repair complete");
     }
 
     private int countOldNewOver10() {
@@ -180,7 +180,7 @@ public class ActualWorkshopController{
     private boolean isAgingStatus(String status) {
         if (status == null) return false;
         String s = status.trim().toLowerCase();
-        return s.equals("new") || s.equals("in progress") || s.equals("in_progress");
+        return s.equals("new") || s.equals("in progress") || s.equals("waiting parts");
     }
 
     private long ageDays(WorkOrder wo) {

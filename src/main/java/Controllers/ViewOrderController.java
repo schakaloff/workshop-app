@@ -39,7 +39,9 @@ public class ViewOrderController {
     @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXTextField warrantyNumber;
 
-    @FXML private MFXTextField status;
+    //@FXML private MFXTextField status;
+    @FXML private MFXComboBox<String> statusCombo;
+
     @FXML private MFXTextField type;
     @FXML private MFXTextField model;
     @FXML private MFXTextField serialNumber;
@@ -79,6 +81,15 @@ public class ViewOrderController {
 
     DatePicker picker;
 
+    public static final ObservableList<String> WORK_ORDER_STATUSES =
+            FXCollections.observableArrayList(
+                    "New",
+                    "In Progress",
+                    "Waiting Parts",
+                    "Repair Complete",
+                    "Closed"
+            );
+
     //parts
     @FXML private MFXTextField partsCustomerTFX;
     @FXML private MFXTextField partsStatusTFX;
@@ -92,6 +103,9 @@ public class ViewOrderController {
 
     public void initialize(){
         tabPane.setFocusTraversable(false);
+
+
+        statusCombo.setItems(WORK_ORDER_STATUSES);
 
         techNames.setAll(TableMethods.loadTechnicianUsernames());
 
@@ -132,6 +146,35 @@ public class ViewOrderController {
                 onOpenSelectedFile();
             }
         });
+
+        statusCombo.valueProperty().addListener((obs, oldStatus, newStatus) -> {
+            if (newStatus == null || newStatus.equals(oldStatus)) return;
+
+            updateStatusInDb(newStatus);
+        });
+    }
+
+    private void updateStatusInDb(String newStatus) {
+        String sql = "UPDATE work_order SET status = ? WHERE workorder = ?";
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+            ps.executeUpdate();
+
+            currentWorkOrder.setStatus(newStatus);
+
+            // update read-only fields
+            statusTFX.setText(newStatus);
+            partsStatusTFX.setText(newStatus);
+
+            mainController.LoadOrders(); // refresh table + colors + counters
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initData(WorkOrder wo, Customer co){
@@ -145,7 +188,10 @@ public class ViewOrderController {
         String fullName = lastName + "," + firstName;
 
         //main tab
-        status.setText(wo.getStatus());
+        //status.setText(wo.getStatus());
+
+        statusCombo.selectItem(wo.getStatus());
+
 
         type.setText(wo.getType());
         model.setText(wo.getModel());
@@ -266,18 +312,18 @@ public class ViewOrderController {
         try{
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, "Repaired");
+            statusCombo.selectItem("Repair Complete");
             ps.setInt(2, currentWorkOrder.getWorkorderNumber());
             int rs = ps.executeUpdate();
             if(rs > 0){
-                currentWorkOrder.setStatus("Repaired");
+                currentWorkOrder.setStatus("Repair Complete");
                 System.out.println("order is closed");
                 mainController.LoadOrders();
             }
         }catch (SQLException e){
             System.out.println("error during closing the order");
         }
-        status.setText(currentWorkOrder.getStatus());
+        statusCombo.setText(currentWorkOrder.getStatus());
     }
 
     private void loadRepairsFromDb() {
