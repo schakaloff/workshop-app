@@ -4,6 +4,7 @@
 <?import com.jfoenix.controls.JFXDrawer?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.controls.MFXPaginatedTableView?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.Glow?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -13,7 +14,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootStack" prefHeight="675.0" prefWidth="1007.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
+<StackPane fx:id="rootStack" prefHeight="675.0" prefWidth="1007.0" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
    <children>
       <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
          <left>
@@ -73,6 +74,7 @@
                      <effect>
                         <Glow />
                      </effect></MFXButton>
+                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="743.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
                </children>
             </AnchorPane>
          </center>
