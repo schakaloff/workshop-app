@@ -74,7 +74,7 @@ public class ActualWorkshopController{
     public void LoadOrders() {
         table.getTableColumns().clear();
         table.getItems().clear();
-        table.autosizeColumnsOnInitialization();
+        //table.autosizeColumnsOnInitialization();
 
         loadOrdersTable();
 
@@ -329,18 +329,25 @@ public class ActualWorkshopController{
             System.out.println("issues during inserting into table");
         }
         return -1;
+
     }
 
     public void loadOrdersTable(){
-        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder",  Comparator.comparing(WorkOrder::getWorkorderNumber));
-        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", Comparator.comparing(WorkOrder::getStatus));
-        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", Comparator.comparing(WorkOrder::getType));
-        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", Comparator.comparing(WorkOrder::getCreatedAt));
+        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder",  false);
+        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status",false);
+        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", false);
+        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date",false);
 
         workOrder.setColumnResizable(true);
         status.setColumnResizable(true);
         type.setColumnResizable(true);
         date.setColumnResizable(true);
+
+        workOrder.setMinWidth(110);
+        status.setMinWidth(160);
+        type.setMinWidth(260);
+        date.setMinWidth(180);
+
 
         workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
