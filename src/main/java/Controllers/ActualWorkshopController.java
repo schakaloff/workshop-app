@@ -4,10 +4,7 @@ import DB.DbConfig;
 import Controllers.CustomersController;
 import Skeletons.Customer;
 import Skeletons.WorkOrder;
-import io.github.palexdev.materialfx.controls.MFXPaginatedTableView;
-import io.github.palexdev.materialfx.controls.MFXTableColumn;
-import io.github.palexdev.materialfx.controls.MFXTableRow;
-import io.github.palexdev.materialfx.controls.MFXTableView;
+import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 import io.github.palexdev.materialfx.filter.IntegerFilter;
@@ -54,6 +51,8 @@ public class ActualWorkshopController{
     @FXML private Button btnOldNew;
     @FXML private Button btnRepairedNotPaid;
 
+    @FXML private MFXTextField searchTxtField;
+
     @FXML private MFXPaginatedTableView<WorkOrder> table;
 
     private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -69,6 +68,35 @@ public class ActualWorkshopController{
         table.setRowsPerPage(15);
         table.setPagesToShow(5);
         LoadOrders();
+
+
+        searchTxtField.setOnAction(e -> onSearchEnter());
+
+    }
+
+    public void onSearchEnter(){
+        String text = searchTxtField.getText().toString();
+        if (text == null ||text.isBlank()) return;
+
+        try {
+            int woNumber = Integer.parseInt(text.trim());
+            WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
+
+//            if (wo == null) {
+//                showNotFoundDialog(woNumber);
+//                return;
+//            }
+
+            Customer customer = getCustomerById(wo.getCustomerId());
+            openWorkOrder(wo, customer);
+
+            searchTxtField.clear();
+
+        } catch (NumberFormatException ex) {
+//            showInvalidInputDialog();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void LoadOrders() {
@@ -333,7 +361,7 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersTable(){
-        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("WorkOrder",  false);
+        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("Workorder",  false);
         MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status",false);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", false);
         MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date",false);
@@ -360,7 +388,7 @@ public class ActualWorkshopController{
         date.setAlignment(Pos.CENTER_RIGHT);
         table.getTableColumns().addAll(workOrder,status,type,date);
 
-        table.getFilters().addAll(new IntegerFilter<>("WorkOrder", WorkOrder::getWorkorderNumber));
+        table.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
         table.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
         table.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
         table.getFilters().addAll(new StringFilter<>("Warranty Number", WorkOrder::getWarrantyNumber));
