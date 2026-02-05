@@ -29,13 +29,9 @@ public class DeletingMethods {
 
     public DeletingMethods(MFXListView<FilesHandler> filesList) {
         this.filesList = filesList;
-
         this.filesMenu = new MFXContextMenu(filesList);
         this.deleteFileItem = new MFXContextMenuItem("Delete");
-
         filesMenu.getItems().add(deleteFileItem);
-
-        // right click should work immediately
         filesList.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleFilesContextClick);
     }
 
@@ -43,7 +39,6 @@ public class DeletingMethods {
         this.workorderNumber = workorderNumber;
     }
 
-    // ✅ EventHandler instead of Runnable
     public void setOnDelete(EventHandler<ActionEvent> handler) {
         deleteFileItem.setOnAction(handler);
     }
