@@ -56,6 +56,7 @@ public class ActualWorkshopController{
 
     @FXML private MFXPaginatedTableView<WorkOrder> table;
 
+
     private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
 

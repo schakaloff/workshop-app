@@ -20,6 +20,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
+import utils.DeletingMethods;
 import utils.TableMethods;
 
 
@@ -81,22 +82,17 @@ public class ViewOrderController {
 
     DatePicker picker;
 
-    public static final ObservableList<String> WORK_ORDER_STATUSES =
-            FXCollections.observableArrayList(
-                    "New",
-                    "In Progress",
-                    "Waiting Parts",
-                    "Repair Complete",
-                    "Closed"
-            );
+    public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList("New", "In Progress", "Waiting Parts", "Repair Complete", "Closed");
 
     //parts
     @FXML private MFXTextField partsCustomerTFX;
     @FXML private MFXTextField partsStatusTFX;
     @FXML private MFXTextField partsNumberTFX;
 
-    public WorkOrder currentWorkOrder;
+    public static WorkOrder currentWorkOrder;
     public Customer currentCustomer;
+
+    private DeletingMethods deletingMethods;
 
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
@@ -128,6 +124,8 @@ public class ViewOrderController {
         final double EXPANDED_H  = 180;
         serviceNotesTXT.setPrefHeight(COLLAPSED_H);
         serviceNotesTXT.setTranslateY(0);
+
+
         serviceNotesTXT.focusedProperty().addListener((obs, was, focused) -> {
             if (focused) {
                 serviceNotesTXT.setPrefHeight(EXPANDED_H);
@@ -151,6 +149,12 @@ public class ViewOrderController {
             if (newStatus == null || newStatus.equals(oldStatus)) return;
 
             updateStatusInDb(newStatus);
+        });
+
+        deletingMethods = new DeletingMethods(filesList);
+        deletingMethods.setOnDelete(e -> {
+            boolean deleted = deletingMethods.deleteSelectedFile();
+            if (deleted)loadFilesFromDb();
         });
     }
 
