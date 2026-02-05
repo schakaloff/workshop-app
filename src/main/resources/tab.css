@@ -1,0 +1,89 @@
+.modern-tabs {
+    -fx-background-color: transparent;
+}
+
+/* header area */
+.modern-tabs .tab-header-area {
+    -fx-padding: 10 12 0 12;
+    -fx-background-color: transparent;
+}
+
+.modern-tabs .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+/* tabs row */
+.modern-tabs .headers-region {
+    -fx-background-color: transparent;
+}
+
+/* each tab "pill" */
+.modern-tabs .tab {
+    -fx-background-color: #F2F4F7;
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 8 16 8 16;
+
+    -fx-border-color: transparent;
+    -fx-border-width: 1 1 0 1;
+    -fx-border-radius: 12 12 0 0;
+}
+
+/* hover */
+.modern-tabs .tab:hover {
+    -fx-background-color: #E9EDF3;
+}
+
+/* selected tab */
+.modern-tabs .tab:selected {
+    -fx-background-color: white;
+    -fx-border-color: #E5E7EB;
+}
+
+/* text */
+.modern-tabs .tab-label {
+    -fx-font-family: "Poppins";
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+}
+
+.modern-tabs .tab:selected .tab-label {
+    -fx-font-weight: bold;
+}
+
+.modern-tabs,
+.modern-tabs * {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Extra: some skins still draw a dotted-ish outline on the tab label */
+.modern-tabs .tab-label:focused,
+.modern-tabs .tab:focused,
+.modern-tabs .tab:selected:focused {
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-effect: null;
+}
+
+/* remove focus ring garbage */
+.modern-tabs .tab:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* content area = white card with border */
+.modern-tabs .tab-content-area {
+    -fx-background-color: white;
+    -fx-background-radius: 0 12 12 12;
+    -fx-border-radius: 0 12 12 12;
+
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+}
+
+/* optional: hide the tiny default line under tabs */
+.modern-tabs .tab-header-area .control-buttons-tab {
+    -fx-opacity: 0;
+    -fx-padding: 0;
+}

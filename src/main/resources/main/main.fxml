@@ -14,7 +14,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootStack" prefHeight="675.0" prefWidth="1007.0" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
+<StackPane fx:id="rootStack" prefHeight="675.0" prefWidth="1007.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
    <children>
       <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
          <left>
@@ -65,7 +65,7 @@
             </JFXDrawer>
          </left>
          <center>
-            <AnchorPane BorderPane.alignment="CENTER">
+            <AnchorPane style="-fx-background-color: white;" BorderPane.alignment="CENTER">
                <children>
                   <MFXPaginatedTableView fx:id="table" layoutX="48.0" layoutY="79.0" prefHeight="517.0" prefWidth="785.0" />
                   <MFXButton fx:id="btnOldNew" layoutX="48.0" layoutY="29.0" onAction="#showOldNewOver10" prefHeight="26.0" prefWidth="200.0" text="OLD OPENED WO: 0" />
