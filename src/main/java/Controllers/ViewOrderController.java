@@ -217,13 +217,13 @@ public class ViewOrderController {
         statusTFX.setText(wo.getStatus());
         numberTFX.setText((String.valueOf(wo.getWorkorderNumber())));
         loadServiceNotes();
-        TableMethods.loadRepairsTable(repairTable, repairData, techNames);
+        //TableMethods.loadRepairsTable(repairTable, repairData, techNames);
 
         //parts tab
         partsCustomerTFX.setText(fullName);
         partsStatusTFX.setText(wo.getStatus());
         partsNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
-        TableMethods.loadPartsTable(partsTable, partsData);
+        //TableMethods.loadPartsTable(partsTable, partsData);
         loadPartsFromDb();
 
         //repair
