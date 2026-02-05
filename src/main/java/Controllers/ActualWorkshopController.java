@@ -14,6 +14,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -62,6 +63,9 @@ public class ActualWorkshopController{
     private boolean oldNewFilterEnabled = false;
     private boolean repairedNotBilledFilterEnabled = false;
 
+    private MFXGenericDialog viewOrderDialog;
+    private ViewOrderController viewOrderController;
+
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         //avatar(techAvatar); //set avatar's pic
@@ -69,33 +73,67 @@ public class ActualWorkshopController{
         table.setPagesToShow(5);
         LoadOrders();
 
+        preloadViewOrderDialog();
+
 
         searchTxtField.setOnAction(e -> onSearchEnter());
 
     }
 
-    public void onSearchEnter(){
-        String text = searchTxtField.getText().toString();
-        if (text == null ||text.isBlank()) return;
+    public void onSearchEnter() {
+        String text = searchTxtField.getText();
+        if (text == null || text.isBlank()) return;
 
+        int woNumber;
         try {
-            int woNumber = Integer.parseInt(text.trim());
-            WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
-
-//            if (wo == null) {
-//                showNotFoundDialog(woNumber);
-//                return;
-//            }
-
-            Customer customer = getCustomerById(wo.getCustomerId());
-            openWorkOrder(wo, customer);
-
-            searchTxtField.clear();
-
+            woNumber = Integer.parseInt(text.trim());
         } catch (NumberFormatException ex) {
-//            showInvalidInputDialog();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            return;
+        }
+
+        WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
+
+        UILoader(wo);
+
+
+    }
+
+    private void UILoader(WorkOrder wo){
+        Task<Customer> task = new Task<>() {
+            @Override
+            protected Customer call() {
+                return getCustomerById(wo.getCustomerId());
+            }
+        };
+        task.setOnSucceeded(ev -> {
+            Customer customer = task.getValue();
+            if (customer != null) {
+                try {
+                    openWorkOrderFast(wo, customer);
+                    searchTxtField.clear();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        task.setOnFailed(ev -> task.getException().printStackTrace());
+
+        Thread t = new Thread(task);
+        t.start();
+    }
+
+    public void openWorkOrderFast(WorkOrder order, Customer co) {
+        contentPane.setEffect(new GaussianBlur(4));
+        contentPane.setDisable(true);
+        viewOrderController.initData(order, co);
+        if (!rootStack.getChildren().contains(viewOrderDialog)) {
+            viewOrderDialog.setOpacity(0);
+            viewOrderDialog.setScaleX(0.8);
+            viewOrderDialog.setScaleY(0.8);
+            rootStack.getChildren().add(viewOrderDialog);
+            playShowAnimation(viewOrderDialog);
+        } else {
+            viewOrderDialog.toFront();
         }
     }
 
@@ -123,9 +161,6 @@ public class ActualWorkshopController{
     }
 
     public void LoadInvoices(){}
-
-
-
 
     private boolean isStatusNew(String status) {
         if (status == null) return false;
@@ -221,6 +256,20 @@ public class ActualWorkshopController{
         }
     }
 
+    private void preloadViewOrderDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
+            viewOrderDialog = loader.load();
+            viewOrderController = loader.getController();
+
+            viewOrderController.setMainController(this);
+            viewOrderController.setDialogInstance(viewOrderDialog);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to preload viewOrder.fxml", e);
+        }
+    }
+
     private void applyRowStyle(MFXTableRow<WorkOrder> row, WorkOrder wo) {
         row.setStyle("");
         if (wo == null) return;
@@ -250,12 +299,8 @@ public class ActualWorkshopController{
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
-                    try {
-                        Customer customer = getCustomerById(wo.getCustomerId());
-                        openWorkOrder(wo, customer);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    Customer customer = getCustomerById(wo.getCustomerId());
+                    openWorkOrderFast(wo, customer);
                 }
             });
 
@@ -473,13 +518,14 @@ public class ActualWorkshopController{
     }
 
 
-
     public void avatar(Circle techAvatar){
         Image im = new Image("/avatar.png"); //make
         techAvatar.setCenterX(50);
         techAvatar.setCenterY(50);
         techAvatar.setFill(new ImagePattern(im));
     }
+
+
 
     private void playShowAnimation(MFXGenericDialog dialog) {
         // Fade from transparent → opaque
@@ -498,6 +544,9 @@ public class ActualWorkshopController{
         ParallelTransition pt = new ParallelTransition(fade, scale);
         pt.play();
     }
+
+
+
     public void signOut(MouseEvent e) throws IOException { //sign out button
         LoginController.tech = null;
         Parent root = FXMLLoader.load(Main.class.getResource("/main/login.fxml"));
