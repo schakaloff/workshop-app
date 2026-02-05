@@ -18,7 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
-public class DeletingMethods {
+public class DeletingFilesMethods {
 
     private final MFXListView<FilesHandler> filesList;
 
@@ -27,7 +27,7 @@ public class DeletingMethods {
 
     private int workorderNumber;
 
-    public DeletingMethods(MFXListView<FilesHandler> filesList) {
+    public DeletingFilesMethods(MFXListView<FilesHandler> filesList) {
         this.filesList = filesList;
         this.filesMenu = new MFXContextMenu(filesList);
         this.deleteFileItem = new MFXContextMenuItem("Delete");

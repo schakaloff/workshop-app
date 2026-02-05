@@ -101,7 +101,7 @@ public class TableMethods {
         repairTable.setItems(repairData);
     }
 
-    public static void loadPartsTable(MFXTableView<PartTable> partsTable, ObservableList<PartTable> partsData){
+    public static void loadPartsTable(MFXTableView<PartTable> partsTable, ObservableList<PartTable> partsData) {
         partsTable.getTableColumns().clear();
         partsData.clear();
 
@@ -111,61 +111,92 @@ public class TableMethods {
             return row;
         });
 
+        // -------- Name --------
         MFXTableColumn<PartTable> nameCol = new MFXTableColumn<>("Name");
-        nameCol.setPrefWidth(170);
+        nameCol.setPrefWidth(220);
         nameCol.setRowCellFactory(item -> {
-            MFXTableRowCell<PartTable,String> cell = new MFXTableRowCell<>(PartTable::getName);
-            TextField nameField = new TextField();
-            nameField.setPrefHeight(30);
-            nameField.setPrefWidth(200);
-            nameField.textProperty().bindBidirectional(item.nameProperty());
-            cell.setGraphic(nameField);
+            MFXTableRowCell<PartTable, String> cell = new MFXTableRowCell<>(PartTable::getName);
+            TextField tf = new TextField();
+            tf.textProperty().bindBidirectional(item.nameProperty());
+            cell.setGraphic(tf);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
         });
 
-        MFXTableColumn<PartTable> quantityCol = new MFXTableColumn<>("Quantity");
-        quantityCol.setPrefWidth(170);
-        quantityCol.setRowCellFactory(item -> {
-            MFXTableRowCell<PartTable,Integer> cell = new MFXTableRowCell<>(PartTable::getQuantity);
-            TextField quantityField = new TextField();
-            quantityField.setPrefHeight(30);
-            quantityField.setPrefWidth(200);
-            quantityField.textProperty().bindBidirectional(item.quantityProperty(), new NumberStringConverter());
-            cell.setGraphic(quantityField);
+        // -------- Quantity (digits only) --------
+        MFXTableColumn<PartTable> qtyCol = new MFXTableColumn<>("Quantity");
+        qtyCol.setPrefWidth(140);
+        qtyCol.setRowCellFactory(item -> {
+            MFXTableRowCell<PartTable, Integer> cell = new MFXTableRowCell<>(PartTable::getQuantity);
+            TextField tf = new TextField(String.valueOf(item.getQuantity()));
+
+            tf.textProperty().addListener((obs, oldVal, newVal) -> {
+                // only digits
+                if (!newVal.matches("\\d*")) {
+                    tf.setText(oldVal);
+                    return;
+                }
+
+                int qty = newVal.isEmpty() ? 0 : Integer.parseInt(newVal);
+                item.setQuantity(qty);
+
+                // recalc total
+                item.setTotalPrice(item.getQuantity() * item.getPrice());
+            });
+
+            cell.setGraphic(tf);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
         });
 
+        // -------- Price (digits + one dot) --------
         MFXTableColumn<PartTable> priceCol = new MFXTableColumn<>("Price");
-        priceCol.setPrefWidth(170);
+        priceCol.setPrefWidth(140);
         priceCol.setRowCellFactory(item -> {
-            MFXTableRowCell<PartTable,Double> cell = new MFXTableRowCell<>(PartTable::getPrice);
-            TextField priceField = new TextField();
-            priceField.setPrefHeight(30);
-            priceField.setPrefWidth(200);
-            priceField.textProperty().bindBidirectional(item.priceProperty(), new NumberStringConverter());
-            cell.setGraphic(priceField);
+            MFXTableRowCell<PartTable, Double> cell = new MFXTableRowCell<>(PartTable::getPrice);
+            TextField tf = new TextField(String.valueOf(item.getPrice()));
+
+            tf.textProperty().addListener((obs, oldVal, newVal) -> {
+                // allow: "", "123", "123.", "123.45"
+                if (!newVal.matches("\\d*(\\.\\d*)?")) {
+                    tf.setText(oldVal);
+                    return;
+                }
+
+                double price = newVal.isEmpty() || newVal.equals(".") ? 0.0 : Double.parseDouble(newVal);
+                item.setPrice(price);
+
+                // recalc total
+                item.setTotalPrice(item.getQuantity() * item.getPrice());
+            });
+
+            cell.setGraphic(tf);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
         });
 
-        MFXTableColumn<PartTable> totalPriceCol = new MFXTableColumn<>("Total");
-        totalPriceCol.setPrefWidth(170);
-        totalPriceCol.setRowCellFactory(item -> {
-            MFXTableRowCell<PartTable,Double> cell = new MFXTableRowCell<>(PartTable::getTotalPrice);
-            TextField totalPriceField = new TextField();
-            totalPriceField.setPrefHeight(30);
-            totalPriceField.setPrefWidth(200);
-            totalPriceField.textProperty().bindBidirectional(item.totalPriceProperty(), new NumberStringConverter());
-            cell.setGraphic(totalPriceField);
+        // -------- Total (read-only) --------
+        MFXTableColumn<PartTable> totalCol = new MFXTableColumn<>("Total");
+        totalCol.setPrefWidth(140);
+        totalCol.setRowCellFactory(item -> {
+            MFXTableRowCell<PartTable, Double> cell = new MFXTableRowCell<>(PartTable::getTotalPrice);
+            TextField tf = new TextField(String.valueOf(item.getTotalPrice()));
+
+            tf.setEditable(false);
+            tf.setFocusTraversable(false);
+
+            // keep text in sync with model
+            item.totalPriceProperty().addListener((obs, oldVal, newVal) -> {
+                tf.setText(String.valueOf(newVal.doubleValue()));
+            });
+
+            cell.setGraphic(tf);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
         });
 
         partsData.add(new PartTable("", 0, 0.0, 0.0));
-        partsTable.getTableColumns().addAll(nameCol, quantityCol, priceCol, totalPriceCol);
+        partsTable.getTableColumns().addAll(nameCol, qtyCol, priceCol, totalCol);
         partsTable.setItems(partsData);
-
     }
 }
