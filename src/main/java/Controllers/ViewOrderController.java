@@ -5,7 +5,6 @@ import Skeletons.*;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
-import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,14 +12,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
-import utils.DeletingMethods;
+import utils.DeletingFilesMethods;
+import utils.DeletingLabourMethods;
+import utils.DeletingPartsMethods;
 import utils.TableMethods;
 
 
@@ -92,7 +92,9 @@ public class ViewOrderController {
     public static WorkOrder currentWorkOrder;
     public Customer currentCustomer;
 
-    private DeletingMethods deletingMethods;
+    private DeletingFilesMethods deletingMethods;
+    private DeletingPartsMethods deletingPartsMethods;
+    private DeletingLabourMethods deletingLabourMethods;
 
     public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
     public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
@@ -151,10 +153,28 @@ public class ViewOrderController {
             updateStatusInDb(newStatus);
         });
 
-        deletingMethods = new DeletingMethods(filesList);
+        deletingMethods = new DeletingFilesMethods(filesList);
         deletingMethods.setOnDelete(e -> {
             boolean deleted = deletingMethods.deleteSelectedFile();
             if (deleted)loadFilesFromDb();
+        });
+
+        deletingPartsMethods = new DeletingPartsMethods(partsTable);
+        deletingPartsMethods.setOnDelete(e -> {
+            boolean removed = deletingPartsMethods.removeSelectedFromTable();
+            if (removed) {
+                savePartsToDb();
+                loadPartsFromDb();
+            }
+        });
+
+        deletingLabourMethods = new DeletingLabourMethods(repairTable);
+        deletingLabourMethods.setOnDelete(e -> {
+            boolean removed = deletingLabourMethods.removeSelectedFromTable();
+            if (removed) {
+                saveRepairsToDb();     // writes current repairData into DB
+                loadRepairsFromDb();   // refresh
+            }
         });
     }
 
@@ -554,18 +574,19 @@ public class ViewOrderController {
 
     private void loadPartsFromDb() {
         partsData.clear();
-        String sql = "SELECT part_name, quantity, price, total_price FROM work_order_parts WHERE workorder_id = ?";
+        String sql = "SELECT id, part_name, quantity, price, total_price FROM work_order_parts WHERE workorder_id = ?";
         try{
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
+                int id = rs.getInt("id");
                 String name = rs.getString("part_name");
                 int qty = rs.getInt("quantity");
                 double price = rs.getDouble("price");
                 double total = rs.getDouble("total_price");
-                partsData.add(new PartTable(name, qty, price, total));
+                partsData.add(new PartTable(id, name, qty, price, total));
             }
             rs.close();
             ps.close();
