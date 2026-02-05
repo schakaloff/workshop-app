@@ -15,9 +15,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="500.0" prefWidth="750.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="500.0" prefWidth="750.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
    <center>
-      <TabPane fx:id="tabPane" prefHeight="519.0" prefWidth="708.0" stylesheets="@../tab.css" BorderPane.alignment="CENTER">
+      <TabPane fx:id="tabPane" prefHeight="519.0" prefWidth="708.0" styleClass="modern-tabs" stylesheets="@../tab.css" BorderPane.alignment="CENTER">
          <tabs>
             <Tab closable="false" text="Main">
                <content>
@@ -115,7 +115,7 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <MFXListView fx:id="filesList" layoutX="13.0" layoutY="23.0" prefHeight="349.0" prefWidth="725.0" />
-                        <MFXButton layoutX="618.0" layoutY="387.0" onAction="#addFile" text="Add File" />
+                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="643.0" layoutY="334.0" minHeight="-Infinity" minWidth="-Infinity" onAction="#addFile" text="Add File" />
                      </children></AnchorPane>
               </content>
             </Tab>
