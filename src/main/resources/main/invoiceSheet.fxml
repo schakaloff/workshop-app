@@ -27,7 +27,17 @@
             <Font size="25.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="6.0" layoutY="90.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="11.0" layoutY="115.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
       <Text fx:id="totalAmount" layoutX="464.0" layoutY="608.0" wrappingWidth="55.0" />
+      <Text layoutX="11.0" layoutY="100.0" text="GST NO.706673340RT0001" wrappingWidth="200.0">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text layoutX="11.0" layoutY="84.0" text="E-mail: service@teltronics.ca" wrappingWidth="200.0">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
    </children>
 </AnchorPane>

@@ -35,9 +35,8 @@ public class DeletingFilesMethods {
         filesList.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleFilesContextClick);
     }
 
-    public void setWorkorderNumber(int workorderNumber) {
-        this.workorderNumber = workorderNumber;
-    }
+    public void setWorkorderNumber(int workorderNumber) { this.workorderNumber = workorderNumber; }
+
 
     public void setOnDelete(EventHandler<ActionEvent> handler) {
         deleteFileItem.setOnAction(handler);
