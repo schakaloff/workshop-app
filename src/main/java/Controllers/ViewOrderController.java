@@ -204,6 +204,10 @@ public class ViewOrderController {
     public void initData(WorkOrder wo, Customer co){
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
+
+        deletingMethods.setWorkorderNumber(currentWorkOrder.getWorkorderNumber());
+
+
         refreshWorkOrderFromDb();
         loadFilesFromDb();
 
