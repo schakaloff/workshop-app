@@ -52,9 +52,9 @@ public class NewOrderController {
     @FXML private CustomersController customerCntrl;
 
 
-    public void setMainController(ActualWorkshopController controller) {
-        this.mainController = controller;
+    public void setMainController(ActualWorkshopController controller) {this.mainController = controller;
     }
+
     public void setDialogInstance(MFXGenericDialog dialogInstance) {
         this.dialogInstance = dialogInstance;
     }
@@ -143,7 +143,11 @@ public class NewOrderController {
         WorkOrder wo = new WorkOrder(Integer.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId, depositDB);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
+        //pay
+
+        //print wo
         Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
+
         closeDialog();
     }
 
