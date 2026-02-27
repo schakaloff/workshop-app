@@ -28,6 +28,10 @@ public class PaymentController {
     @FXML private MFXCheckbox masterCardCB;
     @FXML private MFXCheckbox cashCB;
 
+    public boolean paid = false;
+    public String paymentMethod = null;
+    public double paymentAmount = 0.0;
+
     @FXML private MFXTextField visaTXF;
     @FXML private MFXTextField debitTXF;
     @FXML private MFXTextField masterCardTXF;
@@ -41,8 +45,6 @@ public class PaymentController {
         debitTXF.setDisable(true);
         masterCardTXF.setDisable(true);
         cashTXF.setDisable(true);
-
-
     }
 
     @FXML
