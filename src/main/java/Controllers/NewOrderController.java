@@ -10,6 +10,7 @@ import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -20,6 +21,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
+import utils.InvoiceType;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -144,11 +146,26 @@ public class NewOrderController {
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
         //pay
-
+        openPaymentDialog(wo, co, InvoiceType.DEPOSIT);
         //print wo
         Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
 
         closeDialog();
+    }
+
+    private void openPaymentDialog(WorkOrder wo, Customer co, InvoiceType invoiceType) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/pay.fxml"));
+        Parent root = loader.load();
+
+        PaymentController pc = loader.getController();
+        pc.setMainController(mainController);
+        pc.setContext(wo, co, invoiceType, dialogInstance.getScene().getWindow()); // owner for print dialog
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Payment");
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
     }
 
     @FXML
