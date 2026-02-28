@@ -147,8 +147,18 @@ public class NewOrderController {
 
         //pay
         openPaymentDialog(wo, co, InvoiceType.DEPOSIT);
+
         //print wo
-        Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
+        //Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
+        utils.DocumentOutput.printOrPdf(
+                "Work Order " + wo.getWorkorderNumber(),
+                "/main/printOrder.fxml",
+                loader -> {
+                    Controllers.PrinterController pc = loader.getController();
+                    pc.initData(wo, co);
+                },
+                dialogInstance.getScene().getWindow()
+        );
 
         closeDialog();
     }

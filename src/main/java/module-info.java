@@ -5,6 +5,7 @@ module main {
     requires MaterialFX;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires org.apache.pdfbox;
     //requires org.apache.poi.ooxml;
     opens main to javafx.fxml;
     exports main;
