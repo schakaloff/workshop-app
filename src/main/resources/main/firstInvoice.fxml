@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="842.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.InvoiceController">
+<AnchorPane prefHeight="842.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FirstInvoiceController">
    <children>
       <Text layoutX="11.0" layoutY="38.0" text="Teltronics Service Centre">
          <font>
@@ -23,13 +23,12 @@
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="492.0" layoutY="37.0" text="Invoice">
+      <Text layoutX="386.0" layoutY="37.0" text="Payment on Acct">
          <font>
             <Font size="25.0" />
          </font>
       </Text>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="11.0" layoutY="115.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
-      <Text fx:id="totalAmount" layoutX="464.0" layoutY="608.0" wrappingWidth="55.0" />
       <Text layoutX="11.0" layoutY="100.0" text="GST NO.706673340RT0001" wrappingWidth="200.0">
          <font>
             <Font size="11.0" />
@@ -53,15 +52,23 @@
          </font>
       </Text>
       <Text layoutX="14.0" layoutY="812.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Order # Reference: " wrappingWidth="139.18299865722656" />
-      <Text layoutX="134.0" layoutY="813.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" textAlignment="CENTER" />
+      <Text fx:id="woNumberTXT" layoutX="134.0" layoutY="813.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" textAlignment="CENTER" />
       <Text layoutX="202.0" layoutY="813.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Order # Date: " />
-      <Text layoutX="291.0" layoutY="813.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" textAlignment="CENTER" />
+      <Text fx:id="dateTXT" layoutX="291.0" layoutY="813.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" textAlignment="CENTER" />
       <Text layoutX="216.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Saleperson: " />
-      <Text layoutX="291.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
+      <Text fx:id="salesPersonTXT" layoutX="291.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
       <Text layoutX="477.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:" />
-      <Text layoutX="508.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
+      <Text fx:id="PONumberTXT" layoutX="508.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
       <Text layoutX="14.0" layoutY="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Payment Method:" />
-      <Text layoutX="125.0" layoutY="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
+      <Text fx:id="paymentMethodTXT" layoutX="125.0" layoutY="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
       <Line endX="476.0" layoutX="111.0" layoutY="245.0" startX="-100.0" />
+      <Text layoutX="19.0" layoutY="635.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-Dependable Service-" />
+      <Text layoutX="19.0" layoutY="661.0" strokeType="OUTSIDE" strokeWidth="0.0" text="-Professional People-" />
+      <Text layoutX="15.0" layoutY="688.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No refunds on deposits. " wrappingWidth="152.13000106811523" />
+      <Text layoutX="15.0" layoutY="706.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Any units  not picked up after six months will be disposed of." wrappingWidth="547.0000305175781" />
+      <Text layoutX="15.0" layoutY="724.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Teltronics Service Centre will not be held liable in instances of any internal or external damages sustained during repair time." wrappingWidth="450.13000106811523" />
+      <Text layoutX="437.0" layoutY="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Amount:" />
+      <Text fx:id="depositTXT" layoutX="528.0" layoutY="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
+      <Text fx:id="cxFullNameTXT" layoutX="71.0" layoutY="133.0" strokeType="OUTSIDE" strokeWidth="0.0" text="holder" />
    </children>
 </AnchorPane>

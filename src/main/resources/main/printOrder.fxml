@@ -7,16 +7,18 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrinterController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrinterController">
    <children>
       <Text layoutX="1.0" layoutY="28.0" text="Teltronics Service Centre">
          <font>
             <Font size="25.0" />
-         </font></Text>
+         </font>
+      </Text>
       <Text layoutX="2.0" layoutY="44.0" text="6 -1551 Sutherland Ave, Kelowna BC V1Y 9M9">
          <font>
             <Font size="11.0" />
-         </font></Text>
+         </font>
+      </Text>
       <Text layoutX="1.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Recvd By: ">
          <font>
             <Font size="11.0" />
