@@ -103,7 +103,29 @@ public class PaymentController {
             String date = dateTXF.getText();
 
             if (invoiceType == InvoiceType.DEPOSIT) {
-                Print.printFirstPayment(currentWorkOrder, currentCustomer, method, amount, tech, date, ownerWindow);
+                //Print.printFirstPayment(currentWorkOrder, currentCustomer, method, amount, tech, date, ownerWindow);
+                String fxml = (invoiceType == InvoiceType.DEPOSIT)
+                        ? "/main/firstInvoice.fxml"
+                        : "/main/invoice.fxml";
+
+                String title = (invoiceType == InvoiceType.DEPOSIT)
+                        ? "Deposit Invoice WO " + currentWorkOrder.getWorkorderNumber()
+                        : "Final Invoice WO " + currentWorkOrder.getWorkorderNumber();
+
+                utils.DocumentOutput.printOrPdf(
+                        title,
+                        fxml,
+                        loader -> {
+                            if (invoiceType == InvoiceType.DEPOSIT) {
+                                FirstInvoiceController ic = loader.getController();
+                                ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                            } else {
+                                InvoiceController ic = loader.getController();
+                                //ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                            }
+                        },
+                        ownerWindow
+                );
             } else {
                 //Print.printFinalInvoice(currentWorkOrder, currentCustomer, method, amount, tech, date, ownerWindow);
             }
