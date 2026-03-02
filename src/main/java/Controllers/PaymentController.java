@@ -3,13 +3,11 @@ import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
-import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import print.Print;
-import utils.InvoiceType;
+import utils.enums.InvoiceType;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -103,14 +101,8 @@ public class PaymentController {
             String date = dateTXF.getText();
 
             if (invoiceType == InvoiceType.DEPOSIT) {
-                //Print.printFirstPayment(currentWorkOrder, currentCustomer, method, amount, tech, date, ownerWindow);
-                String fxml = (invoiceType == InvoiceType.DEPOSIT)
-                        ? "/main/firstInvoice.fxml"
-                        : "/main/invoice.fxml";
-
-                String title = (invoiceType == InvoiceType.DEPOSIT)
-                        ? "Deposit Invoice WO " + currentWorkOrder.getWorkorderNumber()
-                        : "Final Invoice WO " + currentWorkOrder.getWorkorderNumber();
+                String fxml = (invoiceType == InvoiceType.DEPOSIT) ? "/main/firstInvoice.fxml" : "/main/invoice.fxml";
+                String title = (invoiceType == InvoiceType.DEPOSIT) ? "Deposit Invoice WO " + currentWorkOrder.getWorkorderNumber() : "Final Invoice WO " + currentWorkOrder.getWorkorderNumber();
 
                 utils.DocumentOutput.printOrPdf(
                         title,
@@ -120,14 +112,11 @@ public class PaymentController {
                                 FirstInvoiceController ic = loader.getController();
                                 ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
                             } else {
-                                InvoiceController ic = loader.getController();
-                                //ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
-                            }
+                                InvoiceController ic = loader.getController();}
                         },
                         ownerWindow
                 );
             } else {
-                //Print.printFinalInvoice(currentWorkOrder, currentCustomer, method, amount, tech, date, ownerWindow);
             }
 
             // close payment window
@@ -161,7 +150,6 @@ public class PaymentController {
 
         if (raw == null || raw.isBlank()) throw new IllegalArgumentException("Enter an amount.");
 
-        // your text fields include "CDN$" so strip it
         raw = raw.replace("CDN$", "").replace("$", "").trim();
 
         try {

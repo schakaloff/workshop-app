@@ -17,4 +17,6 @@ module main {
     opens Controllers to javafx.fxml;
     exports utils;
     opens utils to javafx.fxml;
+    exports utils.enums;
+    opens utils.enums to javafx.fxml;
 }
