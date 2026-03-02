@@ -19,6 +19,8 @@ public class PaymentController {
     public WorkOrder currentWorkOrder;
     public Customer currentCustomer;
 
+    private Double suggestedAmount;
+
     public void setMainController(ActualWorkshopController controller){this.mainController = controller;}
 
     @FXML private MFXTextField techIDTXF;
@@ -57,6 +59,23 @@ public class PaymentController {
         this.currentCustomer = co;
         this.invoiceType = type;
         this.ownerWindow = owner;
+
+        if (type == InvoiceType.DEPOSIT) {
+            this.suggestedAmount = wo.getDepositAmount(); // make sure getter exists / returns double
+        } else {
+            this.suggestedAmount = null; // later you can compute remaining balance etc
+        }
+    }
+
+    private void autofill(MFXTextField field) {
+        if (suggestedAmount == null) return;
+
+        // Only fill if empty or only has currency prefix
+        String t = field.getText();
+        boolean emptyish = (t == null || t.isBlank() || t.equals("CDN$"));
+        if (emptyish) {
+            field.setText(String.format("CDN$%.2f", suggestedAmount));
+        }
     }
 
     @FXML
@@ -65,27 +84,40 @@ public class PaymentController {
         boolean selected = cb.isSelected();
 
         switch (cb.getId()) {
+
             case "visaCB":
                 visaTXF.setDisable(!selected);
-                if (selected) visaTXF.setText("CDN$");
-                else visaTXF.clear();
+                if (selected) {
+                    visaTXF.setText("CDN$");
+                    autofill(visaTXF);
+                } else visaTXF.clear();
                 break;
 
             case "debitCB":
                 debitTXF.setDisable(!selected);
-                if (selected) debitTXF.setText("CDN$");
+                if (selected){
+                    debitTXF.setText("CDN$");
+                    autofill(debitTXF);
+                }
                 else debitTXF.clear();
                 break;
 
             case "masterCardCB":
                 masterCardTXF.setDisable(!selected);
-                if (selected) masterCardTXF.setText("CDN$");
+                if (selected) {
+                    masterCardTXF.setText("CDN$");
+                    autofill(masterCardTXF);
+
+                }
                 else masterCardTXF.clear();
                 break;
 
             case "cashCB":
                 cashTXF.setDisable(!selected);
-                if (selected) cashTXF.setText("CDN$");
+                if (selected) {
+                    cashTXF.setText("CDN$");
+                    autofill(cashTXF);
+                }
                 else cashTXF.clear();
                 break;
         }
