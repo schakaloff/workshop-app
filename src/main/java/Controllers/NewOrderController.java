@@ -13,15 +13,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-import print.Print;
-import utils.InvoiceType;
+import utils.enums.InvoiceType;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

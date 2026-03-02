@@ -1,4 +1,4 @@
-package utils;
+package utils.enums;
 
 public enum InvoiceType {
     DEPOSIT,

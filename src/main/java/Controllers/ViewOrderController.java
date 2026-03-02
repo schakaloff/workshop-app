@@ -18,10 +18,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
-import utils.DeletingFilesMethods;
-import utils.DeletingLabourMethods;
-import utils.DeletingPartsMethods;
-import utils.TableMethods;
+import utils.*;
+import utils.enums.InvoiceType;
 
 
 import java.awt.*;
@@ -291,21 +289,37 @@ public class ViewOrderController {
         }
     }
 
+
     @FXML
     public void Pay() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/pay.fxml"));
         MFXGenericDialog dialog = loader.load();
+
+        PaymentController pc = loader.getController();
+        pc.setMainController(mainController);
+
+        // owner should be THIS dialog's window (View Order window)
+        Window owner = dialogInstance.getScene().getWindow();
+
+        // Choose invoice type based on status (simple logic)
+        // Deposit if New/In Progress/Waiting Parts, Final if Repair Complete/Closed
+        InvoiceType type = isFinalInvoiceStatus(currentWorkOrder.getStatus())
+                ? InvoiceType.FINAL
+                : InvoiceType.DEPOSIT;
+
+        pc.setContext(currentWorkOrder, currentCustomer, type, owner);
+
         Stage dialogStage = new Stage();
-        /*
-        we are telling javafx that new stage should be modal
-        It will prevent user from interacting with other windows.
-        Modality.APPLICATION blocks mouse and keyboard input to all other windows in this app.
-         */
         dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initOwner(owner);
         dialogStage.setTitle("Payment");
-        Scene scene = new Scene(dialog);
-        dialogStage.setScene(scene);
+        dialogStage.setScene(new Scene(dialog));
         dialogStage.showAndWait();
+    }
+
+    private boolean isFinalInvoiceStatus(String status) {
+        if (status == null) return false;
+        return status.equalsIgnoreCase("Repair Complete") || status.equalsIgnoreCase("Closed");
     }
 
     public void loadServiceNotes(){
@@ -601,11 +615,18 @@ public class ViewOrderController {
     }
 
     @FXML
-    public void printOrder() throws Exception { //print function
+    public void printOrder() throws Exception {
         WorkOrder wo = currentWorkOrder;
         Customer co = currentCustomer;
         Window owner = dialogInstance.getScene().getWindow();
-        Print.printWorkOrder(wo, co, owner);
+        DocumentOutput.printOrPdf(
+                "Work Order " + wo.getWorkorderNumber(),
+                "/main/printOrder.fxml",
+                loader -> {
+                    PrinterController pc = loader.getController();
+                    pc.initData(wo, co);},
+                owner
+        );
     }
 
     @FXML
