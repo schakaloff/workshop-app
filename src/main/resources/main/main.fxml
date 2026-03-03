@@ -75,6 +75,7 @@
                         <Glow />
                      </effect></MFXButton>
                   <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="743.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
+                  <MFXButton fx:id="btnShowMyWO" layoutX="493.0" layoutY="29.0" onAction="#showMyWO" prefHeight="26.0" prefWidth="200.0" text="MY CURRENT WO: 0" />
                </children>
             </AnchorPane>
          </center>
