@@ -49,8 +49,10 @@ public class ActualWorkshopController{
     @FXML private Circle techAvatar;
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
+
     @FXML private Button btnOldNew;
     @FXML private Button btnRepairedNotPaid;
+    @FXML private Button btnShowMyWO;
 
     @FXML private MFXTextField searchTxtField;
 
@@ -61,8 +63,10 @@ public class ActualWorkshopController{
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
 
     private final ObservableList<WorkOrder> allData = FXCollections.observableArrayList();
+
     private boolean oldNewFilterEnabled = false;
     private boolean repairedNotBilledFilterEnabled = false;
+    private boolean myWoFilterEnabled = false;
 
     private MFXGenericDialog viewOrderDialog;
     private ViewOrderController viewOrderController;
@@ -153,6 +157,7 @@ public class ActualWorkshopController{
 
         updateOldNewButtonCount();
         updateRepairedNotBilledButtonCount();
+        updateMyWoButtonCount();
     }
 
     public void LoadCustomers(){
@@ -181,12 +186,36 @@ public class ActualWorkshopController{
         return s.equals("billing complete");
     }
 
+    private boolean isMyWO(WorkOrder wo) {
+        if (wo == null) return false;
+        int myId = getLoggedTechId();
+        if (myId == 0) return false;
+        return wo.getTechId() == myId;
+    }
+
     private int countOldNewOver10() {
         return (int) allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).count();
     }
 
     private int countRepairedNotBilled() {
         return (int) allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).count();
+    }
+
+    private int getLoggedTechId() {
+        String username = LoginController.tech;
+        if (username == null || username.isBlank()) return 0;
+
+        String sql = "SELECT id FROM technician WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt("id");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @FXML
@@ -247,6 +276,60 @@ public class ActualWorkshopController{
         }
     }
 
+    @FXML
+    public void showMyWO() {
+        myWoFilterEnabled = !myWoFilterEnabled;
+
+        // if turning this on, turn the other toggles off (same logic you used)
+        if (myWoFilterEnabled) {
+            oldNewFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            btnOldNew.setStyle("");
+            btnRepairedNotPaid.setStyle("");
+        }
+
+        if (myWoFilterEnabled) {
+            int myId = getLoggedTechId();
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                    allData.stream()
+                            .filter(wo -> wo.getTechId() == myId)
+                            .toList()
+            );
+
+            table.setItems(filtered);
+            btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
+
+            // color suggestion: purple (stands out from red/blue/green)
+            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
+
+        } else {
+            table.setItems(allData);
+            updateMyWoButtonCount();
+        }
+    }
+
+    private int countMyWO() {
+        int myId = getLoggedTechId();
+        if (myId == 0) return 0;
+        return (int) allData.stream().filter(wo -> wo.getTechId() == myId).count();
+    }
+
+    private void updateMyWoButtonCount() {
+        if (btnShowMyWO == null) return;
+
+        int count = countMyWO();
+        btnShowMyWO.setText("MY WO: " + count);
+
+        if (count > 0) {
+            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.20);");
+        } else {
+            btnShowMyWO.setStyle("");
+        }
+    }
+
     private boolean isAgingStatus(String status) {
         if (status == null) return false;
         String s = status.trim().toLowerCase();
@@ -282,12 +365,12 @@ public class ActualWorkshopController{
         if (wo == null) return;
 
         if (isStatusBillingComplete(wo.getStatus())) {
-            row.setStyle("-fx-background-color: rgba(0, 200, 0, 0.22);"); // light green
+            row.setStyle("-fx-background-color: rgba(0, 200, 0, 0.22);");
             return;
         }
 
         if (isStatusComplete(wo.getStatus())) {
-            row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);"); // blue
+            row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);");
             return;
         }
 
@@ -295,9 +378,16 @@ public class ActualWorkshopController{
             long days = ageDays(wo);
             if (days > 10) {
                 row.setStyle("-fx-background-color: rgba(255, 0, 0, 0.25);");
+                return;
             } else if (days > 5) {
                 row.setStyle("-fx-background-color: rgba(255, 215, 0, 0.25);");
+                return;
             }
+        }
+
+        // My WO highlight (only if not matched by other rules)
+        if (isMyWO(wo)) {
+            row.setStyle("-fx-background-color: rgba(160, 70, 255, 0.18);"); // soft purple
         }
     }
 
