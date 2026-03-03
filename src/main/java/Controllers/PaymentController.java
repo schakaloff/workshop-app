@@ -5,8 +5,11 @@ import io.github.palexdev.materialfx.controls.MFXCheckbox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import utils.DocumentOutput;
 import utils.enums.InvoiceType;
 
 import java.time.LocalDateTime;
@@ -60,19 +63,21 @@ public class PaymentController {
         this.invoiceType = type;
         this.ownerWindow = owner;
 
+        // default suggestion
         if (type == InvoiceType.DEPOSIT) {
-            this.suggestedAmount = wo.getDepositAmount(); // make sure getter exists / returns double
-        } else {
-            this.suggestedAmount = null; // later you can compute remaining balance etc
+            this.suggestedAmount = wo.getDepositAmount();
         }
+        // if FINAL, suggestedAmount will be set by ViewOrderController via setSuggestedAmount()
     }
 
     private void autofill(MFXTextField field) {
         if (suggestedAmount == null) return;
 
-        // Only fill if empty or only has currency prefix
         String t = field.getText();
-        boolean emptyish = (t == null || t.isBlank() || t.equals("CDN$"));
+        String normalized = (t == null) ? "" : t.replace(" ", "").trim();
+
+        boolean emptyish = normalized.isBlank() || normalized.equalsIgnoreCase("CDN$");
+
         if (emptyish) {
             field.setText(String.format("CDN$%.2f", suggestedAmount));
         }
@@ -82,6 +87,10 @@ public class PaymentController {
     public void paymentTypeSelection(ActionEvent e) {
         MFXCheckbox cb = (MFXCheckbox) e.getSource();
         boolean selected = cb.isSelected();
+
+        if (cb.isSelected()) {
+            selectOnly(cb);
+        }
 
         switch (cb.getId()) {
 
@@ -126,40 +135,55 @@ public class PaymentController {
     @FXML
     public void pay() {
         try {
-            String method = getSelectedMethod();     // implement below
-            double amount = getEnteredAmount(method); // implement below
+            String method = getSelectedMethod();
+            double amount = getEnteredAmount(method);
 
             String tech = techIDTXF.getText();
             String date = dateTXF.getText();
 
-            if (invoiceType == InvoiceType.DEPOSIT) {
-                String fxml = (invoiceType == InvoiceType.DEPOSIT) ? "/main/firstInvoice.fxml" : "/main/invoice.fxml";
-                String title = (invoiceType == InvoiceType.DEPOSIT) ? "Deposit Invoice WO " + currentWorkOrder.getWorkorderNumber() : "Final Invoice WO " + currentWorkOrder.getWorkorderNumber();
+            String fxml;
+            String title;
 
-                utils.DocumentOutput.printOrPdf(
-                        title,
-                        fxml,
-                        loader -> {
-                            if (invoiceType == InvoiceType.DEPOSIT) {
-                                FirstInvoiceController ic = loader.getController();
-                                ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
-                            } else {
-                                InvoiceController ic = loader.getController();}
-                        },
-                        ownerWindow
-                );
+            if (invoiceType == InvoiceType.DEPOSIT) {
+                fxml = "/main/firstInvoice.fxml";
+                title = "Deposit Invoice WO " + currentWorkOrder.getWorkorderNumber();
+            } else if (invoiceType == InvoiceType.FINAL) {
+                fxml = "/main/invoiceSheet.fxml";
+                title = "Final Invoice WO " + currentWorkOrder.getWorkorderNumber();
             } else {
+                throw new IllegalStateException("Invoice type not set.");
             }
 
-            // close payment window
+            DocumentOutput.printOrPdf(
+                    title,
+                    fxml,
+                    loader -> {
+                        if (invoiceType == InvoiceType.DEPOSIT) {
+                            FirstInvoiceController ic = loader.getController();
+                            ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                        } else {
+                            InvoiceController ic = loader.getController();
+                            ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                        }
+                    },
+                    ownerWindow
+            );
+
             ((Stage) techIDTXF.getScene().getWindow()).close();
 
         } catch (Exception ex) {
-            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR,
-                    ex.getMessage()).showAndWait();
+            new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK).showAndWait();
         }
+    }
 
-
+    private void selectOnly(MFXCheckbox selected) {
+        for (MFXCheckbox cb : new MFXCheckbox[]{visaCB, debitCB, masterCardCB, cashCB}) {
+            if (cb != selected) cb.setSelected(false);
+        }
+        // disable all fields first
+        visaTXF.setDisable(true); debitTXF.setDisable(true); masterCardTXF.setDisable(true); cashTXF.setDisable(true);
+        // clear all fields
+        visaTXF.clear(); debitTXF.clear(); masterCardTXF.clear(); cashTXF.clear();
     }
 
     private String getSelectedMethod() {
@@ -168,6 +192,11 @@ public class PaymentController {
         if (masterCardCB.isSelected()) return "MASTERCARD";
         if (cashCB.isSelected()) return "CASH";
         throw new IllegalArgumentException("Select a payment method.");
+    }
+
+    public void setSuggestedAmount(Double amount) {
+        this.suggestedAmount = amount;
+
     }
 
     private double getEnteredAmount(String method) {

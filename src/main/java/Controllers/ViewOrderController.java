@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.TextArea;
@@ -87,7 +88,7 @@ public class ViewOrderController {
     @FXML private MFXTextField partsStatusTFX;
     @FXML private MFXTextField partsNumberTFX;
 
-    public static WorkOrder currentWorkOrder;
+    public WorkOrder currentWorkOrder;
     public Customer currentCustomer;
 
     private DeletingFilesMethods deletingMethods;
@@ -290,31 +291,54 @@ public class ViewOrderController {
     }
 
 
+//    @FXML
+//    public void Pay() throws Exception {
+//        refreshWorkOrderFromDb();
+//        InvoiceType type = isFinalInvoiceStatus(currentWorkOrder.getStatus())
+//                ? InvoiceType.FINAL
+//                : InvoiceType.DEPOSIT;
+//
+//        openPaymentDialog(currentWorkOrder, currentCustomer, type);
+//    }
+
     @FXML
-    public void Pay() throws IOException {
+    public void Pay() throws Exception {
+        refreshWorkOrderFromDb();
+        openPaymentDialog(currentWorkOrder, currentCustomer, InvoiceType.FINAL);
+    }
+
+    private void openPaymentDialog(WorkOrder wo, Customer co, InvoiceType invoiceType) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/pay.fxml"));
-        MFXGenericDialog dialog = loader.load();
+        Parent root = loader.load();
 
         PaymentController pc = loader.getController();
         pc.setMainController(mainController);
 
-        // owner should be THIS dialog's window (View Order window)
         Window owner = dialogInstance.getScene().getWindow();
+        pc.setContext(wo, co, invoiceType, owner);
 
-        // Choose invoice type based on status (simple logic)
-        // Deposit if New/In Progress/Waiting Parts, Final if Repair Complete/Closed
-        InvoiceType type = isFinalInvoiceStatus(currentWorkOrder.getStatus())
-                ? InvoiceType.FINAL
-                : InvoiceType.DEPOSIT;
+        if (invoiceType == InvoiceType.FINAL) {
+            // make sure totals reflect latest UI edits
+            savePartsToDb();
+            saveRepairsToDb();
+            loadPartsFromDb();
+            loadRepairsFromDb();
 
-        pc.setContext(currentWorkOrder, currentCustomer, type, owner);
 
-        Stage dialogStage = new Stage();
-        dialogStage.initModality(Modality.APPLICATION_MODAL);
-        dialogStage.initOwner(owner);
-        dialogStage.setTitle("Payment");
-        dialogStage.setScene(new Scene(dialog));
-        dialogStage.showAndWait();
+            System.out.println("Deposit from WO obj = " + currentWorkOrder.getDepositAmount());
+            System.out.println("LABOUR=" + labourTotalDb()
+                    + " PARTS=" + partsTotalDb()
+                    + " DEPOSIT=" + currentWorkOrder.getDepositAmount()
+                    + " DUE=" + finalDueDb());
+            pc.setSuggestedAmount(finalDueDb());
+        }
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
+        stage.setTitle("Payment");
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
     }
 
     private boolean isFinalInvoiceStatus(String status) {
@@ -348,24 +372,30 @@ public class ViewOrderController {
         partsData.add(new PartTable("",0,0.0,0));
     }
 
+//    @FXML
+//    public void repairComplete(){
+//        String sql = "UPDATE work_order SET status = ? where workorder = ?";
+//        try{
+//            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+//            PreparedStatement ps = conn.prepareStatement(sql);
+//            statusCombo.selectItem("Repair Complete");
+//            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+//            int rs = ps.executeUpdate();
+//            if(rs > 0){
+//                currentWorkOrder.setStatus("Repair Complete");
+//                System.out.println("order is closed");
+//                mainController.LoadOrders();
+//            }
+//        }catch (SQLException e){
+//            System.out.println("error during closing the order");
+//        }
+//        statusCombo.setText(currentWorkOrder.getStatus());
+//    }
+
     @FXML
-    public void repairComplete(){
-        String sql = "UPDATE work_order SET status = ? where workorder = ?";
-        try{
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            statusCombo.selectItem("Repair Complete");
-            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
-            int rs = ps.executeUpdate();
-            if(rs > 0){
-                currentWorkOrder.setStatus("Repair Complete");
-                System.out.println("order is closed");
-                mainController.LoadOrders();
-            }
-        }catch (SQLException e){
-            System.out.println("error during closing the order");
-        }
-        statusCombo.setText(currentWorkOrder.getStatus());
+    public void repairComplete() {
+        updateStatusInDb("Repair Complete");
+        statusCombo.selectItem("Repair Complete"); // optional UI sync
     }
 
     private void loadRepairsFromDb() {
@@ -419,6 +449,62 @@ public class ViewOrderController {
         } catch (SQLException e){
             System.out.println("error during saving repairs");
         }
+    }
+
+    private double depositFromDb() {
+        String sql = "SELECT COALESCE(deposit_amount, 0) FROM work_order WHERE workorder = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getDouble(1) : 0.0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
+    private double labourTotalDb() {
+        String sql = "SELECT COALESCE(SUM(price), 0) FROM work_order_repairs WHERE workorder_id = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getDouble(1) : 0.0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
+    private double partsTotalDb() {
+        String sql = "SELECT COALESCE(SUM(total_price), 0) FROM work_order_parts WHERE workorder_id = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getDouble(1) : 0.0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
+    private double finalDueDb() {
+        double labour = labourTotalDb();
+        double parts  = partsTotalDb();
+        double deposit = depositFromDb();
+
+        double due = labour + parts - deposit;
+        System.out.println("LABOUR=" + labour + " PARTS=" + parts + " DEPOSIT=" + deposit + " DUE=" + due);
+
+        return Math.max(0, due);
     }
 
     @FXML
@@ -537,6 +623,20 @@ public class ViewOrderController {
             }
         };
         thread.start();
+    }
+
+    private double labourTotal() {
+        return repairData.stream().mapToDouble(WorkTable::getPrice).sum();
+    }
+
+    private double partsTotal() {
+        return partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
+    }
+
+    private double finalDue() {
+        double deposit = currentWorkOrder.getDepositAmount();
+        double due = labourTotal() + partsTotal() - deposit;
+        return Math.max(0, due);
     }
 
     public void initFilesUI(){
