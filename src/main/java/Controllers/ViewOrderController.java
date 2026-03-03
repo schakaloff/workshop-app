@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import print.Print;
 import utils.*;
+import utils.ViewOrderFunctions.ViewOrderFunctions;
 import utils.enums.InvoiceType;
 
 
@@ -148,18 +149,14 @@ public class ViewOrderController {
 
         statusCombo.valueProperty().addListener((obs, oldStatus, newStatus) -> {
             if (newStatus == null || newStatus.equals(oldStatus)) return;
-
             if ("Repair Complete".equalsIgnoreCase(newStatus)) {
-
-                // persist current UI labour table state first
                 saveRepairsToDb();
-
                 if (!hasAtLeastOneLabourNoteDb()) {
                     new Alert(Alert.AlertType.WARNING,
                             "Add at least one labour note (Tech + Description) before marking Repair Complete.",
                             ButtonType.OK
                     ).showAndWait();
-                    statusCombo.selectItem(oldStatus); // revert selection
+                    statusCombo.selectItem(oldStatus);
                     return;
                 }
             }
@@ -175,6 +172,7 @@ public class ViewOrderController {
 
         deletingPartsMethods = new DeletingPartsMethods(partsTable);
         deletingPartsMethods.setOnDelete(e -> {
+            if (isBillingComplete()) return;
             boolean removed = deletingPartsMethods.removeSelectedFromTable();
             if (removed) {
                 savePartsToDb();
@@ -184,10 +182,11 @@ public class ViewOrderController {
 
         deletingLabourMethods = new DeletingLabourMethods(repairTable);
         deletingLabourMethods.setOnDelete(e -> {
+            if (isBillingComplete()) return;
             boolean removed = deletingLabourMethods.removeSelectedFromTable();
             if (removed) {
-                saveRepairsToDb();     // writes current repairData into DB
-                loadRepairsFromDb();   // refresh
+                saveRepairsToDb();
+                loadRepairsFromDb();
             }
         });
     }
@@ -213,6 +212,7 @@ public class ViewOrderController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        applyBillingLockUI();
     }
 
     public void initData(WorkOrder wo, Customer co){
@@ -268,6 +268,8 @@ public class ViewOrderController {
         //TableMethods.loadPartsTable(partsTable, partsData);
         loadPartsFromDb();
 
+        applyBillingLockUI();
+
         //repair
         loadRepairsFromDb();
     }
@@ -306,16 +308,6 @@ public class ViewOrderController {
     }
 
 
-//    @FXML
-//    public void Pay() throws Exception {
-//        refreshWorkOrderFromDb();
-//        InvoiceType type = isFinalInvoiceStatus(currentWorkOrder.getStatus())
-//                ? InvoiceType.FINAL
-//                : InvoiceType.DEPOSIT;
-//
-//        openPaymentDialog(currentWorkOrder, currentCustomer, type);
-//    }
-
     @FXML
     public void Pay() throws Exception {
         refreshWorkOrderFromDb();
@@ -343,18 +335,10 @@ public class ViewOrderController {
         pc.setContext(wo, co, invoiceType, owner);
 
         if (invoiceType == InvoiceType.FINAL) {
-            // make sure totals reflect latest UI edits
             savePartsToDb();
             saveRepairsToDb();
             loadPartsFromDb();
             loadRepairsFromDb();
-
-
-            System.out.println("Deposit from WO obj = " + currentWorkOrder.getDepositAmount());
-            System.out.println("LABOUR=" + labourTotalDb()
-                    + " PARTS=" + partsTotalDb()
-                    + " DEPOSIT=" + currentWorkOrder.getDepositAmount()
-                    + " DUE=" + finalDueDb());
             pc.setSuggestedAmount(finalDueDb());
         }
 
@@ -364,11 +348,33 @@ public class ViewOrderController {
         stage.setTitle("Payment");
         stage.setScene(new Scene(root));
         stage.showAndWait();
+
+
     }
 
-    private boolean isFinalInvoiceStatus(String status) {
-        if (status == null) return false;
-        return status.equalsIgnoreCase("Repair Complete") || status.equalsIgnoreCase("Closed");
+    private void applyBillingLockUI() {
+        boolean locked = isBillingComplete();
+
+        // status changes should be blocked
+        statusCombo.setDisable(locked);
+
+        // main fields should be blocked
+        type.setDisable(locked);
+        model.setDisable(locked);
+        serialNumber.setDisable(locked);
+        problemDesc.setDisable(locked);
+        vendorId.setDisable(locked);
+        warrantyNumber.setDisable(locked);
+
+        // parts + labour tables should be blocked
+        partsTable.setDisable(locked);
+        repairTable.setDisable(locked);
+
+        // files should be blocked
+        filesList.setDisable(locked);
+
+        // but service notes must still be editable
+        serviceNotesTXT.setDisable(false);
     }
 
     public void loadServiceNotes(){
@@ -389,11 +395,13 @@ public class ViewOrderController {
     }
     @FXML
     public void onAddStep() {
+        if (isBillingComplete()) return;
         repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
     }
 
     @FXML
     public void addPart(){
+        if (isBillingComplete()) return;
         partsData.add(new PartTable("",0,0.0,0));
     }
 
@@ -579,24 +587,35 @@ public class ViewOrderController {
         return total;
     }
 
-    private double finalDueDb() {
-        double labour = labourTotalDb();
-        double parts = partsTotalDb();
-        double deposit = depositFromDb();
-        double due = labour + parts - deposit;
-        return Math.max(0, due);
-    }
-
     @FXML
     public void updateOrder(){
+        String newServiceNotes = serviceNotesTXT.getText();
+        int woNumber = currentWorkOrder.getWorkorderNumber();
+
+        if (isBillingComplete()) {
+            String sql = "UPDATE work_order SET service_notes = ? WHERE workorder = ?";
+            try{
+                Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ps.setString(1, newServiceNotes);
+                ps.setInt(2, woNumber);
+                ps.executeUpdate();
+                ps.close();
+                conn.close();
+            }catch (SQLException e){
+                System.out.println("error during updating service notes");
+            }
+            System.out.println("updated service notes (Billing Complete)");
+            return;
+        }
+
+        // normal update (your existing code below)
         String newType = type.getText();
         String newModel = model.getText();
         String newSerialNumber = serialNumber.getText();
         String newProblemDesc = problemDesc.getText();
         String newVendorId = vendorId.getText();
         String newWarrantyNumber = warrantyNumber.getText();
-        String newServiceNotes = serviceNotesTXT.getText();
-        int woNumber = currentWorkOrder.getWorkorderNumber();
 
         String newSQL = "update work_order set type = ?, model = ?, serialNumber = ?, problemDesc = ?, vendorId = ?, warrantyNumber = ?, service_notes = ? WHERE workorder = ?";
         try{
@@ -609,8 +628,8 @@ public class ViewOrderController {
             ps.setString(5, newVendorId);
             ps.setString(6, newWarrantyNumber);
             ps.setString(7, newServiceNotes);
-             ps.setInt(8, woNumber);
-            int updated = ps.executeUpdate();
+            ps.setInt(8, woNumber);
+            ps.executeUpdate();
             ps.close();
             conn.close();
         }catch (SQLException e){
@@ -691,25 +710,6 @@ public class ViewOrderController {
         }
     }
 
-    public void openWithDesktop(File file){
-        Thread thread = new Thread(){
-            @Override
-            public void run(){
-                try{
-                    Desktop.getDesktop().open(file);
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
-    }
-
-    public void initFilesUI(){
-        filesList.setItems(filesData);
-        loadFilesFromDb();
-    }
-
     public void loadFilesFromDb() {
         filesList.getItems().clear();
         String sql = "SELECT id, file_name FROM work_order_files WHERE workorder_id = ?";
@@ -780,6 +780,7 @@ public class ViewOrderController {
         }
     }
 
+
     @FXML
     public void printOrder() throws Exception {
         WorkOrder wo = currentWorkOrder;
@@ -793,6 +794,39 @@ public class ViewOrderController {
                     pc.initData(wo, co);},
                 owner
         );
+    }
+
+    public void openWithDesktop(File file){
+        Thread thread = new Thread(){
+            @Override
+            public void run(){
+                try{
+                    Desktop.getDesktop().open(file);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+    }
+
+    public void initFilesUI(){
+        filesList.setItems(filesData);
+        loadFilesFromDb();
+    }
+
+    private double finalDueDb() {
+        double labour = labourTotalDb();
+        double parts = partsTotalDb();
+        double deposit = depositFromDb();
+        double due = labour + parts - deposit;
+        return Math.max(0, due);
+    }
+
+    private boolean isBillingComplete() {
+        String s = currentWorkOrder.getStatus();
+        if (s == null) return false;
+        return s.equalsIgnoreCase("Billing Complete");
     }
 
     @FXML

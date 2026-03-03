@@ -175,6 +175,12 @@ public class ActualWorkshopController{
         return s.equals("repair complete");
     }
 
+    private boolean isStatusBillingComplete(String status) {
+        if (status == null) return false;
+        String s = status.trim().toLowerCase();
+        return s.equals("billing complete");
+    }
+
     private int countOldNewOver10() {
         return (int) allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).count();
     }
@@ -275,8 +281,13 @@ public class ActualWorkshopController{
         row.setStyle("");
         if (wo == null) return;
 
+        if (isStatusBillingComplete(wo.getStatus())) {
+            row.setStyle("-fx-background-color: rgba(0, 200, 0, 0.22);"); // light green
+            return;
+        }
+
         if (isStatusComplete(wo.getStatus())) {
-            row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);");
+            row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);"); // blue
             return;
         }
 
