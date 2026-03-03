@@ -79,6 +79,8 @@ public class ViewOrderController {
 
     private final ObservableList<String> techNames = FXCollections.observableArrayList();
 
+    @FXML private MFXComboBox<String> techIdCombo;
+
 
     DatePicker picker;
 
@@ -106,6 +108,18 @@ public class ViewOrderController {
         statusCombo.setItems(WORK_ORDER_STATUSES);
 
         techNames.setAll(TableMethods.loadTechnicianUsernames());
+
+        loadTechList();
+
+        techIdCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.isBlank()) return;
+
+            int techId = getTechIdByUsername(newVal);
+            updateTechIdInDb(techId);
+
+            currentWorkOrder.setTechId(techId);  // update local model too
+            mainController.LoadOrders();         // refresh list
+        });
 
         repairTable.setFooterVisible(false);
         TableMethods.loadRepairsTable(repairTable, repairData, techNames);
@@ -284,6 +298,94 @@ public class ViewOrderController {
         }
         area.insertText(caret, stamp);
         area.positionCaret(caret + stamp.length());
+    }
+
+    private void loadTechList() {
+        techNames.clear();
+
+        String sql = "SELECT username FROM technician";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                techNames.add(rs.getString("username"));
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            System.out.println("error during loading tech list");
+        }
+
+        techIdCombo.setItems(techNames);
+    }
+
+    private int getTechIdByUsername(String username) {
+        int id = 0;
+        String sql = "SELECT id FROM technician WHERE username = ?";
+
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                id = rs.getInt("id");
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            System.out.println("error during loading tech id");
+        }
+
+        return id;
+    }
+
+    private String getTechUsernameById(int techId) {
+        String username = "";
+        String sql = "SELECT username FROM technician WHERE id = ?";
+
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, techId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                username = rs.getString("username");
+            }
+
+            rs.close();
+            ps.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            System.out.println("error during loading tech username");
+        }
+
+        return username;
+    }
+
+    private void updateTechIdInDb(int techId) {
+        String sql = "UPDATE work_order SET tech_id = ? WHERE workorder = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, techId);
+            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void refreshWorkOrderFromDb() {

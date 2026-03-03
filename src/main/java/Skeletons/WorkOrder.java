@@ -10,6 +10,7 @@ public class WorkOrder {
     private final IntegerProperty workorderNumber;
     private final StringProperty status;
     private final StringProperty createdAt; //
+    private final IntegerProperty techId = new SimpleIntegerProperty(0);
 
     private final StringProperty vendorId;
     private final StringProperty warrantyNumber;
@@ -36,6 +37,7 @@ public class WorkOrder {
         this.customerId = new SimpleIntegerProperty(customerId);
         this.depositAmount = new SimpleDoubleProperty(depositAmount);
 
+
     }
     //1)
     public IntegerProperty workorderNumberProperty(){ //accessor
@@ -51,6 +53,11 @@ public class WorkOrder {
     }
 
 
+
+    public IntegerProperty techIdProperty() { return techId; }
+    public int getTechId() { return techId.get(); }
+    public void setTechId(int value) { techId.set(value); }
+
     public DoubleProperty depositAmountProperty(){return depositAmount;}
     public double getDepositAmount(){return depositAmount.get();}
     public void setDepositAmount(double value){depositAmount.set(value);}
@@ -64,7 +71,6 @@ public class WorkOrder {
     public void setCustomerId(int value) {
         customerId.set(value);
     }
-
 
     public StringProperty vendorIdProperty(){return vendorId;}
     public String getVendorId(){return vendorId.get();}

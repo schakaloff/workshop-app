@@ -354,11 +354,14 @@ public class ActualWorkshopController{
     }
 
     public void loadOrdersIntoTable() {
-        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id, deposit_amount FROM work_order ORDER BY work_order.createdAt DESC";        data.clear();
+        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id, deposit_amount, tech_id FROM work_order ORDER BY work_order.createdAt DESC";
+        data.clear();
+
         try {
             Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
                 WorkOrder wo = new WorkOrder(
                         rs.getInt("workorder"),
@@ -373,11 +376,18 @@ public class ActualWorkshopController{
                         rs.getInt("customer_id"),
                         rs.getDouble("deposit_amount")
                 );
+
+                int techId = rs.getInt("tech_id");
+                if (rs.wasNull()) techId = 0;
+                wo.setTechId(techId);
+
                 data.add(wo);
             }
+
             rs.close();
             stmt.close();
             connection.close();
+
         } catch (SQLException e) {
             System.out.println("issue during loading into table");
         }
