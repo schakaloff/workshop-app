@@ -128,10 +128,10 @@ public class PaymentController {
 
             if (invoiceType == InvoiceType.DEPOSIT) {
                 fxml = "/main/firstInvoice.fxml";
-                title = "Deposit Invoice WO " + currentWorkOrder.getWorkorderNumber();
+                title = "DEPOSIT_INVOICE_" + currentWorkOrder.getWorkorderNumber();
             } else if (invoiceType == InvoiceType.FINAL) {
                 fxml = "/main/invoiceSheet.fxml";
-                title = "Final Invoice WO " + currentWorkOrder.getWorkorderNumber();
+                title = "FINAL_INVOICE_" + currentWorkOrder.getWorkorderNumber();
             } else {
                 throw new IllegalStateException("Invoice type not set.");
             }

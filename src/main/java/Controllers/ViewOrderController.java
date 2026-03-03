@@ -786,7 +786,7 @@ public class ViewOrderController {
         Customer co = currentCustomer;
         Window owner = dialogInstance.getScene().getWindow();
         DocumentOutput.printOrPdf(
-                "Work Order " + wo.getWorkorderNumber(),
+                "WO_" + wo.getWorkorderNumber(),
                 "/main/printOrder.fxml",
                 loader -> {
                     PrinterController pc = loader.getController();
