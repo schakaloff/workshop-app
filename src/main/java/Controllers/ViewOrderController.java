@@ -419,17 +419,12 @@ public class ViewOrderController {
 
     @FXML
     public void repairComplete() {
-
-        // make sure edits in table are committed, then push them to DB
         repairTable.requestFocus();
         tabPane.requestFocus();
         saveRepairsToDb();
 
         if (!hasAtLeastOneLabourNoteDb()) {
-            new Alert(Alert.AlertType.WARNING,
-                    "Add at least one labour note (Tech + Description) before marking Repair Complete.",
-                    ButtonType.OK
-            ).showAndWait();
+            new Alert(Alert.AlertType.WARNING, "Add at least one labour note (Tech + Description) before marking Repair Complete.", ButtonType.OK).showAndWait();
             return;
         }
 
@@ -438,27 +433,32 @@ public class ViewOrderController {
     }
 
     private boolean hasAtLeastOneLabourNoteDb() {
-        String sql = """
-        SELECT COUNT(*) 
-        FROM work_order_repairs
-        WHERE workorder_id = ?
-          AND tech IS NOT NULL AND TRIM(tech) <> ''
-          AND description IS NOT NULL AND TRIM(description) <> ''
-    """;
-
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        boolean ok = false;
+        String sql = "SELECT tech, description FROM work_order_repairs WHERE workorder_id = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return false;
-                return rs.getInt(1) > 0;
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String tech = rs.getString("tech");
+                String desc = rs.getString("description");
+
+                if (tech != null && !tech.equals("") && desc != null && !desc.equals("")) {
+                    ok = true;
+                    break;
+                }
             }
+            rs.close();
+            ps.close();
+            conn.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            System.out.println("error during checking labour notes");
         }
+        return ok;
     }
 
     private void loadRepairsFromDb() {
@@ -515,58 +515,75 @@ public class ViewOrderController {
     }
 
     private double depositFromDb() {
-        String sql = "SELECT COALESCE(deposit_amount, 0) FROM work_order WHERE workorder = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        double deposit = 0.0;
+        String sql = "SELECT deposit_amount FROM work_order WHERE workorder = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ResultSet rs = ps.executeQuery();
-            return rs.next() ? rs.getDouble(1) : 0.0;
-
+            if (rs.next()) {
+                deposit = rs.getDouble("deposit_amount");
+            }
+            rs.close();
+            ps.close();
+            conn.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-            return 0.0;
+            System.out.println("error during loading deposit");
         }
+
+        return deposit;
     }
 
     private double labourTotalDb() {
-        String sql = "SELECT COALESCE(SUM(price), 0) FROM work_order_repairs WHERE workorder_id = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        double total = 0.0;
+        String sql = "SELECT SUM(price) FROM work_order_repairs WHERE workorder_id = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ResultSet rs = ps.executeQuery();
-            return rs.next() ? rs.getDouble(1) : 0.0;
+            if (rs.next()) {
+                total = rs.getDouble(1);
+            }
+            rs.close();
+            ps.close();
+            conn.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            return 0.0;
+            System.out.println("error during loading labour total");
         }
+
+        return total;
     }
 
     private double partsTotalDb() {
-        String sql = "SELECT COALESCE(SUM(total_price), 0) FROM work_order_parts WHERE workorder_id = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        double total = 0.0;
+        String sql = "SELECT SUM(total_price) FROM work_order_parts WHERE workorder_id = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ResultSet rs = ps.executeQuery();
-            return rs.next() ? rs.getDouble(1) : 0.0;
+            if (rs.next()) {
+                total = rs.getDouble(1);
+            }
+            rs.close();
+            ps.close();
+            conn.close();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            return 0.0;
+            System.out.println("error during loading parts total");
         }
+
+        return total;
     }
 
     private double finalDueDb() {
         double labour = labourTotalDb();
-        double parts  = partsTotalDb();
+        double parts = partsTotalDb();
         double deposit = depositFromDb();
-
         double due = labour + parts - deposit;
-        System.out.println("LABOUR=" + labour + " PARTS=" + parts + " DEPOSIT=" + deposit + " DUE=" + due);
-
         return Math.max(0, due);
     }
 
@@ -622,7 +639,7 @@ public class ViewOrderController {
 
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ps.setString(2, file.getName());
-            ps.setBinaryStream(3, fis, (long) file.length()); // send bytes
+            ps.setBinaryStream(3, fis, (long) file.length());
 
             ps.executeUpdate();
 
@@ -630,7 +647,7 @@ public class ViewOrderController {
             ps.close();
             conn.close();
 
-            loadFilesFromDb(); // refresh list
+            loadFilesFromDb();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -686,20 +703,6 @@ public class ViewOrderController {
             }
         };
         thread.start();
-    }
-
-    private double labourTotal() {
-        return repairData.stream().mapToDouble(WorkTable::getPrice).sum();
-    }
-
-    private double partsTotal() {
-        return partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
-    }
-
-    private double finalDue() {
-        double deposit = currentWorkOrder.getDepositAmount();
-        double due = labourTotal() + partsTotal() - deposit;
-        return Math.max(0, due);
     }
 
     public void initFilesUI(){

@@ -16,8 +16,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 
 public class PaymentController {
@@ -44,7 +46,6 @@ public class PaymentController {
     @FXML private MFXTextField masterCardTXF;
     @FXML private MFXTextField cashTXF;
 
-
     private InvoiceType invoiceType;
     private Window ownerWindow;
 
@@ -52,38 +53,19 @@ public class PaymentController {
     public void initialize() {
         techIDTXF.setText(LoginController.tech);
         dateTXF.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-
         visaTXF.setDisable(true);
         debitTXF.setDisable(true);
         masterCardTXF.setDisable(true);
         cashTXF.setDisable(true);
     }
 
-
-
     public void setContext(WorkOrder wo, Customer co, InvoiceType type, Window owner) {
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
         this.invoiceType = type;
         this.ownerWindow = owner;
-
-        // default suggestion
         if (type == InvoiceType.DEPOSIT) {
             this.suggestedAmount = wo.getDepositAmount();
-        }
-        // if FINAL, suggestedAmount will be set by ViewOrderController via setSuggestedAmount()
-    }
-
-    private void autofill(MFXTextField field) {
-        if (suggestedAmount == null) return;
-
-        String t = field.getText();
-        String normalized = (t == null) ? "" : t.replace(" ", "").trim();
-
-        boolean emptyish = normalized.isBlank() || normalized.equalsIgnoreCase("CDN$");
-
-        if (emptyish) {
-            field.setText(String.format("CDN$%.2f", suggestedAmount));
         }
     }
 
@@ -97,19 +79,18 @@ public class PaymentController {
         }
 
         switch (cb.getId()) {
-
             case "visaCB":
                 visaTXF.setDisable(!selected);
                 if (selected) {
-                    visaTXF.setText("CDN$");
                     autofill(visaTXF);
-                } else visaTXF.clear();
+                } else {
+                    visaTXF.clear();
+                }
                 break;
 
             case "debitCB":
                 debitTXF.setDisable(!selected);
                 if (selected){
-                    debitTXF.setText("CDN$");
                     autofill(debitTXF);
                 }
                 else debitTXF.clear();
@@ -118,9 +99,7 @@ public class PaymentController {
             case "masterCardCB":
                 masterCardTXF.setDisable(!selected);
                 if (selected) {
-                    masterCardTXF.setText("CDN$");
                     autofill(masterCardTXF);
-
                 }
                 else masterCardTXF.clear();
                 break;
@@ -128,7 +107,6 @@ public class PaymentController {
             case "cashCB":
                 cashTXF.setDisable(!selected);
                 if (selected) {
-                    cashTXF.setText("CDN$");
                     autofill(cashTXF);
                 }
                 else cashTXF.clear();
@@ -173,61 +151,14 @@ public class PaymentController {
                     ownerWindow
             );
 
-            // ✅ only when final invoice is paid
             if (invoiceType == InvoiceType.FINAL) {
                 updateWoStatus("Billing Complete");
             }
 
-            ((Stage) techIDTXF.getScene().getWindow()).close();
-
-            ((Stage) techIDTXF.getScene().getWindow()).close();
+            closeWindow();
 
         } catch (Exception ex) {
             new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK).showAndWait();
-        }
-    }
-
-    private void selectOnly(MFXCheckbox selected) {
-        for (MFXCheckbox cb : new MFXCheckbox[]{visaCB, debitCB, masterCardCB, cashCB}) {
-            if (cb != selected) cb.setSelected(false);
-        }
-        // disable all fields first
-        visaTXF.setDisable(true); debitTXF.setDisable(true); masterCardTXF.setDisable(true); cashTXF.setDisable(true);
-        // clear all fields
-        visaTXF.clear(); debitTXF.clear(); masterCardTXF.clear(); cashTXF.clear();
-    }
-
-    private String getSelectedMethod() {
-        if (visaCB.isSelected()) return "VISA";
-        if (debitCB.isSelected()) return "DEBIT";
-        if (masterCardCB.isSelected()) return "MASTERCARD";
-        if (cashCB.isSelected()) return "CASH";
-        throw new IllegalArgumentException("Select a payment method.");
-    }
-
-    public void setSuggestedAmount(Double amount) {
-        this.suggestedAmount = amount;
-
-    }
-
-    private double getEnteredAmount(String method) {
-        String raw;
-        switch (method) {
-            case "VISA": raw = visaTXF.getText(); break;
-            case "DEBIT": raw = debitTXF.getText(); break;
-            case "MASTERCARD": raw = masterCardTXF.getText(); break;
-            case "CASH": raw = cashTXF.getText(); break;
-            default: throw new IllegalArgumentException("Unknown method.");
-        }
-
-        if (raw == null || raw.isBlank()) throw new IllegalArgumentException("Enter an amount.");
-
-        raw = raw.replace("CDN$", "").replace("$", "").trim();
-
-        try {
-            return Double.parseDouble(raw);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Amount must be a number, e.g. 50 or 50.00");
         }
     }
 
@@ -241,23 +172,84 @@ public class PaymentController {
             ps.setInt(2, currentWorkOrder.getWorkorderNumber());
             ps.executeUpdate();
 
-            // keep in-memory object in sync
             currentWorkOrder.setStatus(newStatus);
 
-            // refresh main table UI if available
             if (mainController != null) {
                 mainController.LoadOrders();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR,
-                    "Payment printed but failed to update WO status.\n" + e.getMessage(),
-                    ButtonType.OK
-            ).showAndWait();
         }
     }
 
+    private void selectOnly(MFXCheckbox selected) {
+        for (MFXCheckbox cb : new MFXCheckbox[]{visaCB, debitCB, masterCardCB, cashCB}) {
+            if (cb != selected){
+                cb.setSelected(false);
+            }
+        }
+        visaTXF.setDisable(true); debitTXF.setDisable(true); masterCardTXF.setDisable(true); cashTXF.setDisable(true);
+        visaTXF.clear(); debitTXF.clear(); masterCardTXF.clear(); cashTXF.clear();
+    }
 
+    private String getSelectedMethod() {
+        if (visaCB.isSelected()) return "VISA";
+        if (debitCB.isSelected()) return "DEBIT";
+        if (masterCardCB.isSelected()) return "MASTERCARD";
+        if (cashCB.isSelected()) return "CASH";
+        throw new IllegalArgumentException("Select a payment method.");
+    }
 
+    public void setSuggestedAmount(Double amount) {
+        this.suggestedAmount = amount;
+    }
+
+    private double getEnteredAmount(String method) {
+        String raw;
+        switch (method) {
+            case "VISA": raw = visaTXF.getText(); break;
+            case "DEBIT": raw = debitTXF.getText(); break;
+            case "MASTERCARD": raw = masterCardTXF.getText(); break;
+            case "CASH": raw = cashTXF.getText(); break;
+            default: throw new IllegalArgumentException("Unknown method.");
+        }
+
+        if (raw == null || raw.isBlank()) throw new IllegalArgumentException("Enter an amount.");
+        raw = raw.replace("$", "").replace("CAD", "").trim();
+        try {
+            return Double.parseDouble(raw);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Amount must be a number, e.g. 50 or 50.00");
+        }
+    }
+
+    private String formatCad(double amount) {
+        NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.CANADA);
+        String base = nf.format(amount);
+        return base + " CAD";
+    }
+
+    private void autofill(MFXTextField field) {
+        if (suggestedAmount == null) {
+            return;
+        }
+
+        String text = field.getText();
+
+        if (text == null) {
+            text = "";
+        }
+
+        text = text.trim();
+
+        if (text.equals("") || text.equals("$") || text.equalsIgnoreCase("CAD")) {
+            field.setText(formatCad(suggestedAmount));
+        }
+    }
+
+    private void closeWindow() {
+        Stage stage = (Stage) techIDTXF.getScene().getWindow();
+        stage.close();
+    }
 }
