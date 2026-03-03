@@ -11,6 +11,10 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import utils.DocumentOutput;
 import utils.enums.InvoiceType;
+import DB.DbConfig;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -169,6 +173,13 @@ public class PaymentController {
                     ownerWindow
             );
 
+            // ✅ only when final invoice is paid
+            if (invoiceType == InvoiceType.FINAL) {
+                updateWoStatus("Billing Complete");
+            }
+
+            ((Stage) techIDTXF.getScene().getWindow()).close();
+
             ((Stage) techIDTXF.getScene().getWindow()).close();
 
         } catch (Exception ex) {
@@ -217,6 +228,33 @@ public class PaymentController {
             return Double.parseDouble(raw);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Amount must be a number, e.g. 50 or 50.00");
+        }
+    }
+
+    private void updateWoStatus(String newStatus) {
+        String sql = "UPDATE work_order SET status = ? WHERE workorder = ?";
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+            ps.executeUpdate();
+
+            // keep in-memory object in sync
+            currentWorkOrder.setStatus(newStatus);
+
+            // refresh main table UI if available
+            if (mainController != null) {
+                mainController.LoadOrders();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR,
+                    "Payment printed but failed to update WO status.\n" + e.getMessage(),
+                    ButtonType.OK
+            ).showAndWait();
         }
     }
 

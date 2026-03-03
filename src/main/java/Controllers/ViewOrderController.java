@@ -81,7 +81,7 @@ public class ViewOrderController {
 
     DatePicker picker;
 
-    public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList("New", "In Progress", "Waiting Parts", "Repair Complete", "Closed");
+    public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList("New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed");
 
     //parts
     @FXML private MFXTextField partsCustomerTFX;
@@ -148,6 +148,21 @@ public class ViewOrderController {
 
         statusCombo.valueProperty().addListener((obs, oldStatus, newStatus) -> {
             if (newStatus == null || newStatus.equals(oldStatus)) return;
+
+            if ("Repair Complete".equalsIgnoreCase(newStatus)) {
+
+                // persist current UI labour table state first
+                saveRepairsToDb();
+
+                if (!hasAtLeastOneLabourNoteDb()) {
+                    new Alert(Alert.AlertType.WARNING,
+                            "Add at least one labour note (Tech + Description) before marking Repair Complete.",
+                            ButtonType.OK
+                    ).showAndWait();
+                    statusCombo.selectItem(oldStatus); // revert selection
+                    return;
+                }
+            }
 
             updateStatusInDb(newStatus);
         });
@@ -304,6 +319,16 @@ public class ViewOrderController {
     @FXML
     public void Pay() throws Exception {
         refreshWorkOrderFromDb();
+
+        String st = currentWorkOrder.getStatus();
+        if (st == null || !st.equalsIgnoreCase("Repair Complete")) {
+            new Alert(Alert.AlertType.WARNING,
+                    "You must set the work order status to 'Repair Complete' before taking final payment.",
+                    ButtonType.OK
+            ).showAndWait();
+            return;
+        }
+
         openPaymentDialog(currentWorkOrder, currentCustomer, InvoiceType.FINAL);
     }
 
@@ -394,8 +419,46 @@ public class ViewOrderController {
 
     @FXML
     public void repairComplete() {
+
+        // make sure edits in table are committed, then push them to DB
+        repairTable.requestFocus();
+        tabPane.requestFocus();
+        saveRepairsToDb();
+
+        if (!hasAtLeastOneLabourNoteDb()) {
+            new Alert(Alert.AlertType.WARNING,
+                    "Add at least one labour note (Tech + Description) before marking Repair Complete.",
+                    ButtonType.OK
+            ).showAndWait();
+            return;
+        }
+
         updateStatusInDb("Repair Complete");
-        statusCombo.selectItem("Repair Complete"); // optional UI sync
+        statusCombo.selectItem("Repair Complete");
+    }
+
+    private boolean hasAtLeastOneLabourNoteDb() {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM work_order_repairs
+        WHERE workorder_id = ?
+          AND tech IS NOT NULL AND TRIM(tech) <> ''
+          AND description IS NOT NULL AND TRIM(description) <> ''
+    """;
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false;
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void loadRepairsFromDb() {
