@@ -5,12 +5,9 @@ import Skeletons.WorkOrder;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class FirstInvoiceController {
-    @FXML
-    private Text cxFullNameTXT;
+    @FXML private Text cxFullNameTXT;
     @FXML private Text salesPersonTXT;
     @FXML private Text PONumberTXT;
     @FXML private Text paymentMethodTXT;
