@@ -450,6 +450,7 @@ public class ViewOrderController {
         stage.setTitle("Payment");
         stage.setScene(new Scene(root));
         stage.showAndWait();
+        loadFilesFromDb();
 
 
     }
