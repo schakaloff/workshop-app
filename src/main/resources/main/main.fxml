@@ -20,7 +20,7 @@
          <left>
             <JFXDrawer prefHeight="400.0" prefWidth="112.0" BorderPane.alignment="CENTER">
                <children>
-                  <VBox fx:id="sidePanel" prefHeight="396.0" prefWidth="130.0" style="-fx-background-color: lightblue; -fx-spacing: 10; -fx-padding: 10;">
+                  <VBox fx:id="sidePanel" prefHeight="396.0" prefWidth="130.0" style="-fx-background-color: white; -fx-spacing: 10; -fx-padding: 10;">
                      <children>
                         <Circle fx:id="techAvatar" fill="DODGERBLUE" radius="55.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
                         <Label text="Welcome!">
@@ -33,28 +33,18 @@
                               <Font size="15.0" />
                            </font>
                         </Label>
-                        <JFXButton alignment="CENTER" onAction="#LoadOrders" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Dashboard">
+                        <JFXButton alignment="CENTER" buttonType="RAISED" onAction="#LoadOrders" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Dashboard">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
-                        <JFXButton alignment="CENTER" onAction="#LoadCustomers" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Customers">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </JFXButton>
-                        <JFXButton alignment="CENTER" onAction="#LoadInvoices" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Invoices">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </JFXButton>
-                        <JFXButton alignment="CENTER" onAction="#openSettingsMenu" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Settings">
+                        <JFXButton alignment="CENTER" buttonType="RAISED" onAction="#openSettingsMenu" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Settings">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
 <!--                        <MFXButton onAction="#settingsController" prefHeight="33.0" prefWidth="104.0" text="Settings" />-->
-                        <JFXButton fx:id="signOutBtn" alignment="CENTER" onMouseClicked="#signOut" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Sign Out">
+                        <JFXButton fx:id="signOutBtn" alignment="CENTER" buttonType="RAISED" onMouseClicked="#signOut" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Sign Out">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -65,17 +55,17 @@
             </JFXDrawer>
          </left>
          <center>
-            <AnchorPane style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="675.0" prefWidth="851.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
                <children>
                   <MFXPaginatedTableView fx:id="table" layoutX="48.0" layoutY="79.0" prefHeight="517.0" prefWidth="785.0" />
-                  <MFXButton fx:id="btnOldNew" layoutX="48.0" layoutY="29.0" onAction="#showOldNewOver10" prefHeight="26.0" prefWidth="200.0" text="OLD OPENED WO: 0" />
-                  <MFXButton fx:id="btnRepairedNotPaid" layoutX="262.0" layoutY="29.0" onAction="#showRepairedNotPaid" prefHeight="26.0" prefWidth="200.0" text="REPAIRED BUT NOT PAID: 0" />
-                  <MFXButton alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="702.0" layoutY="614.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
+                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="48.0" layoutY="29.0" onAction="#showOldNewOver10" prefHeight="26.0" prefWidth="200.0" text="OLD OPENED WO: 0" />
+                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="262.0" layoutY="29.0" onAction="#showRepairedNotPaid" prefHeight="26.0" prefWidth="200.0" text="REPAIRED BUT NOT PAID: 0" />
+                  <MFXButton alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="713.0" layoutY="611.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
                      <effect>
                         <Glow />
                      </effect></MFXButton>
                   <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="743.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
-                  <MFXButton fx:id="btnShowMyWO" layoutX="493.0" layoutY="29.0" onAction="#showMyWO" prefHeight="26.0" prefWidth="200.0" text="MY CURRENT WO: 0" />
+                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="493.0" layoutY="29.0" onAction="#showMyWO" prefHeight="26.0" prefWidth="200.0" text="MY CURRENT WO: 0" />
                </children>
             </AnchorPane>
          </center>

@@ -73,7 +73,7 @@ public class ActualWorkshopController{
 
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
-        //avatar(techAvatar); //set avatar's pic
+        avatar(techAvatar); //set avatar's pic
         table.setRowsPerPage(15);
         table.setPagesToShow(5);
         LoadOrders();

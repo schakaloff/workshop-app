@@ -12,6 +12,8 @@ import javafx.stage.Window;
 import utils.DocumentOutput;
 import utils.enums.InvoiceType;
 import DB.DbConfig;
+
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -136,6 +138,27 @@ public class PaymentController {
                 throw new IllegalStateException("Invoice type not set.");
             }
 
+// 1) Generate PDF bytes in memory (always)
+            byte[] pdfBytes = DocumentOutput.generatePdfBytes(
+                    fxml,
+                    loader -> {
+                        if (invoiceType == InvoiceType.DEPOSIT) {
+                            FirstInvoiceController ic = loader.getController();
+                            ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                        } else {
+                            InvoiceController ic = loader.getController();
+                            ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                        }
+                    }
+            );
+
+// 2) Store in DB so it appears in Files tab
+            attachPdfToWorkOrder(pdfBytes, title + ".pdf");
+
+// 3) Optional: still print for the customer (if you want)
+// If you still want the Print/PDF choice dialog, keep your old call here.
+// If you ONLY want printing, add a DocumentOutput.printNodeFromFxml(...) helper.
+// For now, simplest: keep your existing DocumentOutput.printOrPdf(...) if you want user output too.
             DocumentOutput.printOrPdf(
                     title,
                     fxml,
@@ -159,6 +182,20 @@ public class PaymentController {
 
         } catch (Exception ex) {
             new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK).showAndWait();
+        }
+    }
+
+    private void attachPdfToWorkOrder(File pdfFile, String displayName) throws Exception {
+        byte[] bytes = java.nio.file.Files.readAllBytes(pdfFile.toPath());
+
+        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ps.setString(2, displayName);
+            ps.setBytes(3, bytes);
+            ps.executeUpdate();
         }
     }
 
@@ -245,6 +282,18 @@ public class PaymentController {
 
         if (text.equals("") || text.equals("$") || text.equalsIgnoreCase("CAD")) {
             field.setText(formatCad(suggestedAmount));
+        }
+    }
+
+    private void attachPdfToWorkOrder(byte[] pdfBytes, String displayName) throws Exception {
+        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
+            ps.setString(2, displayName);
+            ps.setBytes(3, pdfBytes);
+            ps.executeUpdate();
         }
     }
 

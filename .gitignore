@@ -1,6 +1,5 @@
 # hidden files
 src/main/java/DB/DbConfig.java
-src/main/resources/avatar.png
 src/main/resources/lock.png
 src/main/resources/logo.png
 src/main/resources/VendorsList.txt
