@@ -24,6 +24,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.ImagePattern;
@@ -51,6 +52,7 @@ public class ActualWorkshopController{
     @FXML public BorderPane contentPane;
 
     @FXML private Button btnOldNew;
+    @FXML private Button newOrderBTN;
     @FXML private Button btnRepairedNotPaid;
     @FXML private Button btnShowMyWO;
 
@@ -58,6 +60,14 @@ public class ActualWorkshopController{
 
     @FXML private MFXPaginatedTableView<WorkOrder> table;
 
+    //personal work
+    @FXML private AnchorPane personalwork;
+    @FXML private MFXTextField techTXF;
+    @FXML private MFXDatePicker datepicker;
+    @FXML private MFXTextField tEarnedTXF;
+    @FXML private MFXTextField repairsTXF;
+    @FXML private MFXTableView techTable;
+    @FXML private MFXButton calcBTN;
 
     private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
@@ -143,6 +153,8 @@ public class ActualWorkshopController{
     }
 
     public void LoadOrders() {
+        showDashboardControls();
+
         table.getTableColumns().clear();
         table.getItems().clear();
         //table.autosizeColumnsOnInitialization();
@@ -571,6 +583,56 @@ public class ActualWorkshopController{
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
 
+    }
+
+    @FXML
+    public void myStats() {
+        hideDashboardControls();
+    }
+
+    private void showDashboardControls() {
+        table.setVisible(true);
+        table.setManaged(true);
+
+        btnOldNew.setVisible(true);
+        btnOldNew.setManaged(true);
+
+        btnRepairedNotPaid.setVisible(true);
+        btnRepairedNotPaid.setManaged(true);
+
+        btnShowMyWO.setVisible(true);
+        btnShowMyWO.setManaged(true);
+
+        searchTxtField.setVisible(true);
+        searchTxtField.setManaged(true);
+
+        newOrderBTN.setVisible(true);
+        newOrderBTN.setManaged(true);
+
+        //personal
+
+    }
+
+    private void hideDashboardControls() {
+
+
+        table.setVisible(false);
+        table.setManaged(false);
+
+        btnOldNew.setVisible(false);
+        btnOldNew.setManaged(false);
+
+        btnRepairedNotPaid.setVisible(false);
+        btnRepairedNotPaid.setManaged(false);
+
+        btnShowMyWO.setVisible(false);
+        btnShowMyWO.setManaged(false);
+
+        searchTxtField.setVisible(false);
+        searchTxtField.setManaged(false);
+
+        newOrderBTN.setVisible(false);
+        newOrderBTN.setManaged(false);
     }
 
     public void createNewOrder() throws IOException {
