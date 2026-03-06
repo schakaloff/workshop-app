@@ -474,7 +474,7 @@ public class ViewOrderController {
         repairTable.setDisable(locked);
 
         // files should be blocked
-        filesList.setDisable(locked);
+        //filesList.setDisable(locked);
 
         // but service notes must still be editable
         serviceNotesTXT.setDisable(false);
@@ -507,26 +507,6 @@ public class ViewOrderController {
         if (isBillingComplete()) return;
         partsData.add(new PartTable("",0,0.0,0));
     }
-
-//    @FXML
-//    public void repairComplete(){
-//        String sql = "UPDATE work_order SET status = ? where workorder = ?";
-//        try{
-//            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-//            PreparedStatement ps = conn.prepareStatement(sql);
-//            statusCombo.selectItem("Repair Complete");
-//            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
-//            int rs = ps.executeUpdate();
-//            if(rs > 0){
-//                currentWorkOrder.setStatus("Repair Complete");
-//                System.out.println("order is closed");
-//                mainController.LoadOrders();
-//            }
-//        }catch (SQLException e){
-//            System.out.println("error during closing the order");
-//        }
-//        statusCombo.setText(currentWorkOrder.getStatus());
-//    }
 
     @FXML
     public void repairComplete() {
@@ -913,10 +893,10 @@ public class ViewOrderController {
         thread.start();
     }
 
-    public void initFilesUI(){
-        filesList.setItems(filesData);
-        loadFilesFromDb();
-    }
+//    public void initFilesUI(){
+//        filesList.setItems(filesData);
+//        loadFilesFromDb();
+//    }
 
     private double finalDueDb() {
         double labour = labourTotalDb();

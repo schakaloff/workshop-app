@@ -3,8 +3,11 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXDrawer?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXDatePicker?>
 <?import io.github.palexdev.materialfx.controls.MFXPaginatedTableView?>
+<?import io.github.palexdev.materialfx.controls.MFXTableView?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.Glow?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -20,7 +23,7 @@
          <left>
             <JFXDrawer prefHeight="400.0" prefWidth="112.0" BorderPane.alignment="CENTER">
                <children>
-                  <VBox fx:id="sidePanel" prefHeight="396.0" prefWidth="130.0" style="-fx-background-color: white; -fx-spacing: 10; -fx-padding: 10;">
+                  <VBox fx:id="sidePanel" prefHeight="396.0" prefWidth="130.0" style="-fx-background-color: white; -fx-spacing: 10; -fx-padding: 40; -fx-border-width: 1; -fx-border-color: black;">
                      <children>
                         <Circle fx:id="techAvatar" fill="DODGERBLUE" radius="55.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
                         <Label text="Welcome!">
@@ -38,6 +41,7 @@
                               <Font size="14.0" />
                            </font>
                         </JFXButton>
+                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#myStats" prefHeight="26.0" prefWidth="104.0" text="My Work" />
                         <JFXButton alignment="CENTER" buttonType="RAISED" onAction="#openSettingsMenu" prefHeight="26.0" prefWidth="102.0" style="-fx-background-color: white;" text="Settings">
                            <font>
                               <Font size="14.0" />
@@ -50,6 +54,9 @@
                            </font>
                         </JFXButton>
                      </children>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
                   </VBox>
                </children>
             </JFXDrawer>
@@ -57,16 +64,29 @@
          <center>
             <AnchorPane prefHeight="675.0" prefWidth="851.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
                <children>
-                  <MFXPaginatedTableView fx:id="table" layoutX="48.0" layoutY="79.0" prefHeight="517.0" prefWidth="785.0" />
-                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="48.0" layoutY="29.0" onAction="#showOldNewOver10" prefHeight="26.0" prefWidth="200.0" text="OLD OPENED WO: 0" />
-                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="262.0" layoutY="29.0" onAction="#showRepairedNotPaid" prefHeight="26.0" prefWidth="200.0" text="REPAIRED BUT NOT PAID: 0" />
-                  <MFXButton alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="713.0" layoutY="611.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
+                  <MFXPaginatedTableView fx:id="table" layoutX="12.0" layoutY="79.0" prefHeight="517.0" prefWidth="795.0" />
+                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="14.0" layoutY="29.0" onAction="#showOldNewOver10" prefHeight="26.0" prefWidth="200.0" text="OLD OPENED WO: 0" />
+                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="246.0" layoutY="29.0" onAction="#showRepairedNotPaid" prefHeight="26.0" prefWidth="200.0" text="REPAIRED BUT NOT PAID: 0" />
+                  <MFXButton fx:id="newOrderBTN" alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="687.0" layoutY="605.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
                      <effect>
                         <Glow />
                      </effect></MFXButton>
-                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="743.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
-                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="493.0" layoutY="29.0" onAction="#showMyWO" prefHeight="26.0" prefWidth="200.0" text="MY CURRENT WO: 0" />
+                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="713.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
+                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="472.0" layoutY="29.0" onAction="#showMyWO" prefHeight="26.0" prefWidth="200.0" text="MY CURRENT WO: 0" />
+                  <AnchorPane fx:id="personalwork" prefHeight="675.0" prefWidth="815.0" style="-fx-background-color: white;">
+                     <children>
+                        <MFXDatePicker fx:id="dPicker" layoutX="141.0" layoutY="29.0" />
+                        <MFXTextField fx:id="tEarnedTXF" floatMode="BORDER" floatingText="Total Earned:" layoutX="363.0" layoutY="23.0" prefHeight="51.0" prefWidth="188.0" text="0" />
+                        <MFXTextField fx:id="repairsTXF" floatMode="BORDER" floatingText="Repairs Complete" layoutX="584.0" layoutY="22.0" prefHeight="51.0" prefWidth="188.0" text="0" />
+                        <MFXTextField fx:id="techTXF" floatingText="Tech" layoutX="26.0" layoutY="22.0" text="Tech" />
+                        <MFXTableView fx:id="techTable" layoutX="20.0" layoutY="105.0" prefHeight="521.0" prefWidth="775.0" />
+                        <MFXButton fx:id="calcBTN" buttonType="RAISED" depthLevel="LEVEL5" layoutX="645.0" layoutY="635.0" onAction="#calculateWork" prefHeight="26.0" prefWidth="150.0" text="Calculate" />
+                     </children>
+                  </AnchorPane>
                </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
             </AnchorPane>
          </center>
       </BorderPane>
