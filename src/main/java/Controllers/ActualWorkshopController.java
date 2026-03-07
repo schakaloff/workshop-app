@@ -3,6 +3,7 @@ package Controllers;
 import DB.DbConfig;
 import Controllers.CustomersController;
 import Skeletons.Customer;
+import Skeletons.TechWorkRow;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
@@ -63,12 +64,17 @@ public class ActualWorkshopController{
     //personal work
     @FXML private AnchorPane personalwork;
     @FXML private MFXTextField techTXF;
-    @FXML private MFXDatePicker datepicker;
+    @FXML private MFXDatePicker fromDPicker;
+    @FXML private MFXDatePicker toDPicker;
     @FXML private MFXTextField tEarnedTXF;
     @FXML private MFXTextField repairsTXF;
-    @FXML private MFXTableView techTable;
+    @FXML private MFXTableView<TechWorkRow> techTable;
     @FXML private MFXButton calcBTN;
 
+    private final ObservableList<TechWorkRow> techWorkData = FXCollections.observableArrayList();
+
+
+    //other
     private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
 
@@ -84,6 +90,12 @@ public class ActualWorkshopController{
     public void initialize(){
         welcomeTech.setText(LoginController.tech); //welcome tech's name
         avatar(techAvatar); //set avatar's pic
+
+        personalwork.setVisible(false);
+        personalwork.setManaged(false);
+        techTXF.setText(LoginController.tech);
+        loadTechStatsTable();
+
         table.setRowsPerPage(15);
         table.setPagesToShow(5);
         LoadOrders();
@@ -110,6 +122,10 @@ public class ActualWorkshopController{
 
         UILoader(wo);
 
+
+    }
+
+    public void calculateWork(){
 
     }
 
@@ -588,6 +604,9 @@ public class ActualWorkshopController{
     @FXML
     public void myStats() {
         hideDashboardControls();
+        personalwork.setVisible(true);
+        personalwork.setManaged(true);
+        techTXF.setText(LoginController.tech);
     }
 
     private void showDashboardControls() {
@@ -609,13 +628,33 @@ public class ActualWorkshopController{
         newOrderBTN.setVisible(true);
         newOrderBTN.setManaged(true);
 
-        //personal
+        personalwork.setVisible(false);
+        personalwork.setManaged(false);
+    }
 
+    private void loadTechStatsTable() {
+        techTable.getTableColumns().clear();
+
+        MFXTableColumn<TechWorkRow> workOrderCol = new MFXTableColumn<>("Work Order", false);
+        MFXTableColumn<TechWorkRow> statusCol = new MFXTableColumn<>("What Was Done", false);
+        MFXTableColumn<TechWorkRow> labourCol = new MFXTableColumn<>("Labour", false);
+        MFXTableColumn<TechWorkRow> deviceCol = new MFXTableColumn<>("Device", false);
+
+        workOrderCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getWorkOrderNumber));
+        statusCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getStatus));
+        labourCol.setRowCellFactory(row -> new MFXTableRowCell<>(r -> String.format("$%.2f", r.getLabourAmount())));
+        deviceCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getDevice));
+
+        workOrderCol.setMinWidth(120);
+        statusCol.setMinWidth(220);
+        labourCol.setMinWidth(120);
+        deviceCol.setMinWidth(220);
+
+        techTable.getTableColumns().addAll(workOrderCol, statusCol, labourCol, deviceCol);
+        techTable.setItems(techWorkData);
     }
 
     private void hideDashboardControls() {
-
-
         table.setVisible(false);
         table.setManaged(false);
 
