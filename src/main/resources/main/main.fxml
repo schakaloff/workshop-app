@@ -75,12 +75,13 @@
                   <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="472.0" layoutY="29.0" onAction="#showMyWO" prefHeight="26.0" prefWidth="200.0" text="MY CURRENT WO: 0" />
                   <AnchorPane fx:id="personalwork" prefHeight="675.0" prefWidth="815.0" style="-fx-background-color: white;">
                      <children>
-                        <MFXDatePicker fx:id="dPicker" layoutX="141.0" layoutY="29.0" />
-                        <MFXTextField fx:id="tEarnedTXF" floatMode="BORDER" floatingText="Total Earned:" layoutX="363.0" layoutY="23.0" prefHeight="51.0" prefWidth="188.0" text="0" />
-                        <MFXTextField fx:id="repairsTXF" floatMode="BORDER" floatingText="Repairs Complete" layoutX="584.0" layoutY="22.0" prefHeight="51.0" prefWidth="188.0" text="0" />
-                        <MFXTextField fx:id="techTXF" floatingText="Tech" layoutX="26.0" layoutY="22.0" text="Tech" />
+                        <MFXDatePicker fx:id="fromDPicker" layoutX="20.0" layoutY="30.0" prefHeight="38.0" prefWidth="100.0" />
+                        <MFXTextField fx:id="tEarnedTXF" floatMode="BORDER" floatingText="Total Earned:" layoutX="417.0" layoutY="22.0" prefHeight="51.0" prefWidth="188.0" text="0" />
+                        <MFXTextField fx:id="repairsTXF" floatMode="BORDER" floatingText="Repairs Complete" layoutX="613.0" layoutY="23.0" prefHeight="51.0" prefWidth="188.0" text="0" />
+                        <MFXTextField fx:id="techTXF" floatingText="Tech" layoutX="318.0" layoutY="22.0" text="Tech" />
                         <MFXTableView fx:id="techTable" layoutX="20.0" layoutY="105.0" prefHeight="521.0" prefWidth="775.0" />
                         <MFXButton fx:id="calcBTN" buttonType="RAISED" depthLevel="LEVEL5" layoutX="645.0" layoutY="635.0" onAction="#calculateWork" prefHeight="26.0" prefWidth="150.0" text="Calculate" />
+                        <MFXDatePicker fx:id="toDPicker" layoutX="177.0" layoutY="30.0" prefHeight="38.0" prefWidth="100.0" />
                      </children>
                   </AnchorPane>
                </children>
