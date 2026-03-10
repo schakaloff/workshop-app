@@ -40,6 +40,7 @@ import main.Main;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -51,6 +52,8 @@ public class ActualWorkshopController{
     @FXML private Circle techAvatar;
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
+
+    @FXML public MFXButton signOutBtn;
 
     @FXML private Button btnOldNew;
     @FXML private Button newOrderBTN;
@@ -97,13 +100,17 @@ public class ActualWorkshopController{
         loadTechStatsTable();
 
         table.setRowsPerPage(15);
-        table.setPagesToShow(5);
+        //table.setPagesToShow(5);
         LoadOrders();
+
+        fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
+        toDPicker.setValue(LocalDate.now());
 
         preloadViewOrderDialog();
 
 
         searchTxtField.setOnAction(e -> onSearchEnter());
+
 
     }
 
@@ -125,8 +132,97 @@ public class ActualWorkshopController{
 
     }
 
-    public void calculateWork(){
+    @FXML
+    public void calculateWork() {
+        LocalDate fromDate = fromDPicker.getValue();
+        LocalDate toDate = toDPicker.getValue();
 
+        if (fromDate == null || toDate == null) {
+            return;
+        }
+
+        if (fromDate.isAfter(toDate)) {
+            return;
+        }
+
+        loadTechWorkByDateRange(fromDate, toDate);
+    }
+
+    private void loadTechWorkByDateRange(LocalDate fromDate, LocalDate toDate) {
+        techWorkData.clear();
+
+        String techUsername = techTXF.getText();
+        if (techUsername == null || techUsername.isBlank()) {
+            tEarnedTXF.setText("0.00");
+            repairsTXF.setText("0");
+            return;
+        }
+
+        String sql = """
+        SELECT
+            w.workorder,
+            w.type,
+            w.status,
+            SUM(r.price) AS labour_total,
+            DATE_FORMAT(
+                COALESCE(
+                    w.finished_at,
+                    MAX(TIMESTAMP(r.repair_date, '00:00:00'))
+                ),
+                '%Y-%m-%d %H:%i'
+            ) AS finished_date
+        FROM work_order_repairs r
+        JOIN work_order w ON w.workorder = r.workorder_id
+        WHERE r.tech = ?
+          AND w.status IN ('Repair Complete', 'Billing Complete')
+          AND r.repair_date BETWEEN ? AND ?
+        GROUP BY w.workorder, w.type, w.status, w.finished_at
+        ORDER BY COALESCE(w.finished_at, MAX(TIMESTAMP(r.repair_date, '00:00:00'))) DESC
+    """;
+
+        double totalEarned = 0.0;
+        int repairsCount = 0;
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, techUsername);
+            stmt.setDate(2, Date.valueOf(fromDate));
+            stmt.setDate(3, Date.valueOf(toDate));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int workOrderNumber = rs.getInt("workorder");
+                String type = rs.getString("type");
+                String status = rs.getString("status");
+                double labourAmount = rs.getDouble("labour_total");
+                String finishedDate = rs.getString("finished_date");
+
+                techWorkData.add(new TechWorkRow(
+                        workOrderNumber,
+                        type,
+                        status,
+                        labourAmount,
+                        finishedDate
+                ));
+
+                totalEarned += labourAmount;
+                repairsCount++;
+            }
+
+            tEarnedTXF.setText(String.format("%.2f", totalEarned));
+            repairsTXF.setText(String.valueOf(repairsCount));
+
+            techTable.setItems(null);
+            techTable.setItems(techWorkData);
+            techTable.autosizeColumns();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            tEarnedTXF.setText("0.00");
+            repairsTXF.setText("0");
+        }
     }
 
     private void UILoader(WorkOrder wo){
@@ -607,6 +703,10 @@ public class ActualWorkshopController{
         personalwork.setVisible(true);
         personalwork.setManaged(true);
         techTXF.setText(LoginController.tech);
+
+        techTable.setItems(null);
+        techTable.setItems(techWorkData);
+        techTable.autosizeColumns();
     }
 
     private void showDashboardControls() {
@@ -632,25 +732,41 @@ public class ActualWorkshopController{
         personalwork.setManaged(false);
     }
 
+
+
+
+
     private void loadTechStatsTable() {
         techTable.getTableColumns().clear();
-
         MFXTableColumn<TechWorkRow> workOrderCol = new MFXTableColumn<>("Work Order", false);
-        MFXTableColumn<TechWorkRow> statusCol = new MFXTableColumn<>("What Was Done", false);
+        MFXTableColumn<TechWorkRow> typeCol = new MFXTableColumn<>("Type", false);
+        MFXTableColumn<TechWorkRow> statusCol = new MFXTableColumn<>("Status", false);
         MFXTableColumn<TechWorkRow> labourCol = new MFXTableColumn<>("Labour", false);
-        MFXTableColumn<TechWorkRow> deviceCol = new MFXTableColumn<>("Device", false);
+        MFXTableColumn<TechWorkRow> finishedDateCol = new MFXTableColumn<>("Finished Date", false);
 
         workOrderCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getWorkOrderNumber));
+        typeCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getType));
         statusCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getStatus));
         labourCol.setRowCellFactory(row -> new MFXTableRowCell<>(r -> String.format("$%.2f", r.getLabourAmount())));
-        deviceCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getDevice));
+        finishedDateCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getFinishedDate));
 
-        workOrderCol.setMinWidth(120);
-        statusCol.setMinWidth(220);
-        labourCol.setMinWidth(120);
-        deviceCol.setMinWidth(220);
+        workOrderCol.setMinWidth(110);
+        typeCol.setMinWidth(170);
+        statusCol.setMinWidth(160);
+        labourCol.setMinWidth(110);
+        finishedDateCol.setMinWidth(180);
 
-        techTable.getTableColumns().addAll(workOrderCol, statusCol, labourCol, deviceCol);
+        //labourCol.setAlignment(Pos.CENTER_RIGHT);
+        finishedDateCol.setAlignment(Pos.CENTER);
+
+        techTable.getTableColumns().addAll(
+                workOrderCol,
+                typeCol,
+                statusCol,
+                labourCol,
+                finishedDateCol
+        );
+
         techTable.setItems(techWorkData);
     }
 
@@ -760,10 +876,11 @@ public class ActualWorkshopController{
 
 
 
-    public void signOut(MouseEvent e) throws IOException { //sign out button
+    @FXML
+    public void signOut() throws IOException {
         LoginController.tech = null;
         Parent root = FXMLLoader.load(Main.class.getResource("/main/login.fxml"));
-        Stage stage = (Stage)((Node)e.getSource()).getScene().getWindow();
+        Stage stage = (Stage) rootStack.getScene().getWindow();
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
