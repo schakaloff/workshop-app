@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 400);
 
+
         UserAgentBuilder.builder().
                 themes(JavaFXThemes.MODENA)
                 .themes(MaterialFXStylesheets.DEFAULT)
@@ -26,6 +28,11 @@ public class Main extends Application {
                 .setGlobal();
 
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+
+        stage.getIcons().add(
+                new Image(Main.class.getResourceAsStream("/icon.png"))
+        );
+
 
         stage.setTitle("Workshop");
         stage.setResizable(false);
