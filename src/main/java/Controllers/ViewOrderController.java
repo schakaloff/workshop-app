@@ -117,9 +117,11 @@ public class ViewOrderController {
             int techId = getTechIdByUsername(newVal);
             updateTechIdInDb(techId);
 
-            currentWorkOrder.setTechId(techId);  // update local model too
-            mainController.LoadOrders();         // refresh list
+            currentWorkOrder.setTechId(techId);
+            mainController.LoadOrders();
         });
+
+
 
         repairTable.setFooterVisible(false);
         TableMethods.loadRepairsTable(repairTable, repairData, techNames);
@@ -206,26 +208,38 @@ public class ViewOrderController {
     }
 
     private void updateStatusInDb(String newStatus) {
-        String sql = "UPDATE work_order SET status = ? WHERE workorder = ?";
+        String sql = """
+        UPDATE work_order
+        SET status = ?,
+            finished_at = CASE
+                WHEN ? IN ('Repair Complete', 'Billing Complete') AND finished_at IS NULL THEN NOW()
+                ELSE finished_at
+            END,
+            labour_amount = ?
+        WHERE workorder = ?
+    """;
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, newStatus);
-            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+            ps.setString(2, newStatus);
+            ps.setDouble(3, labourTotalDb());
+            ps.setInt(4, currentWorkOrder.getWorkorderNumber());
+
             ps.executeUpdate();
 
             currentWorkOrder.setStatus(newStatus);
 
-            // update read-only fields
             statusTFX.setText(newStatus);
             partsStatusTFX.setText(newStatus);
 
-            mainController.LoadOrders(); // refresh table + colors + counters
+            mainController.LoadOrders();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         applyBillingLockUI();
     }
 
@@ -237,6 +251,17 @@ public class ViewOrderController {
 
 
         refreshWorkOrderFromDb();
+
+        loadTechList();
+
+        if (wo.getTechId() > 0) {
+            String techUsername = getTechUsernameById(wo.getTechId());
+            techIdCombo.selectItem(techUsername);
+        } else {
+            techIdCombo.clearSelection();
+            techIdCombo.setText("");
+        }
+
         loadFilesFromDb();
 
         String firstName = co.getFirstName();
@@ -389,7 +414,7 @@ public class ViewOrderController {
     }
 
     public void refreshWorkOrderFromDb() {
-        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber FROM work_order WHERE workorder = ?";
+        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id FROM work_order WHERE workorder = ?";
         try {
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -403,6 +428,10 @@ public class ViewOrderController {
                 currentWorkOrder.setProblemDesc(rs.getString("problemDesc"));
                 currentWorkOrder.setVendorId(rs.getString("vendorId"));
                 currentWorkOrder.setWarrantyNumber(rs.getString("warrantyNumber"));
+
+                int techId = rs.getInt("tech_id");
+                if (rs.wasNull()) techId = 0;
+                currentWorkOrder.setTechId(techId);
             }
         } catch (SQLException e) {
             System.out.println("issue during refreshing work order");
