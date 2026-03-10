@@ -276,7 +276,7 @@ CREATE TABLE `work_order_repairs` (
   PRIMARY KEY (`id`),
   KEY `idx_repairs_by_workorder` (`workorder_id`),
   CONSTRAINT `fk_repairs_workorder` FOREIGN KEY (`workorder_id`) REFERENCES `work_order` (`workorder`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -287,7 +287,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `work_order_repairs` WRITE;
 /*!40000 ALTER TABLE `work_order_repairs` DISABLE KEYS */;
 INSERT INTO `work_order_repairs` VALUES
-(22,3,'2026-03-08','FS','replaced screen',200.00);
+(23,3,'2026-03-08','FS','replaced screen',200.00);
 /*!40000 ALTER TABLE `work_order_repairs` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -334,4 +334,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-03-09 16:52:23
+-- Dump completed on 2026-03-09 17:21:02
