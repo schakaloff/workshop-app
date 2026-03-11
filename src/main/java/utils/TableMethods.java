@@ -2,6 +2,7 @@ package utils;
 
 import DB.DbConfig;
 import Skeletons.PartTable;
+import Skeletons.Technicians;
 import Skeletons.WorkTable;
 import io.github.palexdev.materialfx.controls.MFXTableColumn;
 import io.github.palexdev.materialfx.controls.MFXTableRow;
@@ -22,6 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableMethods {
+
+
+
+    public static ObservableList<String> loadRoleOptions() {
+        return FXCollections.observableArrayList(
+                "ADMIN",
+                "TECHNICIAN",
+                "ACCOUNTANT"
+        );
+    }
 
     public static List<String> loadTechnicianUsernames() {
         List<String> techs = new ArrayList<>();
@@ -198,5 +209,100 @@ public class TableMethods {
         partsData.add(new PartTable("", 0, 0.0, 0.0));
         partsTable.getTableColumns().addAll(nameCol, qtyCol, priceCol, totalCol);
         partsTable.setItems(partsData);
+    }
+
+    public static ObservableList<Technicians> loadTechniciansWithRoles() {
+        ObservableList<Technicians> techData = FXCollections.observableArrayList();
+
+        String sql = "SELECT username, first_name, last_name, role FROM technician ORDER BY username";
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                techData.add(new Technicians(
+                        rs.getString("username"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("role")
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return techData;
+    }
+
+    public static void loadTechniciansRolesTable(
+            MFXTableView<Technicians> techTable,
+            ObservableList<Technicians> techData
+    ) {
+        techTable.getTableColumns().clear();
+
+        ObservableList<String> roleOptions = loadRoleOptions();
+
+        techTable.setTableRowFactory(item -> {
+            MFXTableRow<Technicians> row = new MFXTableRow<>(techTable, item);
+            row.setPrefHeight(45);
+            return row;
+        });
+
+        MFXTableColumn<Technicians> usernameCol = new MFXTableColumn<>("Username");
+        usernameCol.setMinWidth(150);
+        usernameCol.setRowCellFactory(item ->
+                new MFXTableRowCell<>(Technicians::getUserName)
+        );
+
+        MFXTableColumn<Technicians> firstNameCol = new MFXTableColumn<>("First Name");
+        firstNameCol.setMinWidth(170);
+        firstNameCol.setRowCellFactory(item ->
+                new MFXTableRowCell<>(Technicians::getFName)
+        );
+
+        MFXTableColumn<Technicians> lastNameCol = new MFXTableColumn<>("Last Name");
+        lastNameCol.setMinWidth(170);
+        lastNameCol.setRowCellFactory(item ->
+                new MFXTableRowCell<>(Technicians::getLName)
+        );
+
+        MFXTableColumn<Technicians> roleCol = new MFXTableColumn<>("Role");
+        roleCol.setMinWidth(180);
+        roleCol.setRowCellFactory(item -> {
+            MFXTableRowCell<Technicians, String> cell = new MFXTableRowCell<>(Technicians::getRole);
+
+            ComboBox<String> box = new ComboBox<>();
+            box.setItems(roleOptions);
+            box.valueProperty().bindBidirectional(item.roleProperty());
+            box.setMaxWidth(Double.MAX_VALUE);
+
+            cell.setGraphic(box);
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            return cell;
+        });
+
+        techTable.getTableColumns().addAll(usernameCol, firstNameCol, lastNameCol, roleCol);
+        techTable.setItems(techData);
+    }
+
+    public static void saveAllTechnicianRoles(ObservableList<Technicians> techData) {
+        String sql = "UPDATE technician SET role = ? WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            for (Technicians tech : techData) {
+                ps.setString(1, tech.getRole());
+                ps.setString(2, tech.getUserName());
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
