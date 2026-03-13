@@ -22,9 +22,7 @@ public class NewTechController {
     public void Cancel(){
 
     }
-
-
-
+    
     @FXML
     public void closeDialog(){
         mainController.rootStack.getChildren().remove(dialogInstance);
