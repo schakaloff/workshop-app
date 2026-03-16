@@ -269,15 +269,15 @@ public class ActualWorkshopController{
 
         table.getTableColumns().clear();
         table.getItems().clear();
-        //table.autosizeColumnsOnInitialization();
 
         loadOrdersTable();
+
+        viewOrder(table);   // <- set row factory BEFORE items
 
         loadOrdersIntoTable();
         allData.setAll(data);
 
         table.setItems(allData);
-        viewOrder(table);
 
         updateOldNewButtonCount();
         updateRepairedNotBilledButtonCount();
