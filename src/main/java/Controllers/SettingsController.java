@@ -1,8 +1,7 @@
 package Controllers;
 
-import DB.Vendors;
-import Skeletons.Customer;
 import Skeletons.Technicians;
+import io.github.palexdev.materialfx.controls.MFXTableRow;
 import io.github.palexdev.materialfx.controls.MFXTableView;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 import javafx.collections.FXCollections;
@@ -25,13 +24,18 @@ public class SettingsController {
     @FXML private MFXTableView<Technicians> techsTable;
     private final ObservableList<Technicians> techData = FXCollections.observableArrayList();
 
+    public void setMainController(ActualWorkshopController controller) {
+        this.mainController = controller;
+    }
 
-    public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
-    public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
+    public void setDialogInstance(MFXGenericDialog dialogInstance) {
+        this.dialogInstance = dialogInstance;
+    }
 
-
-    public void initialize(){
+    public void initialize() {
+        techsTable.setFooterVisible(false);
         loadTechs();
+        setupTechRowOpen();
     }
 
     private void loadTechs() {
@@ -39,30 +43,71 @@ public class SettingsController {
         TableMethods.loadTechniciansRolesTable(techsTable, techData);
     }
 
+    private void setupTechRowOpen() {
+        techsTable.setTableRowFactory(tech -> {
+            MFXTableRow<Technicians> row = new MFXTableRow<>(techsTable, tech);
+            row.setPrefHeight(45);
+
+            row.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+                if (event.getClickCount() == 2) {
+                    Technicians selected = row.getData();
+                    if (selected != null) {
+                        try {
+                            openTechInfo(selected);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+            return row;
+        });
+    }
+    private void openTechInfo(Technicians tech) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewTech.fxml"));
+        MFXGenericDialog dialog = loader.load();
+
+        ViewTechnicianInfoController controller = loader.getController();
+        controller.setTechnicianData(tech);
+        controller.setDialogInstance(dialog);
+
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.setTitle("Technician Info");
+        dialogStage.setScene(new Scene(dialog));
+        dialogStage.showAndWait();
+
+        loadTechs();
+    }
+
     @FXML
     public void addNewTech() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/newTech.fxml"));
-
         MFXGenericDialog dialog = loader.load();
 
-        Stage dialogStage = new Stage();
+        NewTechController dialogController = loader.getController();
+        dialogController.setMainController(mainController);
+        dialogController.setDialogInstance(dialog);
 
+        Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         dialogStage.setTitle("New Technician");
+        dialogStage.setScene(new Scene(dialog));
+        dialogStage.showAndWait();
 
-        Scene scene = new Scene(dialog);
-        dialogStage.setScene(scene);
-        dialogStage.showAndWait();;
+        loadTechs();
     }
 
     @FXML
     public void saveTechs() {
         TableMethods.saveAllTechnicianRoles(techData);
         new Alert(Alert.AlertType.INFORMATION, "Technician roles updated successfully.", ButtonType.OK).showAndWait();
+        loadTechs();
     }
 
     @FXML
-    public void closeDialog(){
+    public void closeDialog() {
         mainController.rootStack.getChildren().remove(dialogInstance);
         mainController.contentPane.setEffect(null);
         mainController.contentPane.setDisable(false);
