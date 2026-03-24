@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableMethods {
-
-
-
     public static ObservableList<String> loadRoleOptions() {
         return FXCollections.observableArrayList(
                 "ADMIN",
@@ -52,7 +49,6 @@ public class TableMethods {
     }
 
     public static void loadRepairsTable(MFXTableView<WorkTable> repairTable, ObservableList<WorkTable> repairData, ObservableList<String> techNames) {
-
         repairTable.getTableColumns().clear();
         repairData.clear();
 
