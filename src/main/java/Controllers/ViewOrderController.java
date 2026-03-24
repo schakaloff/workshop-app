@@ -114,10 +114,18 @@ public class ViewOrderController {
         techIdCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isBlank()) return;
 
+            if (isBillingComplete()) return;
+
             int techId = getTechIdByUsername(newVal);
             updateTechIdInDb(techId);
 
             currentWorkOrder.setTechId(techId);
+
+            if ("New".equalsIgnoreCase(currentWorkOrder.getStatus())) {
+                updateStatusInDb("In Progress");
+                statusCombo.selectItem("In Progress");
+            }
+
             mainController.LoadOrders();
         });
 
