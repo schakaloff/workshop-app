@@ -1,4 +1,5 @@
 package Controllers;
+import Controllers.DbRepo.ViewControllerQueries;
 import DB.DbConfig;
 import Skeletons.*;
 import io.github.palexdev.materialfx.controls.*;
@@ -21,7 +22,6 @@ import utils.*;
 import utils.enums.InvoiceType;
 import java.awt.*;
 import java.io.*;
-import java.sql.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
@@ -35,7 +35,6 @@ public class ViewOrderController {
     @FXML private MFXComboBox<String> vendorId;
     @FXML private MFXTextField warrantyNumber;
 
-    //@FXML private MFXTextField status;
     @FXML private MFXComboBox<String> statusCombo;
 
     @FXML private MFXTextField type;
@@ -76,7 +75,6 @@ public class ViewOrderController {
 
     @FXML private MFXComboBox<String> techIdCombo;
 
-
     DatePicker picker;
 
     public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList("New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed");
@@ -102,10 +100,9 @@ public class ViewOrderController {
     public void initialize(){
         tabPane.setFocusTraversable(false);
 
-
         statusCombo.setItems(WORK_ORDER_STATUSES);
 
-        techNames.setAll(TableMethods.loadTechnicianUsernames());
+        techNames.setAll(ViewControllerQueries.loadTechList());
 
         loadTechList();
 
@@ -137,8 +134,6 @@ public class ViewOrderController {
             if (!isLoading && !n.equals(o)) isDirty = true;
         });
 
-
-// 🔥 COMBO BOXES
         techIdCombo.valueProperty().addListener((obs, o, n) -> {
             if (!isLoading && (o == null ? n != null : !o.equals(n))) {
                 isDirty = true;
@@ -151,15 +146,12 @@ public class ViewOrderController {
             }
         });
 
-
-// 🔥 REPAIR TABLE (list changes: add/remove)
         repairData.addListener((javafx.collections.ListChangeListener<WorkTable>) change -> {
             if (!isLoading) {
                 isDirty = true;
             }
         });
 
-// 🔥 PARTS TABLE (list changes: add/remove)
         partsData.addListener((javafx.collections.ListChangeListener<PartTable>) change -> {
             if (!isLoading) {
                 isDirty = true;
@@ -171,7 +163,7 @@ public class ViewOrderController {
             if (newVal == null || newVal.isBlank()) return;
             if (isBillingComplete()) return;
 
-            int techId = getTechIdByUsername(newVal);
+            int techId = ViewControllerQueries.getTechIdByUsername(newVal);
             currentWorkOrder.setTechId(techId);
 
             if ("New".equalsIgnoreCase(currentWorkOrder.getStatus())) {
@@ -179,8 +171,6 @@ public class ViewOrderController {
                 statusCombo.selectItem("In Progress");
             }
         });
-
-
 
         isLoading = true;
 
@@ -195,18 +185,10 @@ public class ViewOrderController {
         isLoading = false;
         isDirty = false;
 
-//        serviceNotesTXT.addEventFilter(MouseEvent.MOUSE_CLICKED, e->{
-//            if(e.getButton() == MouseButton.PRIMARY){
-//                insertNotes(serviceNotesTXT);
-//                e.consume();
-//            }
-//        });
-
         final double COLLAPSED_H = 60;
         final double EXPANDED_H  = 180;
         serviceNotesTXT.setPrefHeight(COLLAPSED_H);
         serviceNotesTXT.setTranslateY(0);
-
 
         serviceNotesTXT.focusedProperty().addListener((obs, was, focused) -> {
             if (focused) {
@@ -233,7 +215,7 @@ public class ViewOrderController {
 
             if ("Repair Complete".equalsIgnoreCase(newStatus)) {
                 saveRepairsToDb();
-                if (!hasAtLeastOneLabourNoteDb()) {
+                if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(currentWorkOrder.getWorkorderNumber())) {
                     new Alert(Alert.AlertType.WARNING,
                             "Add at least one labour note (Tech + Description) before marking Repair Complete.",
                             ButtonType.OK
@@ -252,7 +234,7 @@ public class ViewOrderController {
         deletingMethods = new DeletingFilesMethods(filesList);
         deletingMethods.setOnDelete(e -> {
             boolean deleted = deletingMethods.deleteSelectedFile();
-            if (deleted)loadFilesFromDb();
+            if (deleted) loadFilesFromDb();
         });
 
         deletingPartsMethods = new DeletingPartsMethods(partsTable);
@@ -283,54 +265,33 @@ public class ViewOrderController {
     }
 
     private void updateStatusInDb(String newStatus) {
-        String sql = """
-        UPDATE work_order
-        SET status = ?,
-            finished_at = CASE
-                WHEN ? IN ('Repair Complete', 'Billing Complete') AND finished_at IS NULL THEN NOW()
-                ELSE finished_at
-            END,
-            labour_amount = ?
-        WHERE workorder = ?
-    """;
+        ViewControllerQueries.updateStatusInDb(
+                currentWorkOrder.getWorkorderNumber(),
+                newStatus,
+                ViewControllerQueries.labourTotalDb(currentWorkOrder.getWorkorderNumber())
+        );
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        currentWorkOrder.setStatus(newStatus);
+        statusTFX.setText(newStatus);
+        partsStatusTFX.setText(newStatus);
 
-            ps.setString(1, newStatus);
-            ps.setString(2, newStatus);
-            ps.setDouble(3, labourTotalDb());
-            ps.setInt(4, currentWorkOrder.getWorkorderNumber());
-
-            ps.executeUpdate();
-
-            currentWorkOrder.setStatus(newStatus);
-
-            statusTFX.setText(newStatus);
-            partsStatusTFX.setText(newStatus);
-
-            mainController.LoadOrders();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+        mainController.LoadOrders();
         applyBillingLockUI();
     }
 
     public void initData(WorkOrder wo, Customer co){
-        isLoading = true; // 🔥 START LOADING
+        isLoading = true;
 
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
 
         deletingMethods.setWorkorderNumber(currentWorkOrder.getWorkorderNumber());
 
-        refreshWorkOrderFromDb();
+        ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
         loadTechList();
 
         if (wo.getTechId() > 0) {
-            String techUsername = getTechUsernameById(wo.getTechId());
+            String techUsername = ViewControllerQueries.getTechUsernameById(wo.getTechId());
             techIdCombo.selectItem(techUsername);
         } else {
             techIdCombo.clearSelection();
@@ -384,7 +345,7 @@ public class ViewOrderController {
         });
     }
 
-    public void insertNotes(TextArea area){  //service notes function
+    public void insertNotes(TextArea area){
         String stamp = "[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "]: ";
         String text = area.getText();
         int caret = area.getCaretPosition();
@@ -398,121 +359,119 @@ public class ViewOrderController {
 
     private void loadTechList() {
         techNames.clear();
-
-        String sql = "SELECT username FROM technician";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                techNames.add(rs.getString("username"));
-            }
-
-            rs.close();
-            ps.close();
-            conn.close();
-
-        } catch (SQLException e) {
-            System.out.println("error during loading tech list");
-        }
-
+        techNames.addAll(ViewControllerQueries.loadTechList());
         techIdCombo.setItems(techNames);
     }
 
-    private int getTechIdByUsername(String username) {
-        int id = 0;
-        String sql = "SELECT id FROM technician WHERE username = ?";
+    private void applyBillingLockUI() {
+        boolean locked = isBillingComplete();
 
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, username);
+        statusCombo.setDisable(locked);
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                id = rs.getInt("id");
-            }
+        type.setDisable(locked);
+        model.setDisable(locked);
+        serialNumber.setDisable(locked);
+        problemDesc.setDisable(locked);
+        vendorId.setDisable(locked);
+        warrantyNumber.setDisable(locked);
 
-            rs.close();
-            ps.close();
-            conn.close();
+        partsTable.setDisable(locked);
+        repairTable.setDisable(locked);
 
-        } catch (SQLException e) {
-            System.out.println("error during loading tech id");
-        }
-
-        return id;
+        serviceNotesTXT.setDisable(false);
     }
 
-    private String getTechUsernameById(int techId) {
-        String username = "";
-        String sql = "SELECT username FROM technician WHERE id = ?";
+    private void attachRepairListeners(WorkTable r) {
+        r.techProperty().addListener((obs, o, n) -> {
+            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
+        });
 
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, techId);
+        r.descriptionProperty().addListener((obs, o, n) -> {
+            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
+        });
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                username = rs.getString("username");
-            }
+        r.priceProperty().addListener((obs, o, n) -> {
+            if (!isLoading && !n.equals(o)) isDirty = true;
+        });
 
-            rs.close();
-            ps.close();
-            conn.close();
-
-        } catch (SQLException e) {
-            System.out.println("error during loading tech username");
-        }
-
-        return username;
+        r.dateProperty().addListener((obs, o, n) -> {
+            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
+        });
     }
 
-    private void updateTechIdInDb(int techId) {
-        String sql = "UPDATE work_order SET tech_id = ? WHERE workorder = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    private void attachPartListeners(PartTable p) {
+        p.nameProperty().addListener((obs, o, n) -> {
+            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
+        });
 
-            ps.setInt(1, techId);
-            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
-            ps.executeUpdate();
+        p.quantityProperty().addListener((obs, o, n) -> {
+            if (!isLoading && !n.equals(o)) isDirty = true;
+        });
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        p.priceProperty().addListener((obs, o, n) -> {
+            if (!isLoading && !n.equals(o)) isDirty = true;
+        });
+
+        p.totalPriceProperty().addListener((obs, o, n) -> {
+            if (!isLoading && !n.equals(o)) isDirty = true;
+        });
     }
 
-    public void refreshWorkOrderFromDb() {
-        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id FROM work_order WHERE workorder = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                currentWorkOrder.setStatus(rs.getString("status"));
-                currentWorkOrder.setType(rs.getString("type"));
-                currentWorkOrder.setModel(rs.getString("model"));
-                currentWorkOrder.setSerialNumber(rs.getString("serialNumber"));
-                currentWorkOrder.setProblemDesc(rs.getString("problemDesc"));
-                currentWorkOrder.setVendorId(rs.getString("vendorId"));
-                currentWorkOrder.setWarrantyNumber(rs.getString("warrantyNumber"));
-
-                int techId = rs.getInt("tech_id");
-                if (rs.wasNull()) techId = 0;
-                currentWorkOrder.setTechId(techId);
-            }
-        } catch (SQLException e) {
-            System.out.println("issue during refreshing work order");
+    public void loadServiceNotes(){
+        String notes = ViewControllerQueries.loadServiceNotes(currentWorkOrder.getWorkorderNumber());
+        if (notes != null) {
+            serviceNotesTXT.setText(notes);
+        } else {
+            serviceNotesTXT.clear();
         }
     }
 
+    @FXML
+    public void onAddStep() {
+        if (isBillingComplete()) return;
+        WorkTable row = new WorkTable(LocalDate.now(), "", "", 0.0);
+        attachRepairListeners(row);
+        repairData.add(row);
+    }
+
+    @FXML
+    public void addPart(){
+        if (isBillingComplete()) return;
+        PartTable row = new PartTable("",0,0.0,0);
+        attachPartListeners(row);
+        partsData.add(row);
+    }
+
+    @FXML
+    public void repairComplete() {
+        repairTable.requestFocus();
+        tabPane.requestFocus();
+        saveRepairsToDb();
+
+        if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(currentWorkOrder.getWorkorderNumber())) {
+            new Alert(Alert.AlertType.WARNING, "Add at least one labour note (Tech + Description) before marking Repair Complete.", ButtonType.OK).showAndWait();
+            return;
+        }
+
+        updateStatusInDb("Repair Complete");
+        statusCombo.selectItem("Repair Complete");
+    }
+
+    private void loadRepairsFromDb() {
+        repairData.clear();
+        for (WorkTable row : ViewControllerQueries.loadRepairsFromDb(currentWorkOrder.getWorkorderNumber())) {
+            attachRepairListeners(row);
+            repairData.add(row);
+        }
+    }
+
+    private void saveRepairsToDb() {
+        ViewControllerQueries.saveRepairsToDb(currentWorkOrder.getWorkorderNumber(), repairData);
+    }
 
     @FXML
     public void Pay() throws Exception {
-        refreshWorkOrderFromDb();
+        ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
 
         String st = currentWorkOrder.getStatus();
         if (st == null || !st.equalsIgnoreCase("Repair Complete")) {
@@ -536,14 +495,6 @@ public class ViewOrderController {
         Window owner = dialogInstance.getScene().getWindow();
         pc.setContext(wo, co, invoiceType, owner);
 
-//        if (invoiceType == InvoiceType.FINAL) {
-//            savePartsToDb();
-//            saveRepairsToDb();
-//            loadPartsFromDb();
-//            loadRepairsFromDb();
-//            pc.setSuggestedAmount(finalDueDb());
-//        }
-
         if (invoiceType == InvoiceType.FINAL) {
             savePartsToDb();
             saveRepairsToDb();
@@ -564,319 +515,20 @@ public class ViewOrderController {
         stage.setScene(new Scene(root));
         stage.showAndWait();
         loadFilesFromDb();
-
-
-    }
-
-    private void applyBillingLockUI() {
-        boolean locked = isBillingComplete();
-
-        // status changes should be blocked
-        statusCombo.setDisable(locked);
-
-        // main fields should be blocked
-        type.setDisable(locked);
-        model.setDisable(locked);
-        serialNumber.setDisable(locked);
-        problemDesc.setDisable(locked);
-        vendorId.setDisable(locked);
-        warrantyNumber.setDisable(locked);
-
-        // parts + labour tables should be blocked
-        partsTable.setDisable(locked);
-        repairTable.setDisable(locked);
-
-        // files should be blocked
-        //filesList.setDisable(locked);
-
-        // but service notes must still be editable
-        serviceNotesTXT.setDisable(false);
-    }
-
-    private void attachRepairListeners(WorkTable r) {
-
-        r.techProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) {
-                isDirty = true;
-            }
-        });
-
-        r.descriptionProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) {
-                isDirty = true;
-            }
-        });
-
-        r.priceProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) {
-                isDirty = true;
-            }
-        });
-
-        r.dateProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) {
-                isDirty = true;
-            }
-        });
-    }
-
-    private void attachPartListeners(PartTable p) {
-
-        p.nameProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) {
-                isDirty = true;
-            }
-        });
-
-        p.quantityProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) {
-                isDirty = true;
-            }
-        });
-
-        p.priceProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) {
-                isDirty = true;
-            }
-        });
-
-        p.totalPriceProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) {
-                isDirty = true;
-            }
-        });
-    }
-
-
-    public void loadServiceNotes(){
-        String sql = "SELECT service_notes FROM work_order WHERE workorder = ?";
-        try{
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                serviceNotesTXT.setText(rs.getString("service_notes"));
-            }else{
-                serviceNotesTXT.clear();
-            }
-        }catch (SQLException e){
-            System.out.println("issue during loading service notes");
-        }
-    }
-    @FXML
-    public void onAddStep() {
-        if (isBillingComplete()) return;
-        //repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
-        WorkTable row = new WorkTable(LocalDate.now(), "", "", 0.0);
-        attachRepairListeners(row);   // 🔥 IMPORTANT
-        repairData.add(row);
-    }
-
-    @FXML
-    public void addPart(){
-        if (isBillingComplete()) return;
-        //partsData.add(new PartTable("",0,0.0,0));
-        PartTable row = new PartTable("",0,0.0,0);
-        attachPartListeners(row);
-        partsData.add(row);
-    }
-
-    @FXML
-    public void repairComplete() {
-        repairTable.requestFocus();
-        tabPane.requestFocus();
-        saveRepairsToDb();
-
-        if (!hasAtLeastOneLabourNoteDb()) {
-            new Alert(Alert.AlertType.WARNING, "Add at least one labour note (Tech + Description) before marking Repair Complete.", ButtonType.OK).showAndWait();
-            return;
-        }
-
-        updateStatusInDb("Repair Complete");
-        statusCombo.selectItem("Repair Complete");
-    }
-
-    private boolean hasAtLeastOneLabourNoteDb() {
-        boolean ok = false;
-        String sql = "SELECT tech, description FROM work_order_repairs WHERE workorder_id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                String tech = rs.getString("tech");
-                String desc = rs.getString("description");
-
-                if (tech != null && !tech.equals("") && desc != null && !desc.equals("")) {
-                    ok = true;
-                    break;
-                }
-            }
-            rs.close();
-            ps.close();
-            conn.close();
-
-        } catch (SQLException e) {
-            System.out.println("error during checking labour notes");
-        }
-        return ok;
-    }
-
-    private void loadRepairsFromDb() {
-        repairData.clear();
-
-        String sql = "SELECT repair_date, tech, description, price FROM work_order_repairs WHERE workorder_id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                LocalDate date = rs.getDate("repair_date").toLocalDate();
-                String tech = rs.getString("tech");
-                String desc = rs.getString("description");
-                double price = rs.getDouble("price");
-
-                WorkTable row = new WorkTable(date, tech, desc, price);
-                attachRepairListeners(row);
-                repairData.add(row);
-            }
-
-            rs.close();
-            ps.close();
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("error during loading repairs");
-        }
-    }
-
-    private void saveRepairsToDb() {
-        String deleteSQL = "DELETE FROM work_order_repairs WHERE workorder_id = ?";
-        String insertSQL = "INSERT INTO work_order_repairs (workorder_id, repair_date, tech, description, price) VALUES (?, ?, ?, ?, ?)";
-        try{
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement del = conn.prepareStatement(deleteSQL);
-            del.setInt(1, currentWorkOrder.getWorkorderNumber());
-            del.executeUpdate();
-            del.close();
-
-            PreparedStatement ps = conn.prepareStatement(insertSQL);
-            for (WorkTable r : repairData) {
-                if (r.getTech() == null || r.getTech().isBlank()) {
-                    continue;
-                }
-                ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-                ps.setDate(2, java.sql.Date.valueOf(r.getDate()));
-                ps.setString(3, r.getTech());
-                ps.setString(4, r.getDescription());
-                ps.setDouble(5, r.getPrice());
-                ps.addBatch();
-            }
-            ps.executeBatch();
-            ps.close();
-            conn.close();
-        } catch (SQLException e){
-            System.out.println("error during saving repairs");
-        }
-    }
-
-    private double depositFromDb() {
-        double deposit = 0.0;
-        String sql = "SELECT deposit_amount FROM work_order WHERE workorder = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                deposit = rs.getDouble("deposit_amount");
-            }
-            rs.close();
-            ps.close();
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("error during loading deposit");
-        }
-
-        return deposit;
-    }
-
-    private double labourTotalDb() {
-        double total = 0.0;
-        String sql = "SELECT SUM(price) FROM work_order_repairs WHERE workorder_id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                total = rs.getDouble(1);
-            }
-            rs.close();
-            ps.close();
-            conn.close();
-
-        } catch (SQLException e) {
-            System.out.println("error during loading labour total");
-        }
-
-        return total;
-    }
-
-    private double partsTotalDb() {
-        double total = 0.0;
-        String sql = "SELECT SUM(total_price) FROM work_order_parts WHERE workorder_id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                total = rs.getDouble(1);
-            }
-            rs.close();
-            ps.close();
-            conn.close();
-
-        } catch (SQLException e) {
-            System.out.println("error during loading parts total");
-        }
-
-        return total;
     }
 
     @FXML
     public void updateOrder() {
         int woNumber = currentWorkOrder.getWorkorderNumber();
-
         String newServiceNotes = serviceNotesTXT.getText();
 
-        // If Billing Complete → only allow notes
         if (isBillingComplete()) {
-            String sql = "UPDATE work_order SET service_notes = ? WHERE workorder = ?";
-            try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-
-                ps.setString(1, newServiceNotes);
-                ps.setInt(2, woNumber);
-                ps.executeUpdate();
-
-            } catch (SQLException e) {
-                System.out.println("error during updating service notes");
-                e.printStackTrace();
-            }
-
+            ViewControllerQueries.updateServiceNotesInDb(woNumber, newServiceNotes);
             isDirty = false;
             System.out.println("updated service notes (Billing Complete)");
             return;
         }
 
-        // 🔹 Read values from UI
         String newType = type.getText();
         String newModel = model.getText();
         String newSerialNumber = serialNumber.getText();
@@ -887,9 +539,7 @@ public class ViewOrderController {
         int techId = currentWorkOrder.getTechId();
         String status = currentWorkOrder.getStatus();
 
-        // 🔥 Validation BEFORE saving
         if ("Repair Complete".equalsIgnoreCase(status)) {
-
             if (techId <= 0) {
                 new Alert(Alert.AlertType.WARNING,
                         "Please select a technician before marking Repair Complete.",
@@ -900,7 +550,7 @@ public class ViewOrderController {
 
             saveRepairsToDb();
 
-            if (!hasAtLeastOneLabourNoteDb()) {
+            if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(woNumber)) {
                 new Alert(Alert.AlertType.WARNING,
                         "Add at least one labour note (Tech + Description) before marking Repair Complete.",
                         ButtonType.OK
@@ -909,49 +559,12 @@ public class ViewOrderController {
             }
         }
 
-        // 🔥 MAIN UPDATE (everything saved here)
-        String sql = """
-        UPDATE work_order 
-        SET type = ?, 
-            model = ?, 
-            serialNumber = ?, 
-            problemDesc = ?, 
-            vendorId = ?, 
-            warrantyNumber = ?, 
-            service_notes = ?, 
-            tech_id = ?, 
-            status = ?
-        WHERE workorder = ?
-    """;
+        ViewControllerQueries.updateOrderInDb(woNumber, newType, newModel, newSerialNumber,
+                newProblemDesc, newVendorId, newWarrantyNumber, newServiceNotes, techId, status);
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, newType);
-            ps.setString(2, newModel);
-            ps.setString(3, newSerialNumber);
-            ps.setString(4, newProblemDesc);
-            ps.setString(5, newVendorId);
-            ps.setString(6, newWarrantyNumber);
-            ps.setString(7, newServiceNotes);
-
-            ps.setInt(8, techId);                 // 🔥 technician
-            ps.setString(9, status);              // 🔥 status
-
-            ps.setInt(10, woNumber);
-
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            System.out.println("error during updating order");
-            e.printStackTrace();
-        }
-
-        // 🔹 Save tables AFTER main update
         savePartsToDb();
         saveRepairsToDb();
 
-        // 🔹 Refresh UI
         mainController.LoadOrders();
 
         System.out.println("updated order (FULL SAVE)");
@@ -966,22 +579,8 @@ public class ViewOrderController {
         File file = fc.showOpenDialog(dialogInstance.getScene().getWindow());
         if (file == null) return;
 
-        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
         try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            FileInputStream fis = new FileInputStream(file);
-
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ps.setString(2, file.getName());
-            ps.setBinaryStream(3, fis, (long) file.length());
-
-            ps.executeUpdate();
-
-            fis.close();
-            ps.close();
-            conn.close();
-
+            ViewControllerQueries.addFileToDb(currentWorkOrder.getWorkorderNumber(), file);
             loadFilesFromDb();
         } catch (Exception e) {
             e.printStackTrace();
@@ -990,37 +589,29 @@ public class ViewOrderController {
 
     public void onOpenSelectedFile() {
         FilesHandler selected = filesList.getSelectionModel().getSelectedValue();
-        if(selected == null)return;
+        if (selected == null) return;
         openFileFromDb(selected.getId());
     }
 
     public void openFileFromDb(int fileId){
-        String sql = "SELECT file_name, file_data FROM work_order_files WHERE id = ?";
         try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, fileId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String name = rs.getString("file_name");
-                InputStream in = rs.getBinaryStream("file_data");
+            Object[] result = ViewControllerQueries.openFileFromDb(fileId);
+            if (result == null) return;
 
-                String ext = "";
-                int dot = name.lastIndexOf('.');
-                if (dot > -1){
-                    ext = name.substring(dot);
-                }
-                File tmp = File.createTempFile("wo_", ext);
-                tmp.deleteOnExit();
+            String name = (String) result[0];
+            InputStream in = (InputStream) result[1];
 
-                Files.copy(in, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                in.close();
+            String ext = "";
+            int dot = name.lastIndexOf('.');
+            if (dot > -1) ext = name.substring(dot);
 
-                openWithDesktop(tmp);
-            }
-            rs.close();
-            ps.close();
-            conn.close();
+            File tmp = File.createTempFile("wo_", ext);
+            tmp.deleteOnExit();
+
+            Files.copy(in, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            in.close();
+
+            openWithDesktop(tmp);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1028,80 +619,22 @@ public class ViewOrderController {
 
     public void loadFilesFromDb() {
         filesList.getItems().clear();
-        String sql = "SELECT id, file_name FROM work_order_files WHERE workorder_id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber()); // make sure this is set!
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                filesList.getItems().add(new FilesHandler(rs.getInt("id"), rs.getString("file_name")));
-            }
-            rs.close(); ps.close(); conn.close();
-        } catch (SQLException e) {
-            System.out.println("issue during loading files");
+        for (FilesHandler f : ViewControllerQueries.loadFilesFromDb(currentWorkOrder.getWorkorderNumber())) {
+            filesList.getItems().add(f);
         }
     }
 
     private void savePartsToDb() {
-        String deleteSQL = "DELETE FROM work_order_parts WHERE workorder_id = ?";
-        String insertSQL = "INSERT INTO work_order_parts (workorder_id, part_name, quantity, price, total_price) VALUES (?, ?, ?, ?, ?)";
-        try{
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement del = conn.prepareStatement(deleteSQL);
-            del.setInt(1, currentWorkOrder.getWorkorderNumber());
-            del.executeUpdate();
-            del.close();
-            PreparedStatement ps = conn.prepareStatement(insertSQL);
-            for(PartTable part : partsData) {
-                if (part.getName() == null || part.getName().isBlank()) {
-                    continue;
-                }
-                ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-                ps.setString(2, part.getName());
-                ps.setInt(3, part.getQuantity());
-                ps.setDouble(4, part.getPrice());
-                ps.setDouble(5, part.getTotalPrice());
-                ps.addBatch();
-            }
-            ps.executeBatch();
-            ps.close();
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("error during saving parts");
-        }
+        ViewControllerQueries.savePartsToDb(currentWorkOrder.getWorkorderNumber(), partsData);
     }
 
     private void loadPartsFromDb() {
         partsData.clear();
-
-        String sql = "SELECT id, part_name, quantity, price, total_price FROM work_order_parts WHERE workorder_id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("part_name");
-                int qty = rs.getInt("quantity");
-                double price = rs.getDouble("price");
-                double total = rs.getDouble("total_price");
-
-                PartTable row = new PartTable(id, name, qty, price, total);
-                attachPartListeners(row);
-                partsData.add(row);
-            }
-
-            rs.close();
-            ps.close();
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("error during loading parts");
+        for (PartTable row : ViewControllerQueries.loadPartsFromDb(currentWorkOrder.getWorkorderNumber())) {
+            attachPartListeners(row);
+            partsData.add(row);
         }
     }
-
 
     @FXML
     public void printOrder() throws Exception {
@@ -1132,17 +665,12 @@ public class ViewOrderController {
         thread.start();
     }
 
-//    public void initFilesUI(){
-//        filesList.setItems(filesData);
-//        loadFilesFromDb();
-//    }
-
     private double finalDueDb() {
-        double labour = labourTotalDb();
-        double parts = partsTotalDb();
-        double deposit = depositFromDb();
-        double due = labour + parts - deposit;
-        return Math.max(0, due);
+        int woNumber = currentWorkOrder.getWorkorderNumber();
+        double labour = ViewControllerQueries.labourTotalDb(woNumber);
+        double parts = ViewControllerQueries.partsTotalDb(woNumber);
+        double deposit = ViewControllerQueries.depositFromDb(woNumber);
+        return Math.max(0, labour + parts - deposit);
     }
 
     private boolean isBillingComplete() {
@@ -1153,7 +681,6 @@ public class ViewOrderController {
 
     @FXML
     public void closeDialog() {
-
         if (isDirty) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Unsaved Changes");
@@ -1167,15 +694,13 @@ public class ViewOrderController {
             alert.getButtonTypes().setAll(saveBtn, discardBtn, cancelBtn);
 
             alert.showAndWait().ifPresent(response -> {
-
                 if (response == saveBtn) {
-                    updateOrder(); // ✅ SAVE
+                    updateOrder();
                     actuallyCloseDialog();
                 }
                 else if (response == discardBtn) {
-                    actuallyCloseDialog(); // ❌ DON'T SAVE
+                    actuallyCloseDialog();
                 }
-                // Cancel → do nothing
             });
 
         } else {
