@@ -1,11 +1,16 @@
 package Controllers;
-
+import Controllers.DbRepo.WorkshopQueries;
 import DB.DbConfig;
-import Controllers.CustomersController;
 import Skeletons.Customer;
 import Skeletons.TechWorkRow;
 import Skeletons.WorkOrder;
-import io.github.palexdev.materialfx.controls.*;
+import io.github.palexdev.materialfx.controls.MFXButton;
+import io.github.palexdev.materialfx.controls.MFXDatePicker;
+import io.github.palexdev.materialfx.controls.MFXPaginatedTableView;
+import io.github.palexdev.materialfx.controls.MFXTableColumn;
+import io.github.palexdev.materialfx.controls.MFXTableRow;
+import io.github.palexdev.materialfx.controls.MFXTableView;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 import io.github.palexdev.materialfx.filter.IntegerFilter;
@@ -19,54 +24,47 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-
 import javafx.stage.Stage;
-
-
-import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import main.Main;
-
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
+import java.util.List;
 
-public class ActualWorkshopController{
+public class ActualWorkshopController {
     @FXML private Label welcomeTech;
     @FXML private Circle techAvatar;
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
-
     @FXML public MFXButton signOutBtn;
-
     @FXML private Button newOrderBTN;
-
     @FXML private Button btnAllWO;
     @FXML private Button btnOldNew;
     @FXML private Button btnRepairedNotPaid;
     @FXML private Button btnShowMyWO;
-
     @FXML private MFXTextField searchTxtField;
-
     @FXML private MFXPaginatedTableView<WorkOrder> table;
-
-    //personal work
     @FXML private AnchorPane personalwork;
     @FXML private MFXTextField techTXF;
     @FXML private MFXDatePicker fromDPicker;
@@ -76,163 +74,102 @@ public class ActualWorkshopController{
     @FXML private MFXTableView<TechWorkRow> techTable;
     @FXML private MFXButton calcBTN;
 
-    private final ObservableList<TechWorkRow> techWorkData = FXCollections.observableArrayList();
-
-
-    //other
-    private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private final ObservableList<WorkOrder> data = FXCollections.observableArrayList(); //extension of List that updates UI automatically
-
-    private final ObservableList<WorkOrder> allData = FXCollections.observableArrayList();
-
     private boolean oldNewFilterEnabled = false;
     private boolean repairedNotBilledFilterEnabled = false;
     private boolean myWoFilterEnabled = false;
     private boolean allOpenFilterEnabled = false;
 
+    private final ObservableList<TechWorkRow> techWorkData = FXCollections.observableArrayList();
+    private final WorkshopQueries workshopQueries = new WorkshopQueries();
+    private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private final ObservableList<WorkOrder> data = FXCollections.observableArrayList();
+    private final ObservableList<WorkOrder> allData = FXCollections.observableArrayList();
+
     private MFXGenericDialog viewOrderDialog;
     private ViewOrderController viewOrderController;
 
-    public void initialize(){
-        welcomeTech.setText(LoginController.tech); //welcome tech's name
-        avatar(techAvatar); //set avatar's pic
-
+    public void initialize() {
+        welcomeTech.setText(LoginController.tech);
+        avatar(techAvatar);
         personalwork.setVisible(false);
         personalwork.setManaged(false);
         techTXF.setText(LoginController.tech);
         loadTechStatsTable();
-
         table.setRowsPerPage(15);
-        //table.setPagesToShow(5);
         LoadOrders();
-
         fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
         toDPicker.setValue(LocalDate.now());
-
         preloadViewOrderDialog();
-
-
         searchTxtField.setOnAction(e -> onSearchEnter());
-
-
     }
 
-    public void onSearchEnter() {
-        String text = searchTxtField.getText();
-        if (text == null || text.isBlank()) return;
+    public void LoadOrders() {
+        showDashboardControls();
+        table.getTableColumns().clear();
+        table.getItems().clear();
+        loadOrdersTable();
+        viewOrder(table);
+        loadOrdersIntoTable();
+        allData.setAll(data);
+        table.setItems(allData);
+        updateAllOpenWOButtonCount();
+        updateOldNewButtonCount();
+        updateRepairedNotBilledButtonCount();
+        updateMyWoButtonCount();
+    }
 
-        int woNumber;
-        try {
-            woNumber = Integer.parseInt(text.trim());
-        } catch (NumberFormatException ex) {
-            return;
-        }
-
-        WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
-
-        UILoader(wo);
-
-
+    @FXML
+    public void myStats() {
+        hideDashboardControls();
+        personalwork.setVisible(true);
+        personalwork.setManaged(true);
+        techTXF.setText(LoginController.tech);
+        techTable.setItems(null);
+        techTable.setItems(techWorkData);
+        techTable.autosizeColumns();
     }
 
     @FXML
     public void calculateWork() {
         LocalDate fromDate = fromDPicker.getValue();
         LocalDate toDate = toDPicker.getValue();
-
         if (fromDate == null || toDate == null) {
             return;
         }
-
         if (fromDate.isAfter(toDate)) {
             return;
         }
-
         loadTechWorkByDateRange(fromDate, toDate);
     }
 
-    private void loadTechWorkByDateRange(LocalDate fromDate, LocalDate toDate) {
-        techWorkData.clear();
-
-        String techUsername = techTXF.getText();
-        if (techUsername == null || techUsername.isBlank()) {
-            tEarnedTXF.setText("0.00");
-            repairsTXF.setText("0");
+    public void onSearchEnter() {
+        String text = searchTxtField.getText();
+        if (text == null || text.isBlank()) return;
+        int woNumber;
+        try {
+            woNumber = Integer.parseInt(text.trim());
+        } catch (NumberFormatException ex) {
             return;
         }
-
-        String sql = """
-        SELECT
-            w.workorder,
-            w.type,
-            w.status,
-            SUM(r.price) AS labour_total,
-            DATE_FORMAT(
-                COALESCE(
-                    w.finished_at,
-                    MAX(TIMESTAMP(r.repair_date, '00:00:00'))
-                ),
-                '%Y-%m-%d %H:%i'
-            ) AS finished_date
-        FROM work_order_repairs r
-        JOIN work_order w ON w.workorder = r.workorder_id
-        WHERE r.tech = ?
-          AND w.status IN ('Repair Complete', 'Billing Complete')
-          AND r.repair_date BETWEEN ? AND ?
-        GROUP BY w.workorder, w.type, w.status, w.finished_at
-        ORDER BY COALESCE(w.finished_at, MAX(TIMESTAMP(r.repair_date, '00:00:00'))) DESC
-    """;
-
-        double totalEarned = 0.0;
-        int repairsCount = 0;
-
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, techUsername);
-            stmt.setDate(2, Date.valueOf(fromDate));
-            stmt.setDate(3, Date.valueOf(toDate));
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                int workOrderNumber = rs.getInt("workorder");
-                String type = rs.getString("type");
-                String status = rs.getString("status");
-                double labourAmount = rs.getDouble("labour_total");
-                String finishedDate = rs.getString("finished_date");
-
-                techWorkData.add(new TechWorkRow(
-                        workOrderNumber,
-                        type,
-                        status,
-                        labourAmount,
-                        finishedDate
-                ));
-
-                totalEarned += labourAmount;
-                repairsCount++;
-            }
-
-            tEarnedTXF.setText(String.format("%.2f", totalEarned));
-            repairsTXF.setText(String.valueOf(repairsCount));
-
-            techTable.setItems(null);
-            techTable.setItems(techWorkData);
-            techTable.autosizeColumns();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            tEarnedTXF.setText("0.00");
-            repairsTXF.setText("0");
-        }
+        WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
+        UILoader(wo);
     }
 
-    private void UILoader(WorkOrder wo){
+    @FXML
+    public void signOut() throws IOException {
+        LoginController.tech = null;
+        Parent root = FXMLLoader.load(Main.class.getResource("/main/login.fxml"));
+        Stage stage = (Stage) rootStack.getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void UILoader(WorkOrder wo) {
         Task<Customer> task = new Task<>() {
             @Override
             protected Customer call() {
-                return getCustomerById(wo.getCustomerId());
+                return workshopQueries.getCustomerById(wo.getCustomerId());
             }
         };
         task.setOnSucceeded(ev -> {
@@ -247,7 +184,6 @@ public class ActualWorkshopController{
             }
         });
         task.setOnFailed(ev -> task.getException().printStackTrace());
-
         Thread t = new Thread(task);
         t.start();
     }
@@ -267,34 +203,185 @@ public class ActualWorkshopController{
         }
     }
 
-    public void LoadOrders() {
-        showDashboardControls();
-
-        table.getTableColumns().clear();
-        table.getItems().clear();
-
-        loadOrdersTable();
-
-        viewOrder(table);   // <- set row factory BEFORE items
-
-        loadOrdersIntoTable();
-        allData.setAll(data);
-
-        table.setItems(allData);
-
-        updateAllOpenWOButtonCount();
-        updateOldNewButtonCount();
-        updateRepairedNotBilledButtonCount();
-        updateMyWoButtonCount();
+    private void loadTechWorkByDateRange(LocalDate fromDate, LocalDate toDate) {
+        techWorkData.clear();
+        String techUsername = techTXF.getText();
+        if (techUsername == null || techUsername.isBlank()) {
+            tEarnedTXF.setText("0.00");
+            repairsTXF.setText("0");
+            return;
+        }
+        List<TechWorkRow> rows = workshopQueries.loadTechWorkByDateRange(techUsername, fromDate, toDate);
+        double totalEarned = 0.0;
+        int repairsCount = 0;
+        for (TechWorkRow row : rows) {
+            techWorkData.add(row);
+            totalEarned += row.getLabourAmount();
+            repairsCount++;
+        }
+        tEarnedTXF.setText(String.format("%.2f", totalEarned));
+        repairsTXF.setText(String.valueOf(repairsCount));
+        techTable.setItems(null);
+        techTable.setItems(techWorkData);
+        techTable.autosizeColumns();
     }
 
-    public void LoadCustomers(){
-        table.getTableColumns().clear();
-        table.getItems().clear();
-        table.autosizeColumnsOnInitialization(); //autosize table columns
+    public void loadOrdersIntoTable() {
+        data.setAll(workshopQueries.loadOrdersIntoTable());
     }
 
-    public void LoadInvoices(){}
+    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber, double deposit) {
+        return workshopQueries.insertOrderIntoDatabase(
+                status,
+                type,
+                model,
+                serialNumber,
+                problemDesc,
+                customerId,
+                vendorId,
+                warrantyNumber,
+                deposit
+        );
+    }
+
+    @FXML
+    public void showAllOpenWO() {
+        allOpenFilterEnabled = !allOpenFilterEnabled;
+        if (allOpenFilterEnabled) {
+            oldNewFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+            myWoFilterEnabled = false;
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
+            btnOldNew.setStyle("");
+            btnRepairedNotPaid.setStyle("");
+            btnShowMyWO.setStyle("");
+        }
+        if (allOpenFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(this::isOpenWO).toList());
+            table.setItems(filtered);
+            btnAllWO.setText("SHOWING ALL OPEN WO: " + filtered.size());
+        } else {
+            table.setItems(allData);
+            updateAllOpenWOButtonCount();
+        }
+    }
+
+    @FXML
+    public void showOldNewOver10() {
+        oldNewFilterEnabled = !oldNewFilterEnabled;
+        if (oldNewFilterEnabled) {
+            allOpenFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+            myWoFilterEnabled = false;
+            updateAllOpenWOButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
+            btnRepairedNotPaid.setStyle("");
+            btnShowMyWO.setStyle("");
+        }
+        if (oldNewFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).toList());
+            table.setItems(filtered);
+            btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
+            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.35);");
+        } else {
+            table.setItems(allData);
+            updateOldNewButtonCount();
+        }
+    }
+
+    @FXML
+    public void showRepairedNotPaid() {
+        repairedNotBilledFilterEnabled = !repairedNotBilledFilterEnabled;
+        if (repairedNotBilledFilterEnabled) {
+            allOpenFilterEnabled = false;
+            oldNewFilterEnabled = false;
+            myWoFilterEnabled = false;
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateMyWoButtonCount();
+            btnOldNew.setStyle("");
+            btnShowMyWO.setStyle("");
+        }
+        if (repairedNotBilledFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).toList());
+            table.setItems(filtered);
+            btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
+            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.35);");
+        } else {
+            table.setItems(allData);
+            updateRepairedNotBilledButtonCount();
+        }
+    }
+
+    @FXML
+    public void showMyWO() {
+        myWoFilterEnabled = !myWoFilterEnabled;
+        if (myWoFilterEnabled) {
+            allOpenFilterEnabled = false;
+            oldNewFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            btnOldNew.setStyle("");
+            btnRepairedNotPaid.setStyle("");
+        }
+        if (myWoFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                    allData.stream()
+                            .filter(this::isMyWO)
+                            .toList()
+            );
+            table.setItems(filtered);
+            btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
+            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
+        } else {
+            table.setItems(allData);
+            updateMyWoButtonCount();
+        }
+    }
+
+    private void updateAllOpenWOButtonCount() {
+        if (btnAllWO == null) return;
+        int count = countAllOpenWO();
+        btnAllWO.setText("ALL OPEN WO: " + count);
+    }
+
+    private void updateOldNewButtonCount() {
+        if (btnOldNew == null) return;
+        int count = countOldNewOver10();
+        btnOldNew.setText("OLD OPENED WO: " + count);
+        if (count > 0) {
+            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.20);");
+        } else {
+            btnOldNew.setStyle("");
+        }
+    }
+
+    private void updateRepairedNotBilledButtonCount() {
+        if (btnRepairedNotPaid == null) return;
+        int count = countRepairedNotBilled();
+        btnRepairedNotPaid.setText("REPAIRED NOT BILLED: " + count);
+        if (count > 0) {
+            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.20);");
+        } else {
+            btnRepairedNotPaid.setStyle("");
+        }
+    }
+
+    private void updateMyWoButtonCount() {
+        if (btnShowMyWO == null) return;
+        int count = countMyWO();
+        btnShowMyWO.setText("MY WO: " + count);
+        if (count > 0) {
+            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.20);");
+        } else {
+            btnShowMyWO.setStyle("");
+        }
+    }
 
     private boolean isStatusNew(String status) {
         if (status == null) return false;
@@ -316,29 +403,29 @@ public class ActualWorkshopController{
 
     private boolean isOpenWO(WorkOrder wo) {
         if (wo == null) return false;
-
         String status = wo.getStatus();
         if (status == null) return false;
-
         String s = status.trim().toLowerCase();
         return !s.equals("repair complete") && !s.equals("billing complete");
     }
 
-    private int countAllOpenWO() {
-        return (int) allData.stream()
-                .filter(this::isOpenWO)
-                .count();
+    private boolean isMyWO(WorkOrder wo) {
+        if (wo == null) return false;
+        if (isStatusBillingComplete(wo.getStatus())) return false;
+        int myId = getLoggedTechId();
+        if (myId == 0) return false;
+        return wo.getTechId() == myId;
     }
 
-//    private boolean isMyWO(WorkOrder wo) {
-//        if (wo == null) return false;
-//        if (isStatusBillingComplete(wo.getStatus())) return false;
-//
-//        int myId = getLoggedTechId();
-//        if (myId == 0) return false;
-//
-//        return wo.getTechId() == myId;
-//    }
+    private boolean isAgingStatus(String status) {
+        if (status == null) return false;
+        String s = status.trim().toLowerCase();
+        return s.equals("new") || s.equals("in progress") || s.equals("waiting parts");
+    }
+
+    private int countAllOpenWO() {
+        return (int) allData.stream().filter(this::isOpenWO).count();
+    }
 
     private int countOldNewOver10() {
         return (int) allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).count();
@@ -348,14 +435,16 @@ public class ActualWorkshopController{
         return (int) allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).count();
     }
 
+    private int countMyWO() {
+        return (int) allData.stream().filter(this::isMyWO).count();
+    }
+
     private int getLoggedTechId() {
         String username = LoginController.tech;
         if (username == null || username.isBlank()) return 0;
-
         String sql = "SELECT id FROM technician WHERE username = ?";
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("id");
@@ -363,197 +452,6 @@ public class ActualWorkshopController{
             e.printStackTrace();
         }
         return 0;
-    }
-
-    @FXML
-    public void showAllOpenWO() {
-        allOpenFilterEnabled = !allOpenFilterEnabled;
-
-        if (allOpenFilterEnabled) {
-            oldNewFilterEnabled = false;
-            repairedNotBilledFilterEnabled = false;
-            myWoFilterEnabled = false;
-
-            updateOldNewButtonCount();
-            updateRepairedNotBilledButtonCount();
-            updateMyWoButtonCount();
-
-            btnOldNew.setStyle("");
-            btnRepairedNotPaid.setStyle("");
-            btnShowMyWO.setStyle("");
-        }
-
-        if (allOpenFilterEnabled) {
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream()
-                            .filter(this::isOpenWO)
-                            .toList()
-            );
-
-            table.setItems(filtered);
-            btnAllWO.setText("SHOWING ALL OPEN WO: " + filtered.size());
-        } else {
-            table.setItems(allData);
-            updateAllOpenWOButtonCount();
-        }
-    }
-
-    private void updateAllOpenWOButtonCount() {
-        if (btnAllWO == null) return;
-
-        int count = countAllOpenWO();
-        btnAllWO.setText("ALL OPEN WO: " + count);
-    }
-
-    @FXML
-    public void showOldNewOver10() {
-        oldNewFilterEnabled = !oldNewFilterEnabled;
-
-        if (oldNewFilterEnabled) {
-            allOpenFilterEnabled = false;
-            repairedNotBilledFilterEnabled = false;
-            myWoFilterEnabled = false;
-
-            updateAllOpenWOButtonCount();
-            updateRepairedNotBilledButtonCount();
-            updateMyWoButtonCount();
-
-            btnRepairedNotPaid.setStyle("");
-            btnShowMyWO.setStyle("");
-        }
-
-        if (oldNewFilterEnabled) {
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream()
-                            .filter(wo -> isStatusNew(wo.getStatus()))
-                            .filter(wo -> ageDays(wo) > 10)
-                            .toList()
-            );
-            table.setItems(filtered);
-            btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
-            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.35);");
-        } else {
-            table.setItems(allData);
-            updateOldNewButtonCount();
-        }
-    }
-
-    @FXML
-    public void showRepairedNotPaid() {
-        repairedNotBilledFilterEnabled = !repairedNotBilledFilterEnabled;
-        if (repairedNotBilledFilterEnabled) {
-            allOpenFilterEnabled = false;
-            oldNewFilterEnabled = false;
-            myWoFilterEnabled = false;
-
-            updateAllOpenWOButtonCount();
-            updateOldNewButtonCount();
-            updateMyWoButtonCount();
-
-            btnOldNew.setStyle("");
-            btnShowMyWO.setStyle("");
-        }
-        if (repairedNotBilledFilterEnabled) {
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).toList());
-            table.setItems(filtered);
-            btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
-            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.35);");
-        } else {
-            table.setItems(allData);
-            updateRepairedNotBilledButtonCount();
-        }
-    }
-
-    private void updateOldNewButtonCount() {
-        if (btnOldNew == null) return;
-        int count = countOldNewOver10();
-        btnOldNew.setText("OLD OPENED WO: " + count);
-        if (count > 0) {
-            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.20);");
-        } else {
-            btnOldNew.setStyle("");
-        }
-    }
-
-    private void updateRepairedNotBilledButtonCount() {
-        if (btnRepairedNotPaid == null) return;
-        int count = countRepairedNotBilled();
-        btnRepairedNotPaid.setText("REPAIRED NOT BILLED: " + count);
-
-        if (count > 0) {
-            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.20);");
-        } else {
-            btnRepairedNotPaid.setStyle("");
-        }
-    }
-
-    private boolean isMyWO(WorkOrder wo) {
-        if (wo == null) return false;
-        if (isStatusBillingComplete(wo.getStatus())) return false;
-
-        int myId = getLoggedTechId();
-        if (myId == 0) return false;
-
-        return wo.getTechId() == myId;
-    }
-
-    @FXML
-    public void showMyWO() {
-        myWoFilterEnabled = !myWoFilterEnabled;
-
-        if (myWoFilterEnabled) {
-            allOpenFilterEnabled = false;
-            oldNewFilterEnabled = false;
-            repairedNotBilledFilterEnabled = false;
-
-            updateAllOpenWOButtonCount();
-            updateOldNewButtonCount();
-            updateRepairedNotBilledButtonCount();
-
-            btnOldNew.setStyle("");
-            btnRepairedNotPaid.setStyle("");
-        }
-
-        if (myWoFilterEnabled) {
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream()
-                            .filter(this::isMyWO)
-                            .toList()
-            );
-
-            table.setItems(filtered);
-            btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
-            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
-
-        } else {
-            table.setItems(allData);
-            updateMyWoButtonCount();
-        }
-    }
-
-    private int countMyWO() {
-        return (int) allData.stream()
-                .filter(this::isMyWO)
-                .count();
-    }
-
-    private void updateMyWoButtonCount() {
-        if (btnShowMyWO == null) return;
-
-        int count = countMyWO();
-        btnShowMyWO.setText("MY WO: " + count);
-
-        if (count > 0) {
-            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.20);");
-        } else {
-            btnShowMyWO.setStyle("");
-        }
-    }
-
-    private boolean isAgingStatus(String status) {
-        if (status == null) return false;
-        String s = status.trim().toLowerCase();
-        return s.equals("new") || s.equals("in progress") || s.equals("waiting parts");
     }
 
     private long ageDays(WorkOrder wo) {
@@ -571,29 +469,43 @@ public class ActualWorkshopController{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
             viewOrderDialog = loader.load();
             viewOrderController = loader.getController();
-
             viewOrderController.setMainController(this);
             viewOrderController.setDialogInstance(viewOrderDialog);
-
         } catch (IOException e) {
             throw new RuntimeException("Failed to preload viewOrder.fxml", e);
         }
     }
 
+    public void viewOrder(MFXTableView<WorkOrder> table) {
+        table.setTableRowFactory(wo -> {
+            MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, wo);
+            applyRowStyle(row, wo);
+            try {
+                row.dataProperty().addListener((obs, oldVal, newVal) -> applyRowStyle(row, newVal));
+            } catch (Exception ignored) {
+            }
+            row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+                if (e.getClickCount() == 2) {
+                    e.consume();
+                    Customer customer = workshopQueries.getCustomerById(wo.getCustomerId());
+                    openWorkOrderFast(wo, customer);
+                }
+            });
+            return row;
+        });
+    }
+
     private void applyRowStyle(MFXTableRow<WorkOrder> row, WorkOrder wo) {
         row.setStyle("");
         if (wo == null) return;
-
         if (isStatusBillingComplete(wo.getStatus())) {
             row.setStyle("-fx-background-color: rgba(0, 200, 0, 0.22);");
             return;
         }
-
         if (isStatusComplete(wo.getStatus())) {
             row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);");
             return;
         }
-
         if (isAgingStatus(wo.getStatus())) {
             long days = ageDays(wo);
             if (days > 10) {
@@ -604,144 +516,16 @@ public class ActualWorkshopController{
                 return;
             }
         }
-
-        // My WO highlight (only if not matched by other rules)
         if (isMyWO(wo)) {
-            row.setStyle("-fx-background-color: rgba(160, 70, 255, 0.18);"); // soft purple
+            row.setStyle("-fx-background-color: rgba(160, 70, 255, 0.18);");
         }
     }
 
-    public void viewOrder(MFXTableView<WorkOrder> table) {
-        table.setTableRowFactory(wo -> {
-            MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, wo);
-
-            applyRowStyle(row, wo);
-            try {row.dataProperty().addListener((obs, oldVal, newVal) -> applyRowStyle(row, newVal));} catch (Exception ignored) {}
-
-            row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-                if (e.getClickCount() == 2) {
-                    e.consume();
-                    Customer customer = getCustomerById(wo.getCustomerId());
-                    openWorkOrderFast(wo, customer);
-                }
-            });
-
-            return row;
-        });
-    }
-
-    public Customer getCustomerById(int customerId) {
-        String sql = "SELECT * FROM customer WHERE id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, customerId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                Customer c = new Customer(
-                        rs.getString("id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        "",
-                        rs.getString("phone"),
-                        "",
-                        rs.getString("address"),
-                        rs.getString("postal_code"),
-                        rs.getString("town")
-                );
-                rs.close();
-                stmt.close();
-                conn.close();
-                return c;
-            }
-            rs.close();
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void loadOrdersIntoTable() {
-        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id, deposit_amount, tech_id FROM work_order ORDER BY work_order.createdAt DESC";
-        data.clear();
-
-        try {
-            Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                WorkOrder wo = new WorkOrder(
-                        rs.getInt("workorder"),
-                        rs.getString("status"),
-                        rs.getString("type"),
-                        rs.getString("createdAt"),
-                        rs.getString("vendorId"),
-                        rs.getString("warrantyNumber"),
-                        rs.getString("model"),
-                        rs.getString("serialNumber"),
-                        rs.getString("problemDesc"),
-                        rs.getInt("customer_id"),
-                        rs.getDouble("deposit_amount")
-                );
-
-                int techId = rs.getInt("tech_id");
-                if (rs.wasNull()) techId = 0;
-                wo.setTechId(techId);
-
-                data.add(wo);
-            }
-
-            rs.close();
-            stmt.close();
-            connection.close();
-
-        } catch (SQLException e) {
-            System.out.println("issue during loading into table");
-        }
-    }
-
-    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber, double deposit) {
-        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, status);
-            stmt.setString(2, type);
-            stmt.setString(3, model);
-            stmt.setString(4, serialNumber);
-            stmt.setString(5, problemDesc);
-            stmt.setInt(6, customerId);
-            stmt.setString(7, vendorId);
-            stmt.setString(8, warrantyNumber);
-            stmt.setDouble(9, deposit);
-
-            stmt.executeUpdate();
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                int id = rs.getInt(1);
-                rs.close();
-                stmt.close();
-                conn.close();
-                return id;
-            }
-            rs.close();
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("issues during inserting into table");
-        }
-        return -1;
-
-    }
-
-    public void loadOrdersTable(){
-        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("Workorder",  false);
-        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status",false);
+    public void loadOrdersTable() {
+        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("Workorder", false);
+        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", false);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", false);
-        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date",false);
+        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", false);
 
         workOrder.setColumnResizable(true);
         status.setColumnResizable(true);
@@ -753,87 +537,19 @@ public class ActualWorkshopController{
         type.setMinWidth(260);
         date.setMinWidth(180);
 
-
         workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
         type.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getType));
-        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt){{setAlignment(Pos.CENTER_RIGHT);}});
-
-
-
+        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{ setAlignment(Pos.CENTER_RIGHT); }});
 
         date.setAlignment(Pos.CENTER_RIGHT);
-        table.getTableColumns().addAll(workOrder,status,type,date);
+        table.getTableColumns().addAll(workOrder, status, type, date);
 
         table.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
         table.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
         table.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
         table.getFilters().addAll(new StringFilter<>("Warranty Number", WorkOrder::getWarrantyNumber));
-
-
     }
-
-    public void openSettingsMenu() throws IOException {
-        contentPane.setEffect(new GaussianBlur(4));
-        contentPane.setDisable(true);
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/settings.fxml"));
-        MFXGenericDialog dialog = loader.load();
-
-        SettingsController dialogController = loader.getController();
-        dialogController.setMainController(this);
-        dialogController.setDialogInstance(dialog);
-
-        dialog.setOpacity(0);
-        dialog.setScaleX(0.8);
-        dialog.setScaleY(0.8);
-
-        rootStack.getChildren().add(dialog);
-        playShowAnimation(dialog);
-
-    }
-
-    @FXML
-    public void myStats() {
-        hideDashboardControls();
-        personalwork.setVisible(true);
-        personalwork.setManaged(true);
-        techTXF.setText(LoginController.tech);
-
-        techTable.setItems(null);
-        techTable.setItems(techWorkData);
-        techTable.autosizeColumns();
-    }
-
-    private void showDashboardControls() {
-        table.setVisible(true);
-        table.setManaged(true);
-
-        btnAllWO.setVisible(true);
-        btnAllWO.setManaged(true);
-
-        btnOldNew.setVisible(true);
-        btnOldNew.setManaged(true);
-
-        btnRepairedNotPaid.setVisible(true);
-        btnRepairedNotPaid.setManaged(true);
-
-        btnShowMyWO.setVisible(true);
-        btnShowMyWO.setManaged(true);
-
-        searchTxtField.setVisible(true);
-        searchTxtField.setManaged(true);
-
-        newOrderBTN.setVisible(true);
-        newOrderBTN.setManaged(true);
-
-        personalwork.setVisible(false);
-        personalwork.setManaged(false);
-    }
-
-
-
-
 
     private void loadTechStatsTable() {
         techTable.getTableColumns().clear();
@@ -855,39 +571,43 @@ public class ActualWorkshopController{
         labourCol.setMinWidth(110);
         finishedDateCol.setMinWidth(180);
 
-        //labourCol.setAlignment(Pos.CENTER_RIGHT);
         finishedDateCol.setAlignment(Pos.CENTER);
-
-        techTable.getTableColumns().addAll(
-                workOrderCol,
-                typeCol,
-                statusCol,
-                labourCol,
-                finishedDateCol
-        );
-
+        techTable.getTableColumns().addAll(workOrderCol, typeCol, statusCol, labourCol, finishedDateCol);
         techTable.setItems(techWorkData);
+    }
+
+    private void showDashboardControls() {
+        table.setVisible(true);
+        table.setManaged(true);
+        btnAllWO.setVisible(true);
+        btnAllWO.setManaged(true);
+        btnOldNew.setVisible(true);
+        btnOldNew.setManaged(true);
+        btnRepairedNotPaid.setVisible(true);
+        btnRepairedNotPaid.setManaged(true);
+        btnShowMyWO.setVisible(true);
+        btnShowMyWO.setManaged(true);
+        searchTxtField.setVisible(true);
+        searchTxtField.setManaged(true);
+        newOrderBTN.setVisible(true);
+        newOrderBTN.setManaged(true);
+        personalwork.setVisible(false);
+        personalwork.setManaged(false);
     }
 
     private void hideDashboardControls() {
         table.setVisible(false);
         table.setManaged(false);
-
         btnAllWO.setVisible(false);
         btnAllWO.setManaged(false);
-
         btnOldNew.setVisible(false);
         btnOldNew.setManaged(false);
-
         btnRepairedNotPaid.setVisible(false);
         btnRepairedNotPaid.setManaged(false);
-
         btnShowMyWO.setVisible(false);
         btnShowMyWO.setManaged(false);
-
         searchTxtField.setVisible(false);
         searchTxtField.setManaged(false);
-
         newOrderBTN.setVisible(false);
         newOrderBTN.setManaged(false);
     }
@@ -895,96 +615,68 @@ public class ActualWorkshopController{
     public void createNewOrder() throws IOException {
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/newOrder.fxml"));
         MFXGenericDialog dialog = loader.load();
-
         NewOrderController dialogController = loader.getController();
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
-
         dialog.setOpacity(0);
         dialog.setScaleX(0.8);
         dialog.setScaleY(0.8);
-
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
-
-//        FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/newOrder.fxml"));
-//        MFXGenericDialog dialog = loader.load();
-//        Stage dialogStage = new Stage();
-//        /*
-//        we are telling javafx that new stage should be modal
-//        It will prevent user from interacting with other windows.
-//
-//        Modality.APPLICATION blocks mouse and keyboard input to all other windows in this app.
-//         */
-//        dialogStage.initModality(Modality.APPLICATION_MODAL);
-//        dialogStage.setTitle("New Order");
-//
-//        Scene scene = new Scene(dialog);
-//        dialogStage.setScene(scene);
-//        dialogStage.showAndWait();
     }
 
-    public void openWorkOrder(WorkOrder order, Customer co) throws IOException{
+    public void openWorkOrder(WorkOrder order, Customer co) throws IOException {
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
         MFXGenericDialog dialog = loader.load();
-
         ViewOrderController dialogController = loader.getController();
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
         dialogController.initData(order, co);
-
         dialog.setOpacity(0);
         dialog.setScaleX(0.8);
         dialog.setScaleY(0.8);
-
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
-
     }
 
+    public void openSettingsMenu() throws IOException {
+        contentPane.setEffect(new GaussianBlur(4));
+        contentPane.setDisable(true);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/settings.fxml"));
+        MFXGenericDialog dialog = loader.load();
+        SettingsController dialogController = loader.getController();
+        dialogController.setMainController(this);
+        dialogController.setDialogInstance(dialog);
+        dialog.setOpacity(0);
+        dialog.setScaleX(0.8);
+        dialog.setScaleY(0.8);
+        rootStack.getChildren().add(dialog);
+        playShowAnimation(dialog);
+    }
 
-    public void avatar(Circle techAvatar){
-        Image im = new Image("/avatar.png"); //make
+    public void avatar(Circle techAvatar) {
+        Image im = new Image("/avatar.png");
         techAvatar.setCenterX(50);
         techAvatar.setCenterY(50);
         techAvatar.setFill(new ImagePattern(im));
     }
 
-
-
     private void playShowAnimation(MFXGenericDialog dialog) {
-        // Fade from transparent → opaque
         FadeTransition fade = new FadeTransition(Duration.millis(250), dialog);
         fade.setFromValue(0);
         fade.setToValue(1);
 
-        // Scale from 80% → 100%
         ScaleTransition scale = new ScaleTransition(Duration.millis(250), dialog);
         scale.setFromX(0.8);
         scale.setToX(1);
         scale.setFromY(0.8);
         scale.setToY(1);
 
-        // Play both at once
         ParallelTransition pt = new ParallelTransition(fade, scale);
         pt.play();
-    }
-
-
-
-    @FXML
-    public void signOut() throws IOException {
-        LoginController.tech = null;
-        Parent root = FXMLLoader.load(Main.class.getResource("/main/login.fxml"));
-        Stage stage = (Stage) rootStack.getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
     }
 }
