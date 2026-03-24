@@ -310,12 +310,15 @@ public class ActualWorkshopController{
         return s.equals("billing complete");
     }
 
-    private boolean isMyWO(WorkOrder wo) {
-        if (wo == null) return false;
-        int myId = getLoggedTechId();
-        if (myId == 0) return false;
-        return wo.getTechId() == myId;
-    }
+//    private boolean isMyWO(WorkOrder wo) {
+//        if (wo == null) return false;
+//        if (isStatusBillingComplete(wo.getStatus())) return false;
+//
+//        int myId = getLoggedTechId();
+//        if (myId == 0) return false;
+//
+//        return wo.getTechId() == myId;
+//    }
 
     private int countOldNewOver10() {
         return (int) allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).count();
@@ -400,11 +403,20 @@ public class ActualWorkshopController{
         }
     }
 
+    private boolean isMyWO(WorkOrder wo) {
+        if (wo == null) return false;
+        if (isStatusBillingComplete(wo.getStatus())) return false;
+
+        int myId = getLoggedTechId();
+        if (myId == 0) return false;
+
+        return wo.getTechId() == myId;
+    }
+
     @FXML
     public void showMyWO() {
         myWoFilterEnabled = !myWoFilterEnabled;
 
-        // if turning this on, turn the other toggles off (same logic you used)
         if (myWoFilterEnabled) {
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
@@ -416,17 +428,14 @@ public class ActualWorkshopController{
         }
 
         if (myWoFilterEnabled) {
-            int myId = getLoggedTechId();
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
                     allData.stream()
-                            .filter(wo -> wo.getTechId() == myId)
+                            .filter(this::isMyWO)
                             .toList()
             );
 
             table.setItems(filtered);
             btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
-
-            // color suggestion: purple (stands out from red/blue/green)
             btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
 
         } else {
@@ -436,9 +445,9 @@ public class ActualWorkshopController{
     }
 
     private int countMyWO() {
-        int myId = getLoggedTechId();
-        if (myId == 0) return 0;
-        return (int) allData.stream().filter(wo -> wo.getTechId() == myId).count();
+        return (int) allData.stream()
+                .filter(this::isMyWO)
+                .count();
     }
 
     private void updateMyWoButtonCount() {
