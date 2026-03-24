@@ -55,8 +55,10 @@ public class ActualWorkshopController{
 
     @FXML public MFXButton signOutBtn;
 
-    @FXML private Button btnOldNew;
     @FXML private Button newOrderBTN;
+
+    @FXML private Button btnAllWO;
+    @FXML private Button btnOldNew;
     @FXML private Button btnRepairedNotPaid;
     @FXML private Button btnShowMyWO;
 
@@ -86,6 +88,7 @@ public class ActualWorkshopController{
     private boolean oldNewFilterEnabled = false;
     private boolean repairedNotBilledFilterEnabled = false;
     private boolean myWoFilterEnabled = false;
+    private boolean allOpenFilterEnabled = false;
 
     private MFXGenericDialog viewOrderDialog;
     private ViewOrderController viewOrderController;
@@ -279,6 +282,7 @@ public class ActualWorkshopController{
 
         table.setItems(allData);
 
+        updateAllOpenWOButtonCount();
         updateOldNewButtonCount();
         updateRepairedNotBilledButtonCount();
         updateMyWoButtonCount();
@@ -308,6 +312,22 @@ public class ActualWorkshopController{
         if (status == null) return false;
         String s = status.trim().toLowerCase();
         return s.equals("billing complete");
+    }
+
+    private boolean isOpenWO(WorkOrder wo) {
+        if (wo == null) return false;
+
+        String status = wo.getStatus();
+        if (status == null) return false;
+
+        String s = status.trim().toLowerCase();
+        return !s.equals("repair complete") && !s.equals("billing complete");
+    }
+
+    private int countAllOpenWO() {
+        return (int) allData.stream()
+                .filter(this::isOpenWO)
+                .count();
     }
 
 //    private boolean isMyWO(WorkOrder wo) {
@@ -346,11 +366,68 @@ public class ActualWorkshopController{
     }
 
     @FXML
+    public void showAllOpenWO() {
+        allOpenFilterEnabled = !allOpenFilterEnabled;
+
+        if (allOpenFilterEnabled) {
+            oldNewFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+            myWoFilterEnabled = false;
+
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
+
+            btnOldNew.setStyle("");
+            btnRepairedNotPaid.setStyle("");
+            btnShowMyWO.setStyle("");
+        }
+
+        if (allOpenFilterEnabled) {
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                    allData.stream()
+                            .filter(this::isOpenWO)
+                            .toList()
+            );
+
+            table.setItems(filtered);
+            btnAllWO.setText("SHOWING ALL OPEN WO: " + filtered.size());
+        } else {
+            table.setItems(allData);
+            updateAllOpenWOButtonCount();
+        }
+    }
+
+    private void updateAllOpenWOButtonCount() {
+        if (btnAllWO == null) return;
+
+        int count = countAllOpenWO();
+        btnAllWO.setText("ALL OPEN WO: " + count);
+    }
+
+    @FXML
     public void showOldNewOver10() {
         oldNewFilterEnabled = !oldNewFilterEnabled;
+
+        if (oldNewFilterEnabled) {
+            allOpenFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+            myWoFilterEnabled = false;
+
+            updateAllOpenWOButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
+
+            btnRepairedNotPaid.setStyle("");
+            btnShowMyWO.setStyle("");
+        }
+
         if (oldNewFilterEnabled) {
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).toList()
+                    allData.stream()
+                            .filter(wo -> isStatusNew(wo.getStatus()))
+                            .filter(wo -> ageDays(wo) > 10)
+                            .toList()
             );
             table.setItems(filtered);
             btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
@@ -365,9 +442,16 @@ public class ActualWorkshopController{
     public void showRepairedNotPaid() {
         repairedNotBilledFilterEnabled = !repairedNotBilledFilterEnabled;
         if (repairedNotBilledFilterEnabled) {
+            allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
+            myWoFilterEnabled = false;
+
+            updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
+            updateMyWoButtonCount();
+
             btnOldNew.setStyle("");
+            btnShowMyWO.setStyle("");
         }
         if (repairedNotBilledFilterEnabled) {
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).toList());
@@ -418,11 +502,14 @@ public class ActualWorkshopController{
         myWoFilterEnabled = !myWoFilterEnabled;
 
         if (myWoFilterEnabled) {
+            allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
 
+            updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+
             btnOldNew.setStyle("");
             btnRepairedNotPaid.setStyle("");
         }
@@ -722,6 +809,9 @@ public class ActualWorkshopController{
         table.setVisible(true);
         table.setManaged(true);
 
+        btnAllWO.setVisible(true);
+        btnAllWO.setManaged(true);
+
         btnOldNew.setVisible(true);
         btnOldNew.setManaged(true);
 
@@ -782,6 +872,9 @@ public class ActualWorkshopController{
     private void hideDashboardControls() {
         table.setVisible(false);
         table.setManaged(false);
+
+        btnAllWO.setVisible(false);
+        btnAllWO.setManaged(false);
 
         btnOldNew.setVisible(false);
         btnOldNew.setManaged(false);
