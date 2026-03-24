@@ -231,17 +231,7 @@ public class ActualWorkshopController {
     }
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber, double deposit) {
-        return workshopQueries.insertOrderIntoDatabase(
-                status,
-                type,
-                model,
-                serialNumber,
-                problemDesc,
-                customerId,
-                vendorId,
-                warrantyNumber,
-                deposit
-        );
+        return workshopQueries.insertOrderIntoDatabase(status, type, model, serialNumber, problemDesc, customerId, vendorId, warrantyNumber, deposit);
     }
 
     @FXML
@@ -330,11 +320,7 @@ public class ActualWorkshopController {
             btnRepairedNotPaid.setStyle("");
         }
         if (myWoFilterEnabled) {
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream()
-                            .filter(this::isMyWO)
-                            .toList()
-            );
+            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(allData.stream().filter(this::isMyWO).toList());
             table.setItems(filtered);
             btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
             btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
