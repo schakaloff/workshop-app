@@ -1,6 +1,6 @@
 package Controllers;
+
 import Controllers.DbRepo.ViewControllerQueries;
-import DB.DbConfig;
 import Skeletons.*;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
@@ -29,19 +29,21 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ViewOrderController {
-    @FXML private ActualWorkshopController mainController;
+
+    // ─── FXML FIELDS ────────────────────────────────────────────────────────────
+
     @FXML private MFXGenericDialog dialogInstance;
+    @FXML private ActualWorkshopController mainController;
 
-    @FXML private MFXComboBox<String> vendorId;
-    @FXML private MFXTextField warrantyNumber;
-
-    @FXML private MFXComboBox<String> statusCombo;
-
+    // Device info
     @FXML private MFXTextField type;
     @FXML private MFXTextField model;
     @FXML private MFXTextField serialNumber;
     @FXML private TextArea problemDesc;
+    @FXML private MFXComboBox<String> vendorId;
+    @FXML private MFXTextField warrantyNumber;
 
+    // Customer info
     @FXML private MFXTextField idTFX;
     @FXML private MFXTextField firstNameTXF;
     @FXML private MFXTextField lastNameTXF;
@@ -51,127 +53,106 @@ public class ViewOrderController {
     @FXML private MFXTextField zipTFX;
     @FXML private MFXTextField depositTXF;
 
+    // Status / tech / tabs
     @FXML private TabPane tabPane;
+    @FXML private MFXComboBox<String> statusCombo;
+    @FXML private MFXComboBox<String> techIdCombo;
     @FXML private TextArea serviceNotesTXT;
 
-    //main
+    // Main tab header fields
     @FXML private MFXTextField mainNumberTFX;
 
-    //labour
+    // Labour tab header fields
     @FXML private MFXTextField customerTFX;
     @FXML private MFXTextField statusTFX;
     @FXML private MFXTextField numberTFX;
 
-    @FXML private MFXTableView<WorkTable> repairTable;
-    private final ObservableList<WorkTable> repairData = FXCollections.observableArrayList();
-
-    @FXML private MFXTableView<PartTable> partsTable;
-    private final ObservableList<PartTable> partsData = FXCollections.observableArrayList();
-
-    @FXML private MFXListView<FilesHandler> filesList;
-    private final ObservableList<FilesHandler> filesData = FXCollections.observableArrayList();
-
-    private final ObservableList<String> techNames = FXCollections.observableArrayList();
-
-    @FXML private MFXComboBox<String> techIdCombo;
-
-    DatePicker picker;
-
-    public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList("New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed");
-
-    //parts
+    // Parts tab header fields
     @FXML private MFXTextField partsCustomerTFX;
     @FXML private MFXTextField partsStatusTFX;
     @FXML private MFXTextField partsNumberTFX;
 
-    public WorkOrder currentWorkOrder;
-    public Customer currentCustomer;
+    // Tables & lists
+    @FXML private MFXTableView<WorkTable> repairTable;
+    @FXML private MFXTableView<PartTable> partsTable;
+    @FXML private MFXListView<FilesHandler> filesList;
 
-    private DeletingFilesMethods deletingMethods;
-    private DeletingPartsMethods deletingPartsMethods;
+    // ─── OBSERVABLE DATA ────────────────────────────────────────────────────────
+
+    private final ObservableList<WorkTable>    repairData = FXCollections.observableArrayList();
+    private final ObservableList<PartTable>    partsData  = FXCollections.observableArrayList();
+    private final ObservableList<FilesHandler> filesData  = FXCollections.observableArrayList();
+    private final ObservableList<String>       techNames  = FXCollections.observableArrayList();
+
+    public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList(
+            "New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed"
+    );
+
+    // ─── STATE ──────────────────────────────────────────────────────────────────
+
+    public WorkOrder currentWorkOrder;
+    public Customer  currentCustomer;
+
+    private DeletingFilesMethods  deletingMethods;
+    private DeletingPartsMethods  deletingPartsMethods;
     private DeletingLabourMethods deletingLabourMethods;
 
-    private boolean isDirty = false;
+    private boolean isDirty   = false;
     private boolean isLoading = false;
 
-    public void setMainController(ActualWorkshopController controller) {this.mainController = controller;}
-    public void setDialogInstance(MFXGenericDialog dialogInstance) {this.dialogInstance = dialogInstance;}
+    // ─── SETTERS ────────────────────────────────────────────────────────────────
 
-    public void initialize(){
+    public void setMainController(ActualWorkshopController controller) { this.mainController = controller; }
+    public void setDialogInstance(MFXGenericDialog dialogInstance)      { this.dialogInstance = dialogInstance; }
+
+    // ─── INITIALIZE ─────────────────────────────────────────────────────────────
+
+    public void initialize() {
         tabPane.setFocusTraversable(false);
-
         statusCombo.setItems(WORK_ORDER_STATUSES);
 
-        techNames.setAll(ViewControllerQueries.loadTechList());
+        refreshTechList();
+        setupTables();
+        setupServiceNotesExpand();
+        setupDirtyListeners();
+        setupTechComboListener();
+        setupStatusComboListener();
+        setupFileDoubleClick();
+        setupDeletingHandlers();
+    }
 
-        loadTechList();
+    // ─── INIT DATA (called after initialize) ────────────────────────────────────
 
-        type.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
+    public void initData(WorkOrder wo, Customer co) {
+        isLoading = true;
+
+        this.currentWorkOrder = wo;
+        this.currentCustomer  = co;
+
+        deletingMethods.setWorkorderNumber(wo.getWorkorderNumber());
+
+        ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
+        refreshTechList();
+
+        populateCustomerFields(co);
+        populateDeviceFields(wo);
+        populateHeaderFields(wo, co);
+
+        loadServiceNotes();
+        loadFilesFromDb();
+        loadPartsFromDb();
+        loadRepairsFromDb();
+        applyBillingLockUI();
+
+        Platform.runLater(() -> {
+            isLoading = false;
+            isDirty   = false;
         });
+    }
 
-        model.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
+    // ─── SETUP HELPERS (called from initialize) ──────────────────────────────────
 
-        serialNumber.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        problemDesc.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        vendorId.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        warrantyNumber.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        serviceNotesTXT.textProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        techIdCombo.valueProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) {
-                isDirty = true;
-            }
-        });
-
-        statusCombo.valueProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) {
-                isDirty = true;
-            }
-        });
-
-        repairData.addListener((javafx.collections.ListChangeListener<WorkTable>) change -> {
-            if (!isLoading) {
-                isDirty = true;
-            }
-        });
-
-        partsData.addListener((javafx.collections.ListChangeListener<PartTable>) change -> {
-            if (!isLoading) {
-                isDirty = true;
-            }
-        });
-
-        techIdCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (isLoading) return;
-            if (newVal == null || newVal.isBlank()) return;
-            if (isBillingComplete()) return;
-
-            int techId = ViewControllerQueries.getTechIdByUsername(newVal);
-            currentWorkOrder.setTechId(techId);
-
-            if ("New".equalsIgnoreCase(currentWorkOrder.getStatus())) {
-                currentWorkOrder.setStatus("In Progress");
-                statusCombo.selectItem("In Progress");
-            }
-        });
-
+    private void setupTables() {
         isLoading = true;
 
         repairTable.setFooterVisible(false);
@@ -183,10 +164,13 @@ public class ViewOrderController {
         partsTable.setItems(partsData);
 
         isLoading = false;
-        isDirty = false;
+        isDirty   = false;
+    }
 
+    private void setupServiceNotesExpand() {
         final double COLLAPSED_H = 60;
         final double EXPANDED_H  = 180;
+
         serviceNotesTXT.setPrefHeight(COLLAPSED_H);
         serviceNotesTXT.setTranslateY(0);
 
@@ -200,27 +184,49 @@ public class ViewOrderController {
                 serviceNotesTXT.setPrefHeight(COLLAPSED_H);
             }
         });
+    }
 
-        filesList.addEventFilter(MouseEvent.MOUSE_CLICKED, e ->{
-            if(e.getClickCount() == 2){
-                e.consume();
-                System.out.println("double click");
-                onOpenSelectedFile();
+    private void setupDirtyListeners() {
+        // Text fields
+        type.textProperty().addListener((obs, o, n)          -> markDirtyIfChanged(o, n));
+        model.textProperty().addListener((obs, o, n)         -> markDirtyIfChanged(o, n));
+        serialNumber.textProperty().addListener((obs, o, n)  -> markDirtyIfChanged(o, n));
+        problemDesc.textProperty().addListener((obs, o, n)   -> markDirtyIfChanged(o, n));
+        vendorId.textProperty().addListener((obs, o, n)      -> markDirtyIfChanged(o, n));
+        warrantyNumber.textProperty().addListener((obs, o, n)-> markDirtyIfChanged(o, n));
+        serviceNotesTXT.textProperty().addListener((obs, o, n)-> markDirtyIfChanged(o, n));
+
+        // Combo boxes
+        techIdCombo.valueProperty().addListener((obs, o, n)  -> markDirtyIfChanged(o, n));
+        statusCombo.valueProperty().addListener((obs, o, n)  -> markDirtyIfChanged(o, n));
+
+        // Table data
+        repairData.addListener((javafx.collections.ListChangeListener<WorkTable>) c -> { if (!isLoading) isDirty = true; });
+        partsData.addListener((javafx.collections.ListChangeListener<PartTable>)  c -> { if (!isLoading) isDirty = true; });
+    }
+
+    private void setupTechComboListener() {
+        techIdCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (isLoading || newVal == null || newVal.isBlank() || isBillingComplete()) return;
+
+            int techId = ViewControllerQueries.getTechIdByUsername(newVal);
+            currentWorkOrder.setTechId(techId);
+
+            if ("New".equalsIgnoreCase(currentWorkOrder.getStatus())) {
+                currentWorkOrder.setStatus("In Progress");
+                statusCombo.selectItem("In Progress");
             }
         });
+    }
 
+    private void setupStatusComboListener() {
         statusCombo.valueProperty().addListener((obs, oldStatus, newStatus) -> {
-            if (isLoading) return;
-            if (newStatus == null || newStatus.equals(oldStatus)) return;
+            if (isLoading || newStatus == null || newStatus.equals(oldStatus)) return;
 
             if ("Repair Complete".equalsIgnoreCase(newStatus)) {
                 saveRepairsToDb();
                 if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(currentWorkOrder.getWorkorderNumber())) {
-                    new Alert(Alert.AlertType.WARNING,
-                            "Add at least one labour note (Tech + Description) before marking Repair Complete.",
-                            ButtonType.OK
-                    ).showAndWait();
-
+                    showWarning("Add at least one labour note (Tech + Description) before marking Repair Complete.");
                     isLoading = true;
                     statusCombo.selectItem(oldStatus);
                     isLoading = false;
@@ -230,90 +236,45 @@ public class ViewOrderController {
 
             currentWorkOrder.setStatus(newStatus);
         });
+    }
 
+    private void setupFileDoubleClick() {
+        filesList.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            if (e.getClickCount() == 2) {
+                e.consume();
+                onOpenSelectedFile();
+            }
+        });
+    }
+
+    private void setupDeletingHandlers() {
         deletingMethods = new DeletingFilesMethods(filesList);
         deletingMethods.setOnDelete(e -> {
-            boolean deleted = deletingMethods.deleteSelectedFile();
-            if (deleted) loadFilesFromDb();
+            if (deletingMethods.deleteSelectedFile()) loadFilesFromDb();
         });
 
         deletingPartsMethods = new DeletingPartsMethods(partsTable);
         deletingPartsMethods.setOnDelete(e -> {
             if (isBillingComplete()) return;
-            boolean removed = deletingPartsMethods.removeSelectedFromTable();
-            if (removed) {
+            if (deletingPartsMethods.removeSelectedFromTable()) {
                 savePartsToDb();
-                isLoading = true;
-                loadPartsFromDb();
-                isLoading = false;
-                isDirty = false;
+                reloadParts();
             }
         });
 
         deletingLabourMethods = new DeletingLabourMethods(repairTable);
         deletingLabourMethods.setOnDelete(e -> {
             if (isBillingComplete()) return;
-            boolean removed = deletingLabourMethods.removeSelectedFromTable();
-            if (removed) {
+            if (deletingLabourMethods.removeSelectedFromTable()) {
                 saveRepairsToDb();
-                isLoading = true;
-                loadRepairsFromDb();
-                isLoading = false;
-                isDirty = false;
+                reloadRepairs();
             }
         });
     }
 
-    private void updateStatusInDb(String newStatus) {
-        ViewControllerQueries.updateStatusInDb(
-                currentWorkOrder.getWorkorderNumber(),
-                newStatus,
-                ViewControllerQueries.labourTotalDb(currentWorkOrder.getWorkorderNumber())
-        );
+    // ─── POPULATE UI ────────────────────────────────────────────────────────────
 
-        currentWorkOrder.setStatus(newStatus);
-        statusTFX.setText(newStatus);
-        partsStatusTFX.setText(newStatus);
-
-        mainController.LoadOrders();
-        applyBillingLockUI();
-    }
-
-    public void initData(WorkOrder wo, Customer co){
-        isLoading = true;
-
-        this.currentWorkOrder = wo;
-        this.currentCustomer = co;
-
-        deletingMethods.setWorkorderNumber(currentWorkOrder.getWorkorderNumber());
-
-        ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
-        loadTechList();
-
-        if (wo.getTechId() > 0) {
-            String techUsername = ViewControllerQueries.getTechUsernameById(wo.getTechId());
-            techIdCombo.selectItem(techUsername);
-        } else {
-            techIdCombo.clearSelection();
-            techIdCombo.setText("");
-        }
-
-        loadFilesFromDb();
-
-        String firstName = co.getFirstName();
-        String lastName = co.getLastName();
-        String fullName = lastName + "," + firstName;
-
-        statusCombo.selectItem(wo.getStatus());
-
-        type.setText(wo.getType());
-        model.setText(wo.getModel());
-        serialNumber.setText(wo.getSerialNumber());
-        problemDesc.setText(wo.getProblemDesc());
-
-        vendorId.setText(wo.getVendorId());
-        warrantyNumber.setText(wo.getWarrantyNumber());
-
+    private void populateCustomerFields(Customer co) {
         idTFX.setText(co.getId());
         firstNameTXF.setText(co.getFirstName());
         lastNameTXF.setText(co.getLastName());
@@ -321,110 +282,84 @@ public class ViewOrderController {
         addressTFX.setText(co.getAddress());
         townTFX.setText(co.getTown());
         zipTFX.setText(co.getPostalCode());
+    }
 
-        mainNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
+    private void populateDeviceFields(WorkOrder wo) {
+        statusCombo.selectItem(wo.getStatus());
+        type.setText(wo.getType());
+        model.setText(wo.getModel());
+        serialNumber.setText(wo.getSerialNumber());
+        problemDesc.setText(wo.getProblemDesc());
+        vendorId.setText(wo.getVendorId());
+        warrantyNumber.setText(wo.getWarrantyNumber());
         depositTXF.setText("$" + wo.getDepositAmount());
+    }
+
+    private void populateHeaderFields(WorkOrder wo, Customer co) {
+        String fullName = co.getLastName() + "," + co.getFirstName();
+        String woNum    = String.valueOf(wo.getWorkorderNumber());
+
+        mainNumberTFX.setText(woNum);
 
         customerTFX.setText(fullName);
         statusTFX.setText(wo.getStatus());
-        numberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
-
-        loadServiceNotes();
+        numberTFX.setText(woNum);
 
         partsCustomerTFX.setText(fullName);
         partsStatusTFX.setText(wo.getStatus());
-        partsNumberTFX.setText(String.valueOf(wo.getWorkorderNumber()));
+        partsNumberTFX.setText(woNum);
 
-        loadPartsFromDb();
-        applyBillingLockUI();
-        loadRepairsFromDb();
-
-        Platform.runLater(() -> {
-            isLoading = false;
-            isDirty = false;
-        });
-    }
-
-    public void insertNotes(TextArea area){
-        String stamp = "[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "]: ";
-        String text = area.getText();
-        int caret = area.getCaretPosition();
-
-        if (caret > 0 && text.charAt(caret - 1) != '\n') {
-            stamp = "\n" + stamp;
+        if (wo.getTechId() > 0) {
+            techIdCombo.selectItem(ViewControllerQueries.getTechUsernameById(wo.getTechId()));
+        } else {
+            techIdCombo.clearSelection();
+            techIdCombo.setText("");
         }
-        area.insertText(caret, stamp);
-        area.positionCaret(caret + stamp.length());
-    }
-
-    private void loadTechList() {
-        techNames.clear();
-        techNames.addAll(ViewControllerQueries.loadTechList());
-        techIdCombo.setItems(techNames);
     }
 
     private void applyBillingLockUI() {
         boolean locked = isBillingComplete();
 
         statusCombo.setDisable(locked);
-
         type.setDisable(locked);
         model.setDisable(locked);
         serialNumber.setDisable(locked);
         problemDesc.setDisable(locked);
         vendorId.setDisable(locked);
         warrantyNumber.setDisable(locked);
-
         partsTable.setDisable(locked);
         repairTable.setDisable(locked);
 
-        serviceNotesTXT.setDisable(false);
+        serviceNotesTXT.setDisable(false); // always editable
     }
 
-    private void attachRepairListeners(WorkTable r) {
-        r.techProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
-        });
+    // ─── TECH LIST ──────────────────────────────────────────────────────────────
 
-        r.descriptionProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
-        });
-
-        r.priceProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        r.dateProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
-        });
+    private void refreshTechList() {
+        techNames.clear();
+        techNames.addAll(ViewControllerQueries.loadTechList());
+        techIdCombo.setItems(techNames);
     }
 
-    private void attachPartListeners(PartTable p) {
-        p.nameProperty().addListener((obs, o, n) -> {
-            if (!isLoading && (o == null ? n != null : !o.equals(n))) isDirty = true;
-        });
+    // ─── SERVICE NOTES ──────────────────────────────────────────────────────────
 
-        p.quantityProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        p.priceProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-
-        p.totalPriceProperty().addListener((obs, o, n) -> {
-            if (!isLoading && !n.equals(o)) isDirty = true;
-        });
-    }
-
-    public void loadServiceNotes(){
+    public void loadServiceNotes() {
         String notes = ViewControllerQueries.loadServiceNotes(currentWorkOrder.getWorkorderNumber());
-        if (notes != null) {
-            serviceNotesTXT.setText(notes);
-        } else {
-            serviceNotesTXT.clear();
-        }
+        serviceNotesTXT.setText(notes != null ? notes : "");
     }
+
+    public void insertNotes(TextArea area) {
+        String stamp = "[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "]: ";
+        String text  = area.getText();
+        int caret    = area.getCaretPosition();
+
+        if (caret > 0 && text.charAt(caret - 1) != '\n') stamp = "\n" + stamp;
+
+        area.insertText(caret, stamp);
+        area.positionCaret(caret + stamp.length());
+    }
+
+    // ─── REPAIRS ────────────────────────────────────────────────────────────────
 
     @FXML
     public void onAddStep() {
@@ -435,21 +370,13 @@ public class ViewOrderController {
     }
 
     @FXML
-    public void addPart(){
-        if (isBillingComplete()) return;
-        PartTable row = new PartTable("",0,0.0,0);
-        attachPartListeners(row);
-        partsData.add(row);
-    }
-
-    @FXML
     public void repairComplete() {
         repairTable.requestFocus();
         tabPane.requestFocus();
         saveRepairsToDb();
 
         if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(currentWorkOrder.getWorkorderNumber())) {
-            new Alert(Alert.AlertType.WARNING, "Add at least one labour note (Tech + Description) before marking Repair Complete.", ButtonType.OK).showAndWait();
+            showWarning("Add at least one labour note (Tech + Description) before marking Repair Complete.");
             return;
         }
 
@@ -469,16 +396,178 @@ public class ViewOrderController {
         ViewControllerQueries.saveRepairsToDb(currentWorkOrder.getWorkorderNumber(), repairData);
     }
 
+    private void reloadRepairs() {
+        isLoading = true;
+        loadRepairsFromDb();
+        isLoading = false;
+        isDirty   = false;
+    }
+
+    private void attachRepairListeners(WorkTable r) {
+        r.techProperty().addListener((obs, o, n)        -> markDirtyIfChanged(o, n));
+        r.descriptionProperty().addListener((obs, o, n) -> markDirtyIfChanged(o, n));
+        r.dateProperty().addListener((obs, o, n)        -> markDirtyIfChanged(o, n));
+        r.priceProperty().addListener((obs, o, n)       -> { if (!isLoading && !n.equals(o)) isDirty = true; });
+    }
+
+    // ─── PARTS ──────────────────────────────────────────────────────────────────
+
+    @FXML
+    public void addPart() {
+        if (isBillingComplete()) return;
+        PartTable row = new PartTable("", 0, 0.0, 0);
+        attachPartListeners(row);
+        partsData.add(row);
+    }
+
+    private void loadPartsFromDb() {
+        partsData.clear();
+        for (PartTable row : ViewControllerQueries.loadPartsFromDb(currentWorkOrder.getWorkorderNumber())) {
+            attachPartListeners(row);
+            partsData.add(row);
+        }
+    }
+
+    private void savePartsToDb() {
+        ViewControllerQueries.savePartsToDb(currentWorkOrder.getWorkorderNumber(), partsData);
+    }
+
+    private void reloadParts() {
+        isLoading = true;
+        loadPartsFromDb();
+        isLoading = false;
+        isDirty   = false;
+    }
+
+    private void attachPartListeners(PartTable p) {
+        p.nameProperty().addListener((obs, o, n)       -> markDirtyIfChanged(o, n));
+        p.quantityProperty().addListener((obs, o, n)   -> { if (!isLoading && !n.equals(o)) isDirty = true; });
+        p.priceProperty().addListener((obs, o, n)      -> { if (!isLoading && !n.equals(o)) isDirty = true; });
+        p.totalPriceProperty().addListener((obs, o, n) -> { if (!isLoading && !n.equals(o)) isDirty = true; });
+    }
+
+    // ─── FILES ──────────────────────────────────────────────────────────────────
+
+    @FXML
+    public void addFile() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Select Files");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("All files", "*.*"));
+        File file = fc.showOpenDialog(dialogInstance.getScene().getWindow());
+        if (file == null) return;
+
+        try {
+            ViewControllerQueries.addFileToDb(currentWorkOrder.getWorkorderNumber(), file);
+            loadFilesFromDb();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadFilesFromDb() {
+        filesList.getItems().clear();
+        for (FilesHandler f : ViewControllerQueries.loadFilesFromDb(currentWorkOrder.getWorkorderNumber())) {
+            filesList.getItems().add(f);
+        }
+    }
+
+    public void onOpenSelectedFile() {
+        FilesHandler selected = filesList.getSelectionModel().getSelectedValue();
+        if (selected == null) return;
+        openFileFromDb(selected.getId());
+    }
+
+    public void openFileFromDb(int fileId) {
+        try {
+            Object[] result = ViewControllerQueries.openFileFromDb(fileId);
+            if (result == null) return;
+
+            String name    = (String) result[0];
+            InputStream in = (InputStream) result[1];
+            String ext     = name.contains(".") ? name.substring(name.lastIndexOf('.')) : "";
+
+            File tmp = File.createTempFile("wo_", ext);
+            tmp.deleteOnExit();
+            Files.copy(in, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            in.close();
+
+            openWithDesktop(tmp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void openWithDesktop(File file) {
+        new Thread(() -> {
+            try { Desktop.getDesktop().open(file); }
+            catch (IOException e) { e.printStackTrace(); }
+        }).start();
+    }
+
+    // ─── SAVE / UPDATE ORDER ────────────────────────────────────────────────────
+
+    @FXML
+    public void updateOrder() {
+        int woNumber = currentWorkOrder.getWorkorderNumber();
+
+        if (isBillingComplete()) {
+            ViewControllerQueries.updateServiceNotesInDb(woNumber, serviceNotesTXT.getText());
+            isDirty = false;
+            return;
+        }
+
+        int    techId = currentWorkOrder.getTechId();
+        String status = currentWorkOrder.getStatus();
+
+        if ("Repair Complete".equalsIgnoreCase(status)) {
+            if (techId <= 0) {
+                showWarning("Please select a technician before marking Repair Complete.");
+                return;
+            }
+            saveRepairsToDb();
+            if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(woNumber)) {
+                showWarning("Add at least one labour note (Tech + Description) before marking Repair Complete.");
+                return;
+            }
+        }
+
+        ViewControllerQueries.updateOrderInDb(
+                woNumber,
+                type.getText(), model.getText(), serialNumber.getText(),
+                problemDesc.getText(), vendorId.getText(), warrantyNumber.getText(),
+                serviceNotesTXT.getText(), techId, status
+        );
+
+        savePartsToDb();
+        saveRepairsToDb();
+        mainController.LoadOrders();
+        isDirty = false;
+    }
+
+    // ─── STATUS UPDATE ──────────────────────────────────────────────────────────
+
+    private void updateStatusInDb(String newStatus) {
+        ViewControllerQueries.updateStatusInDb(
+                currentWorkOrder.getWorkorderNumber(),
+                newStatus,
+                ViewControllerQueries.labourTotalDb(currentWorkOrder.getWorkorderNumber())
+        );
+
+        currentWorkOrder.setStatus(newStatus);
+        statusTFX.setText(newStatus);
+        partsStatusTFX.setText(newStatus);
+        mainController.LoadOrders();
+        applyBillingLockUI();
+    }
+
+    // ─── PAYMENT ────────────────────────────────────────────────────────────────
+
     @FXML
     public void Pay() throws Exception {
         ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
 
-        String st = currentWorkOrder.getStatus();
-        if (st == null || !st.equalsIgnoreCase("Repair Complete")) {
-            new Alert(Alert.AlertType.WARNING,
-                    "You must set the work order status to 'Repair Complete' before taking final payment.",
-                    ButtonType.OK
-            ).showAndWait();
+        if (!isRepairComplete()) {
+            showWarning("You must set the work order status to 'Repair Complete' before taking final payment.");
             return;
         }
 
@@ -498,13 +587,11 @@ public class ViewOrderController {
         if (invoiceType == InvoiceType.FINAL) {
             savePartsToDb();
             saveRepairsToDb();
-
             isLoading = true;
             loadPartsFromDb();
             loadRepairsFromDb();
             isLoading = false;
-            isDirty = false;
-
+            isDirty   = false;
             pc.setSuggestedAmount(finalDueDb());
         }
 
@@ -514,203 +601,82 @@ public class ViewOrderController {
         stage.setTitle("Payment");
         stage.setScene(new Scene(root));
         stage.showAndWait();
+
         loadFilesFromDb();
     }
 
-    @FXML
-    public void updateOrder() {
-        int woNumber = currentWorkOrder.getWorkorderNumber();
-        String newServiceNotes = serviceNotesTXT.getText();
-
-        if (isBillingComplete()) {
-            ViewControllerQueries.updateServiceNotesInDb(woNumber, newServiceNotes);
-            isDirty = false;
-            System.out.println("updated service notes (Billing Complete)");
-            return;
-        }
-
-        String newType = type.getText();
-        String newModel = model.getText();
-        String newSerialNumber = serialNumber.getText();
-        String newProblemDesc = problemDesc.getText();
-        String newVendorId = vendorId.getText();
-        String newWarrantyNumber = warrantyNumber.getText();
-
-        int techId = currentWorkOrder.getTechId();
-        String status = currentWorkOrder.getStatus();
-
-        if ("Repair Complete".equalsIgnoreCase(status)) {
-            if (techId <= 0) {
-                new Alert(Alert.AlertType.WARNING,
-                        "Please select a technician before marking Repair Complete.",
-                        ButtonType.OK
-                ).showAndWait();
-                return;
-            }
-
-            saveRepairsToDb();
-
-            if (!ViewControllerQueries.hasAtLeastOneLabourNoteDb(woNumber)) {
-                new Alert(Alert.AlertType.WARNING,
-                        "Add at least one labour note (Tech + Description) before marking Repair Complete.",
-                        ButtonType.OK
-                ).showAndWait();
-                return;
-            }
-        }
-
-        ViewControllerQueries.updateOrderInDb(woNumber, newType, newModel, newSerialNumber,
-                newProblemDesc, newVendorId, newWarrantyNumber, newServiceNotes, techId, status);
-
-        savePartsToDb();
-        saveRepairsToDb();
-
-        mainController.LoadOrders();
-
-        System.out.println("updated order (FULL SAVE)");
-        isDirty = false;
-    }
-
-    @FXML
-    public void addFile() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Select Files");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("All files", "*.*"));
-        File file = fc.showOpenDialog(dialogInstance.getScene().getWindow());
-        if (file == null) return;
-
-        try {
-            ViewControllerQueries.addFileToDb(currentWorkOrder.getWorkorderNumber(), file);
-            loadFilesFromDb();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onOpenSelectedFile() {
-        FilesHandler selected = filesList.getSelectionModel().getSelectedValue();
-        if (selected == null) return;
-        openFileFromDb(selected.getId());
-    }
-
-    public void openFileFromDb(int fileId){
-        try {
-            Object[] result = ViewControllerQueries.openFileFromDb(fileId);
-            if (result == null) return;
-
-            String name = (String) result[0];
-            InputStream in = (InputStream) result[1];
-
-            String ext = "";
-            int dot = name.lastIndexOf('.');
-            if (dot > -1) ext = name.substring(dot);
-
-            File tmp = File.createTempFile("wo_", ext);
-            tmp.deleteOnExit();
-
-            Files.copy(in, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            in.close();
-
-            openWithDesktop(tmp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void loadFilesFromDb() {
-        filesList.getItems().clear();
-        for (FilesHandler f : ViewControllerQueries.loadFilesFromDb(currentWorkOrder.getWorkorderNumber())) {
-            filesList.getItems().add(f);
-        }
-    }
-
-    private void savePartsToDb() {
-        ViewControllerQueries.savePartsToDb(currentWorkOrder.getWorkorderNumber(), partsData);
-    }
-
-    private void loadPartsFromDb() {
-        partsData.clear();
-        for (PartTable row : ViewControllerQueries.loadPartsFromDb(currentWorkOrder.getWorkorderNumber())) {
-            attachPartListeners(row);
-            partsData.add(row);
-        }
-    }
+    // ─── PRINT ──────────────────────────────────────────────────────────────────
 
     @FXML
     public void printOrder() throws Exception {
-        WorkOrder wo = currentWorkOrder;
-        Customer co = currentCustomer;
         Window owner = dialogInstance.getScene().getWindow();
         DocumentOutput.printOrPdf(
-                "WO_" + wo.getWorkorderNumber(),
+                "WO_" + currentWorkOrder.getWorkorderNumber(),
                 "/main/printOrder.fxml",
                 loader -> {
                     PrinterController pc = loader.getController();
-                    pc.initData(wo, co);},
+                    pc.initData(currentWorkOrder, currentCustomer);
+                },
                 owner
         );
     }
 
-    public void openWithDesktop(File file){
-        Thread thread = new Thread(){
-            @Override
-            public void run(){
-                try{
-                    Desktop.getDesktop().open(file);
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
-    }
-
-    private double finalDueDb() {
-        int woNumber = currentWorkOrder.getWorkorderNumber();
-        double labour = ViewControllerQueries.labourTotalDb(woNumber);
-        double parts = ViewControllerQueries.partsTotalDb(woNumber);
-        double deposit = ViewControllerQueries.depositFromDb(woNumber);
-        return Math.max(0, labour + parts - deposit);
-    }
-
-    private boolean isBillingComplete() {
-        String s = currentWorkOrder.getStatus();
-        if (s == null) return false;
-        return s.equalsIgnoreCase("Billing Complete");
-    }
+    // ─── CLOSE DIALOG ───────────────────────────────────────────────────────────
 
     @FXML
     public void closeDialog() {
-        if (isDirty) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Unsaved Changes");
-            alert.setHeaderText("You have unsaved changes.");
-            alert.setContentText("Do you want to save before closing?");
+        if (!isDirty) { actuallyCloseDialog(); return; }
 
-            ButtonType saveBtn = new ButtonType("Yes (Save)");
-            ButtonType discardBtn = new ButtonType("No (Discard)");
-            ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Unsaved Changes");
+        alert.setHeaderText("You have unsaved changes.");
+        alert.setContentText("Do you want to save before closing?");
 
-            alert.getButtonTypes().setAll(saveBtn, discardBtn, cancelBtn);
+        ButtonType saveBtn    = new ButtonType("Yes (Save)");
+        ButtonType discardBtn = new ButtonType("No (Discard)");
+        ButtonType cancelBtn  = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(saveBtn, discardBtn, cancelBtn);
 
-            alert.showAndWait().ifPresent(response -> {
-                if (response == saveBtn) {
-                    updateOrder();
-                    actuallyCloseDialog();
-                }
-                else if (response == discardBtn) {
-                    actuallyCloseDialog();
-                }
-            });
-
-        } else {
-            actuallyCloseDialog();
-        }
+        alert.showAndWait().ifPresent(response -> {
+            if (response == saveBtn)         { updateOrder(); actuallyCloseDialog(); }
+            else if (response == discardBtn) { actuallyCloseDialog(); }
+        });
     }
 
     private void actuallyCloseDialog() {
         mainController.rootStack.getChildren().remove(dialogInstance);
         mainController.contentPane.setEffect(null);
         mainController.contentPane.setDisable(false);
+    }
+
+    // ─── UTILITY / HELPERS ──────────────────────────────────────────────────────
+
+    private boolean isBillingComplete() {
+        String s = currentWorkOrder.getStatus();
+        return s != null && s.equalsIgnoreCase("Billing Complete");
+    }
+
+    private boolean isRepairComplete() {
+        String s = currentWorkOrder.getStatus();
+        return s != null && s.equalsIgnoreCase("Repair Complete");
+    }
+
+    private double finalDueDb() {
+        int woNumber = currentWorkOrder.getWorkorderNumber();
+        return Math.max(0,
+                ViewControllerQueries.labourTotalDb(woNumber)
+                        + ViewControllerQueries.partsTotalDb(woNumber)
+                        - ViewControllerQueries.depositFromDb(woNumber)
+        );
+    }
+
+    /** Marks isDirty only when not loading and the value actually changed. */
+    private void markDirtyIfChanged(Object oldVal, Object newVal) {
+        if (!isLoading && (oldVal == null ? newVal != null : !oldVal.equals(newVal))) isDirty = true;
+    }
+
+    /** Shows a WARNING alert with a single OK button. */
+    private void showWarning(String message) {
+        new Alert(Alert.AlertType.WARNING, message, ButtonType.OK).showAndWait();
     }
 }
