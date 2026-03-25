@@ -70,8 +70,8 @@ public class TableMethods {
         });
 
         MFXTableColumn<WorkTable> techCol = new MFXTableColumn<>("Tech");
-        techCol.setRowCellFactory(item->{
-            MFXTableRowCell<WorkTable,String> cell = new MFXTableRowCell<>(WorkTable::getTech);
+        techCol.setRowCellFactory(item -> {
+            MFXTableRowCell<WorkTable, String> cell = new MFXTableRowCell<>(WorkTable::getTech);
             ComboBox<String> box = new ComboBox<>();
             box.setItems(techNames);
             box.valueProperty().bindBidirectional(item.techProperty());
@@ -80,21 +80,42 @@ public class TableMethods {
             return cell;
         });
 
-        MFXTableColumn<WorkTable> descCol = new MFXTableColumn<>("Description" );
+        MFXTableColumn<WorkTable> descCol = new MFXTableColumn<>("Description");
         descCol.setPrefWidth(300);
-        descCol.setRowCellFactory(item->{
+        descCol.setRowCellFactory(item -> {
             MFXTableRowCell<WorkTable, String> cell = new MFXTableRowCell<>(WorkTable::getDescription);
+
             TextArea area = new TextArea();
             area.textProperty().bindBidirectional(item.descriptionProperty());
             area.setWrapText(true);
+            area.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
+            area.setPrefHeight(44);
+            area.setMinHeight(44);
+            area.setMaxHeight(44);
+
+            area.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                if (isFocused) {
+                    area.setPrefHeight(260);
+                    area.setMinHeight(260);
+                    area.setMaxHeight(260);
+                    cell.setClip(null);
+                    if (cell.getParent() != null) cell.getParent().setClip(null);
+                    area.toFront();
+                } else {
+                    area.setPrefHeight(44);
+                    area.setMinHeight(44);
+                    area.setMaxHeight(44);
+                }
+            });
+
             cell.setGraphic(area);
             cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             return cell;
         });
 
-        MFXTableColumn<WorkTable> priceCol = new MFXTableColumn<>("Price" );;
-        priceCol.setRowCellFactory(item->{
-            MFXTableRowCell<WorkTable,Double> cell = new MFXTableRowCell<>(WorkTable::getPrice);
+        MFXTableColumn<WorkTable> priceCol = new MFXTableColumn<>("Price");
+        priceCol.setRowCellFactory(item -> {
+            MFXTableRowCell<WorkTable, Double> cell = new MFXTableRowCell<>(WorkTable::getPrice);
             TextField field = new TextField();
             field.textProperty().bindBidirectional(item.priceProperty(), new NumberStringConverter());
             field.setAlignment(Pos.CENTER_RIGHT);
@@ -138,16 +159,12 @@ public class TableMethods {
             TextField tf = new TextField(String.valueOf(item.getQuantity()));
 
             tf.textProperty().addListener((obs, oldVal, newVal) -> {
-                // only digits
                 if (!newVal.matches("\\d*")) {
                     tf.setText(oldVal);
                     return;
                 }
-
                 int qty = newVal.isEmpty() ? 0 : Integer.parseInt(newVal);
                 item.setQuantity(qty);
-
-                // recalc total
                 item.setTotalPrice(item.getQuantity() * item.getPrice());
             });
 
@@ -164,16 +181,12 @@ public class TableMethods {
             TextField tf = new TextField(String.valueOf(item.getPrice()));
 
             tf.textProperty().addListener((obs, oldVal, newVal) -> {
-                // allow: "", "123", "123.", "123.45"
                 if (!newVal.matches("\\d*(\\.\\d*)?")) {
                     tf.setText(oldVal);
                     return;
                 }
-
                 double price = newVal.isEmpty() || newVal.equals(".") ? 0.0 : Double.parseDouble(newVal);
                 item.setPrice(price);
-
-                // recalc total
                 item.setTotalPrice(item.getQuantity() * item.getPrice());
             });
 
@@ -192,7 +205,6 @@ public class TableMethods {
             tf.setEditable(false);
             tf.setFocusTraversable(false);
 
-            // keep text in sync with model
             item.totalPriceProperty().addListener((obs, oldVal, newVal) -> {
                 tf.setText(String.valueOf(newVal.doubleValue()));
             });
