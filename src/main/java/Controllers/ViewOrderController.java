@@ -621,6 +621,20 @@ public class ViewOrderController {
         );
     }
 
+    @FXML
+    public void printRepaired() throws Exception {
+        Window owner = dialogInstance.getScene().getWindow();
+        DocumentOutput.printOrPdf(
+                "WO_REPAIRED_" + currentWorkOrder.getWorkorderNumber(),
+                "/main/repairComplete.fxml",
+                loader -> {
+                    PrintRepairController pc = loader.getController();
+                    pc.initData(currentWorkOrder, currentCustomer, repairData, partsData);
+                },
+                owner
+        );
+    }
+
     // ─── CLOSE DIALOG ───────────────────────────────────────────────────────────
 
     @FXML
