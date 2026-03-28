@@ -626,7 +626,7 @@ public class ViewOrderController {
         Window owner = dialogInstance.getScene().getWindow();
         DocumentOutput.printOrPdf(
                 "WO_REPAIRED_" + currentWorkOrder.getWorkorderNumber(),
-                "/main/repairComplete.fxml",
+                "/main/repairCompletedNew.fxml",
                 loader -> {
                     PrintRepairController pc = loader.getController();
                     pc.initData(currentWorkOrder, currentCustomer, repairData, partsData);
