@@ -239,7 +239,7 @@
             </Text>
          </children>
       </VBox>
-      <Text fx:id="woTXT" layoutX="478.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="123140" textAlignment="CENTER">
+      <Text fx:id="woTXT" layoutX="475.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="6" textAlignment="CENTER" wrappingWidth="117.0">
          <font>
             <Font size="32.0" />
          </font>
