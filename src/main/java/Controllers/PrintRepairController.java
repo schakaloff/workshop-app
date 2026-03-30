@@ -6,12 +6,9 @@ import Skeletons.WorkTable;
 import Skeletons.WorkOrder;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -20,54 +17,69 @@ import java.time.format.DateTimeFormatter;
 
 public class PrintRepairController {
 
-    // ─── Customer box ────────────────────────────────────────────────────────────
+    // ─── Customer ────────────────────────────────────────────────────────────────
     @FXML private Text cxNameTXT;
     @FXML private Text adressTXT;
     @FXML private Text custIDTxt;
     @FXML private Text phoneTXT;
     @FXML private Text cityProvinceCodeTXT;
 
-    // ─── WO number ───────────────────────────────────────────────────────────────
+    // ─── WO / dates ──────────────────────────────────────────────────────────────
     @FXML private Text woTXT;
-
-    // ─── Dates ───────────────────────────────────────────────────────────────────
     @FXML private Text dateReceivedTXF;
     @FXML private Text dateCompletedTXT;
 
-    // ─── Warranty row ────────────────────────────────────────────────────────────
+    // ─── Warranty ────────────────────────────────────────────────────────────────
     @FXML private Text yesOrNoTXT;
     @FXML private Text vendorTXT;
     @FXML private Text warrantyNumTXT;
     @FXML private Text POTXT;
 
-    // ─── Device / problem box ────────────────────────────────────────────────────
-    @FXML private Text     unitDescTXT;
-    @FXML private Text     serialNumberTXT;
-    @FXML private TextArea problemTXTArea;
+    // ─── Device ──────────────────────────────────────────────────────────────────
+    @FXML private Text unitDescTXT;
+    @FXML private Text serialNumberTXT;
+    @FXML private Text problemTXTArea;
 
-    // ─── Dynamic table containers ────────────────────────────────────────────────
-    @FXML private VBox labourContainer;   // labour rows injected here
-    @FXML private VBox partsSection;      // parts header + rows
+    // ─── Labour rows container ────────────────────────────────────────────────────
+    @FXML private VBox labourVBox;
 
-    // ─── Totals box ──────────────────────────────────────────────────────────────
+    // ─── Parts header nodes (moved down dynamically) ──────────────────────────────
+    @FXML private Rectangle partsHeaderRect;
+    @FXML private Text      partsLabelPart;
+    @FXML private Text      partsLabelQty;
+    @FXML private Text      partsLabelUnit;
+    @FXML private Text      partsLabelTotal;
+
+    // ─── Parts rows container ─────────────────────────────────────────────────────
+    @FXML private VBox partsVBox;
+
+    // ─── Totals ──────────────────────────────────────────────────────────────────
     @FXML private Text totalLabourTXT;
     @FXML private Text totalPartsTXT;
     @FXML private Text totalTaxesTXT;
     @FXML private Text totalTXT;
 
     // ─── Constants ───────────────────────────────────────────────────────────────
-    private static final double TAX_RATE     = 0.12;
-    private static final String CURRENCY_FMT = "$%.2f";
-    private static final double MAX_TABLE_H  = 280.0; // px available before totals box
+    private static final double TAX_RATE      = 0.12;
+    private static final String CURRENCY_FMT  = "$%.2f";
+    private static final double ROW_H         = 16.0;
+    private static final double LABOUR_Y      = 446.0; // must match FXML labourVBox layoutY
+    private static final double PARTS_GAP     = 8.0;
+    private static final double HEADER_H      = 16.0;
+
+    // Column X positions — must match FXML header Text layoutX
+    private static final double L_TECH  = 2.0;
+    private static final double L_DATE  = 90.0;
+    private static final double L_DESC  = 175.0;
+    private static final double L_PRICE = 543.0;
+
+    private static final double P_NAME  = 2.0;
+    private static final double P_QTY   = 354.0;
+    private static final double P_UNIT  = 424.0;
+    private static final double P_TOTAL = 524.0;
 
     private static final DateTimeFormatter DATE_FMT =
             DateTimeFormatter.ofPattern("MMM dd, yyyy");
-
-    // ─── Column widths (must sum to ~590) ────────────────────────────────────────
-    // Labour:  Date | Tech | Description | Price
-    private static final double[] LABOUR_COLS = { 80, 90, 350, 70 };
-    // Parts:   Name | Qty  | Unit Price  | Total
-    private static final double[] PARTS_COLS  = { 200, 55, 100, 70, 70 };
 
     // ─── Entry point ─────────────────────────────────────────────────────────────
 
@@ -82,10 +94,14 @@ public class PrintRepairController {
         populateDevice(wo);
         woTXT.setText(String.valueOf(wo.getWorkorderNumber()));
 
-        buildLabourGrid(repairData);
-        buildPartsGrid(partsData);
+        buildLabourRows(repairData);
+
+        // Defer parts repositioning to after JavaFX has laid out labourVBox
+        javafx.application.Platform.runLater(() -> {
+            repositionParts(repairData.size());
+            buildPartsRows(partsData);
+        });
         populateTotals(repairData, partsData);
-        applyScaleIfNeeded();
     }
 
     // ─── Populate helpers ────────────────────────────────────────────────────────
@@ -118,6 +134,91 @@ public class PrintRepairController {
         problemTXTArea.setText(nullSafe(wo.getProblemDesc()));
     }
 
+    // ─── Labour rows ─────────────────────────────────────────────────────────────
+
+    private void buildLabourRows(ObservableList<WorkTable> repairData) {
+        labourVBox.getChildren().clear();
+
+        for (WorkTable row : repairData) {
+            String tech  = nullSafe(row.getTech());
+            String date  = row.getDate() != null ? row.getDate().toString() : "";
+            String desc  = nullSafe(row.getDescription());
+            String price = String.format(CURRENCY_FMT, row.getPrice());
+
+            // Each row is an AnchorPane so Text nodes pin to exact X positions
+            AnchorPane ap = new AnchorPane();
+            ap.setPrefWidth(590);
+            ap.setPrefHeight(AnchorPane.USE_COMPUTED_SIZE);
+            ap.setMinHeight(ROW_H);
+            ap.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 0.5 0;");
+
+            ap.getChildren().addAll(
+                    pin(tech,  L_TECH),
+                    pin(date,  L_DATE),
+                    pinWrapped(desc, L_DESC, 355.0, 8.0),  // smaller font to fit more text
+                    pin(price, L_PRICE)
+            );
+            labourVBox.getChildren().add(ap);
+        }
+    }
+
+    // ─── Parts repositioning ─────────────────────────────────────────────────────
+
+    /**
+     * Moves all parts header nodes and partsVBox down based on the actual
+     * rendered height of labourVBox — accounts for rows that wrap to multiple lines.
+     */
+    private void repositionParts(int labourRowCount) {
+        // Force labourVBox to compute its layout so getHeight() is accurate
+        labourVBox.applyCss();
+        labourVBox.layout();
+
+        double labourActualH = labourVBox.getBoundsInLocal().getHeight();
+        // Fall back to row count estimate if layout hasn't run yet (height == 0)
+        if (labourActualH <= 0) {
+            labourActualH = labourRowCount * ROW_H;
+        }
+
+        double newHeaderY = LABOUR_Y + labourActualH + PARTS_GAP;
+        double newVBoxY   = newHeaderY + HEADER_H;
+
+        partsHeaderRect.setLayoutY(newHeaderY);
+        partsLabelPart.setLayoutY(newHeaderY + 12);
+        partsLabelQty.setLayoutY(newHeaderY + 12);
+        partsLabelUnit.setLayoutY(newHeaderY + 12);
+        partsLabelTotal.setLayoutY(newHeaderY + 12);
+        partsVBox.setLayoutY(newVBoxY);
+    }
+
+    // ─── Parts rows ──────────────────────────────────────────────────────────────
+
+    private void buildPartsRows(ObservableList<PartTable> partsData) {
+        partsVBox.getChildren().clear();
+
+        for (PartTable row : partsData) {
+            String name  = nullSafe(row.getName());
+            String qty   = String.valueOf(row.getQuantity());
+            String unit  = String.format(CURRENCY_FMT, row.getPrice());
+            String total = String.format(CURRENCY_FMT, row.getTotalPrice());
+
+            AnchorPane ap = new AnchorPane();
+            ap.setPrefWidth(590);
+            ap.setPrefHeight(AnchorPane.USE_COMPUTED_SIZE);
+            ap.setMinHeight(ROW_H);
+            ap.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 0.5 0;");
+
+            ap.getChildren().addAll(
+                    pinWrapped(name, P_NAME, 345.0),   // capped before qty column
+                    pin(qty,   P_QTY),
+                    pin(unit,  P_UNIT),
+                    pin(total, P_TOTAL)
+            );
+            partsVBox.getChildren().add(ap);
+        }
+    }
+
+    // ─── Totals ──────────────────────────────────────────────────────────────────
+
     private void populateTotals(ObservableList<WorkTable> repairData,
                                 ObservableList<PartTable>  partsData) {
         double labour = repairData.stream().mapToDouble(WorkTable::getPrice).sum();
@@ -131,108 +232,30 @@ public class PrintRepairController {
         totalTXT.setText(String.format(CURRENCY_FMT, total));
     }
 
-    // ─── Labour GridPane ─────────────────────────────────────────────────────────
+    // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-    private void buildLabourGrid(ObservableList<WorkTable> repairData) {
-        GridPane grid = makeGrid(LABOUR_COLS);
-
-        int rowIdx = 0;
-        for (WorkTable row : repairData) {
-            String date  = row.getDate() != null ? row.getDate().toString() : "";
-            String tech  = nullSafe(row.getTech());
-            String desc  = nullSafe(row.getDescription());
-            String price = String.format(CURRENCY_FMT, row.getPrice());
-
-            addCell(grid, date,  rowIdx, 0, LABOUR_COLS[0] - 4, false);
-            addCell(grid, tech,  rowIdx, 1, LABOUR_COLS[1] - 4, false);
-            addCell(grid, desc,  rowIdx, 2, LABOUR_COLS[2] - 4, true);  // wraps
-            addCell(grid, price, rowIdx, 3, LABOUR_COLS[3] - 4, false);
-
-            rowIdx++;
-        }
-
-        labourContainer.getChildren().add(grid);
+    /** Creates a Text node pinned to a specific X position inside an AnchorPane. */
+    private Text pin(String value, double x) {
+        Text t = new Text(value);
+        t.setFont(Font.font(11));
+        AnchorPane.setLeftAnchor(t, x);
+        AnchorPane.setTopAnchor(t, 3.0);
+        return t;
     }
 
-    // ─── Parts GridPane ──────────────────────────────────────────────────────────
-
-    private void buildPartsGrid(ObservableList<PartTable> partsData) {
-        GridPane grid = makeGrid(PARTS_COLS);
-
-        int rowIdx = 0;
-        for (PartTable row : partsData) {
-            String name      = nullSafe(row.getName());
-            String qty       = String.valueOf(row.getQuantity());
-            String unitPrice = String.format(CURRENCY_FMT, row.getPrice());
-            String total     = String.format(CURRENCY_FMT, row.getTotalPrice());
-
-            addCell(grid, name,      rowIdx, 0, PARTS_COLS[0] - 4, true);
-            addCell(grid, qty,       rowIdx, 1, PARTS_COLS[1] - 4, false);
-            addCell(grid, unitPrice, rowIdx, 2, PARTS_COLS[2] - 4, false);
-            addCell(grid, total,     rowIdx, 3, PARTS_COLS[3] - 4, false);
-
-            rowIdx++;
-        }
-
-        // Append data rows below the header AnchorPane already in the FXML
-        partsSection.getChildren().add(grid);
+    /** Same as pin() but caps the text at maxWidth and allows a custom font size. */
+    private Text pinWrapped(String value, double x, double maxWidth) {
+        return pinWrapped(value, x, maxWidth, 11.0);
     }
 
-    // ─── Grid helpers ────────────────────────────────────────────────────────────
-
-    private GridPane makeGrid(double[] colWidths) {
-        GridPane grid = new GridPane();
-        grid.setStyle("-fx-border-color: #cccccc; -fx-border-width: 0.5;");
-
-        for (double w : colWidths) {
-            ColumnConstraints cc = new ColumnConstraints(w);
-            cc.setHgrow(Priority.NEVER);
-            grid.getColumnConstraints().add(cc);
-        }
-
-        return grid;
+    private Text pinWrapped(String value, double x, double maxWidth, double fontSize) {
+        Text t = new Text(value);
+        t.setFont(Font.font(fontSize));
+        t.setWrappingWidth(maxWidth);
+        AnchorPane.setLeftAnchor(t, x);
+        AnchorPane.setTopAnchor(t, 3.0);
+        return t;
     }
-
-    /**
-     * Adds a Text node into the GridPane cell.
-     * @param wrap  when true the text wraps at the column width (long descriptions)
-     */
-    private void addCell(GridPane grid, String value,
-                         int row, int col, double maxWidth, boolean wrap) {
-        Text text = new Text(value);
-        text.setFont(Font.font(10));
-
-        if (wrap) {
-            text.setWrappingWidth(maxWidth);
-        }
-
-        GridPane.setMargin(text, new Insets(2, 3, 2, 3));
-        grid.add(text, col, row);
-    }
-
-    // ─── Scale fallback ──────────────────────────────────────────────────────────
-
-    /**
-     * If combined labour + parts area exceeds MAX_TABLE_H, scale both containers
-     * down proportionally so everything fits on one printed page.
-     */
-    private void applyScaleIfNeeded() {
-        labourContainer.layoutBoundsProperty().addListener((obs, oldB, newB) -> {
-            double labourH = newB.getHeight();
-            double partsH  = partsSection.getBoundsInLocal().getHeight();
-            double combined = labourH + partsH;
-
-            if (combined > MAX_TABLE_H) {
-                double scale = MAX_TABLE_H / combined;
-                labourContainer.setScaleX(scale);
-                labourContainer.setScaleY(scale);
-                partsSection.setScaleX(scale);
-                partsSection.setScaleY(scale);
-            }
-        });
-    }
-
-    // ─── Utility ─────────────────────────────────────────────────────────────────
 
     private String nullSafe(String value) {
         return value != null ? value : "";
