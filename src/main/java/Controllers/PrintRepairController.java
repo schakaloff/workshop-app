@@ -155,7 +155,7 @@ public class PrintRepairController {
             ap.getChildren().addAll(
                     pin(tech,  L_TECH),
                     pin(date,  L_DATE),
-                    pinWrapped(desc, L_DESC, 355.0, 8.0),  // smaller font to fit more text
+                    pinWrapped(desc, L_DESC, 355.0, 9.0),  // smaller font to fit more text
                     pin(price, L_PRICE)
             );
             labourVBox.getChildren().add(ap);
