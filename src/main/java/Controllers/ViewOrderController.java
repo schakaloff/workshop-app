@@ -113,6 +113,7 @@ public class ViewOrderController {
 
         refreshTechList();
         setupTables();
+        setupSpellCheck();
         setupServiceNotesExpand();
         setupDirtyListeners();
         setupTechComboListener();
@@ -121,6 +122,14 @@ public class ViewOrderController {
         setupDeletingHandlers();
     }
 
+    private void setupSpellCheck() {
+        SpellCheckUtil.attach(type);
+        SpellCheckUtil.attach(model);
+        SpellCheckUtil.attach(serialNumber);
+        SpellCheckUtil.attach(warrantyNumber);
+        SpellCheckUtil.attach(problemDesc);
+        SpellCheckUtil.attach(serviceNotesTXT);
+    }
 
     // ─── INIT DATA (called after initialize) ────────────────────────────────────
 
