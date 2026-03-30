@@ -52,7 +52,7 @@
             <Text fx:id="cxNameTXT" layoutX="3.0" layoutY="28.0"><font><Font size="11.0" /></font></Text>
             <Text fx:id="adressTXT" layoutX="3.0" layoutY="44.0"><font><Font size="11.0" /></font></Text>
             <Text fx:id="custIDTxt" layoutX="247.0" layoutY="29.0" text="123" textAlignment="CENTER" wrappingWidth="34.29199981689453"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="phoneTXT" layoutX="223.0" layoutY="75.0" text="7802783635" textAlignment="CENTER"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="phoneTXT" layoutX="221.0" layoutY="75.0" text="7802783635" textAlignment="CENTER"><font><Font size="11.0" /></font></Text>
             <Text fx:id="cityProvinceCodeTXT" layoutX="3.0" layoutY="58.0"><font><Font size="11.0" /></font></Text>
          </children>
       </Group>
