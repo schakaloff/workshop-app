@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.Group?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
@@ -51,8 +52,8 @@
             <Text layoutX="246.0" layoutY="61.0" text="Phone"><font><Font size="11.0" /></font></Text>
             <Text fx:id="cxNameTXT" layoutX="3.0" layoutY="28.0"><font><Font size="11.0" /></font></Text>
             <Text fx:id="adressTXT" layoutX="3.0" layoutY="44.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="custIDTxt" layoutX="247.0" layoutY="29.0" text="123" textAlignment="CENTER" wrappingWidth="34.29199981689453"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="phoneTXT" layoutX="221.0" layoutY="75.0" text="7802783635" textAlignment="CENTER"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="custIDTxt" layoutX="248.0" layoutY="29.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="phoneTXT" layoutX="211.0" layoutY="75.0"><font><Font size="11.0" /></font></Text>
             <Text fx:id="cityProvinceCodeTXT" layoutX="3.0" layoutY="58.0"><font><Font size="11.0" /></font></Text>
          </children>
       </Group>
@@ -90,28 +91,30 @@
       </Group>
 
       <!-- ─── Labour header (static) ───────────────────────────────── -->
-      <Rectangle arcHeight="0" arcWidth="0" fill="#d3d3d3" height="16.0" layoutX="4.0" layoutY="430.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.5" width="590.0" />
-      <Text layoutX="6.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Tech"><font><Font size="11.0" /></font></Text>
-      <Text layoutX="96.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Date"><font><Font size="11.0" /></font></Text>
-      <Text layoutX="181.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Description"><font><Font size="11.0" /></font></Text>
-      <Text layoutX="549.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Price"><font><Font size="11.0" /></font></Text>
+      <Rectangle arcWidth="0" arcHeight="0" fill="#d3d3d3" height="16.0" layoutX="4.0" layoutY="430.0"
+                 stroke="BLACK" strokeType="INSIDE" strokeWidth="0.5" width="590.0" />
+      <Text layoutX="6.0"   layoutY="442.0" style="-fx-font-weight:bold;" text="Tech"><font><Font size="11.0"/></font></Text>
+      <Text layoutX="96.0"  layoutY="442.0" style="-fx-font-weight:bold;" text="Date"><font><Font size="11.0"/></font></Text>
+      <Text layoutX="181.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Description"><font><Font size="11.0"/></font></Text>
+      <Text layoutX="549.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Price"><font><Font size="11.0"/></font></Text>
 
       <!-- Labour rows — injected at Y=446 by controller as Text nodes in VBox -->
       <VBox fx:id="labourVBox" layoutX="4.0" layoutY="446.0" prefWidth="590.0" spacing="0.0" />
 
       <!-- ─── Parts header — repositioned by controller ─────────────── -->
-      <Rectangle fx:id="partsHeaderRect" arcHeight="0" arcWidth="0" fill="#d3d3d3" height="16.0" layoutX="4.0" layoutY="560.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.5" width="590.0" />
-      <Text fx:id="partsLabelPart" layoutX="6.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Part"><font><Font size="11.0" /></font></Text>
-      <Text fx:id="partsLabelQty" layoutX="360.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Qty"><font><Font size="11.0" /></font></Text>
-      <Text fx:id="partsLabelUnit" layoutX="430.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Unit Price"><font><Font size="11.0" /></font></Text>
-      <Text fx:id="partsLabelTotal" layoutX="530.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Total"><font><Font size="11.0" /></font></Text>
+      <Rectangle fx:id="partsHeaderRect" arcWidth="0" arcHeight="0" fill="#d3d3d3" height="16.0"
+                 layoutX="4.0" layoutY="560.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.5" width="590.0" />
+      <Text fx:id="partsLabelPart"  layoutX="6.0"   layoutY="572.0" style="-fx-font-weight:bold;" text="Part"><font><Font size="11.0"/></font></Text>
+      <Text fx:id="partsLabelQty"   layoutX="360.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Qty"><font><Font size="11.0"/></font></Text>
+      <Text fx:id="partsLabelUnit"  layoutX="430.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Unit Price"><font><Font size="11.0"/></font></Text>
+      <Text fx:id="partsLabelTotal" layoutX="530.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Total"><font><Font size="11.0"/></font></Text>
 
       <!-- Parts rows — injected by controller as Text nodes in VBox -->
       <VBox fx:id="partsVBox" layoutX="4.0" layoutY="576.0" prefWidth="590.0" spacing="0.0" />
 
       <!-- ─── Totals box ────────────────────────────────────────────── -->
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="465.0" layoutY="748.0" stroke="BLACK" strokeType="INSIDE" width="129.0" />
-      <VBox layoutX="471.0" layoutY="753.0" prefHeight="77.0" prefWidth="59.0" spacing="4.0">
+      <Rectangle fx:id="totalsRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="465.0" layoutY="748.0" stroke="BLACK" strokeType="INSIDE" width="129.0" />
+      <VBox fx:id="totalsLabelVBox" layoutX="471.0" layoutY="753.0" prefHeight="77.0" prefWidth="59.0" spacing="4.0">
          <children>
             <Text text="Labour:" />
             <Text text="Parts:" />
@@ -119,17 +122,17 @@
             <Text text="TOTAL:"><font><Font size="14.0" /></font></Text>
          </children>
       </VBox>
-      <VBox layoutX="532.0" layoutY="753.0" prefHeight="77.0" prefWidth="59.0" spacing="4.0">
+      <VBox fx:id="totalsValueVBox" layoutX="532.0" layoutY="753.0" prefHeight="77.0" prefWidth="59.0" spacing="4.0">
          <children>
             <Text fx:id="totalLabourTXT" text="" />
-            <Text fx:id="totalPartsTXT" text="" />
-            <Text fx:id="totalTaxesTXT" text="" />
-            <Text fx:id="totalTXT" text=""><font><Font size="14.0" /></font></Text>
+            <Text fx:id="totalPartsTXT"  text="" />
+            <Text fx:id="totalTaxesTXT"  text="" />
+            <Text fx:id="totalTXT"       text=""><font><Font size="14.0" /></font></Text>
          </children>
       </VBox>
 
       <!-- Footer signature line -->
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="2.0" layoutY="805.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+      <Rectangle fx:id="footerRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="2.0" layoutY="805.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
 
    </children>
 </AnchorPane>

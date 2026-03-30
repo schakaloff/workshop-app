@@ -57,10 +57,14 @@ public class PrintRepairController {
     @FXML private VBox partsVBox;
 
     // ─── Totals ──────────────────────────────────────────────────────────────────
-    @FXML private Text totalLabourTXT;
-    @FXML private Text totalPartsTXT;
-    @FXML private Text totalTaxesTXT;
-    @FXML private Text totalTXT;
+    @FXML private Text      totalLabourTXT;
+    @FXML private Text      totalPartsTXT;
+    @FXML private Text      totalTaxesTXT;
+    @FXML private Text      totalTXT;
+    @FXML private Rectangle totalsRect;
+    @FXML private VBox      totalsLabelVBox;
+    @FXML private VBox      totalsValueVBox;
+    @FXML private Rectangle footerRect;
 
     // ─── Pagination state ────────────────────────────────────────────────────────
     // Holds overflow parts rows that didn't fit on page 1
@@ -258,7 +262,7 @@ public class PrintRepairController {
             ap.getChildren().addAll(
                     pin(tech,  L_TECH),
                     pin(date,  L_DATE),
-                    pinWrapped(desc, L_DESC, 355.0, 11),
+                    pinWrapped(desc, L_DESC, 355.0, 8.0),
                     pin(price, L_PRICE)
             );
             labourVBox.getChildren().add(ap);
@@ -325,13 +329,16 @@ public class PrintRepairController {
             }
         }
 
-        // If there are overflow rows, hide the totals box on page 1
-        // (they will appear on page 2 instead)
+        // If there are overflow rows, hide the entire totals box and footer on page 1
         if (!overflowRows.isEmpty()) {
             totalLabourTXT.setVisible(false);
             totalPartsTXT.setVisible(false);
             totalTaxesTXT.setVisible(false);
             totalTXT.setVisible(false);
+            totalsRect.setVisible(false);
+            totalsLabelVBox.setVisible(false);
+            totalsValueVBox.setVisible(false);
+            footerRect.setVisible(false);
         }
     }
 
