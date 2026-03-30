@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.Group?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrintRepairController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PrintRepairController">
    <children>
 
       <!-- ─── Header ─────────────────────────────────────────────── -->
@@ -33,23 +32,15 @@
 
       <!-- WO number box -->
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutX="476.0" layoutY="4.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="4.0" width="117.0" />
-      <Text fx:id="woTXT" layoutX="475.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" text="6" textAlignment="CENTER" wrappingWidth="117.0">
+      <Text fx:id="woTXT" layoutX="475.0" layoutY="42.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="117.0">
          <font><Font size="32.0" /></font>
       </Text>
 
       <!-- ─── Dates ───────────────────────────────────────────────── -->
-      <Text layoutX="3.0" layoutY="94.0" text="Date Received:">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text fx:id="dateReceivedTXF" layoutX="80.0" layoutY="94.0">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text layoutX="169.0" layoutY="94.0" text="Date Completed:">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text fx:id="dateCompletedTXT" layoutX="256.0" layoutY="94.0">
-         <font><Font size="11.0" /></font>
-      </Text>
+      <Text layoutX="3.0" layoutY="94.0" text="Date Received:"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="dateReceivedTXF" layoutX="80.0" layoutY="94.0"><font><Font size="11.0" /></font></Text>
+      <Text layoutX="169.0" layoutY="94.0" text="Date Completed:"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="dateCompletedTXT" layoutX="256.0" layoutY="94.0"><font><Font size="11.0" /></font></Text>
 
       <!-- ─── Customer box ────────────────────────────────────────── -->
       <Group layoutX="3.0" layoutY="107.241">
@@ -60,8 +51,8 @@
             <Text layoutX="246.0" layoutY="61.0" text="Phone"><font><Font size="11.0" /></font></Text>
             <Text fx:id="cxNameTXT" layoutX="3.0" layoutY="28.0"><font><Font size="11.0" /></font></Text>
             <Text fx:id="adressTXT" layoutX="3.0" layoutY="44.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="custIDTxt" layoutX="248.0" layoutY="29.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="phoneTXT" layoutX="211.0" layoutY="75.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="custIDTxt" layoutX="247.0" layoutY="29.0" text="123" textAlignment="CENTER" wrappingWidth="34.29199981689453"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="phoneTXT" layoutX="223.0" layoutY="75.0" text="7802783635" textAlignment="CENTER"><font><Font size="11.0" /></font></Text>
             <Text fx:id="cityProvinceCodeTXT" layoutX="3.0" layoutY="58.0"><font><Font size="11.0" /></font></Text>
          </children>
       </Group>
@@ -93,46 +84,30 @@
             <Text fx:id="unitDescTXT" layoutX="3.0" layoutY="30.0"><font><Font size="11.0" /></font></Text>
             <Text layoutX="94.0" layoutY="15.241" text="Serial Number"><font><Font size="11.0" /></font></Text>
             <Text fx:id="serialNumberTXT" layoutX="94.0" layoutY="30.0"><font><Font size="11.0" /></font></Text>
-            <Text layoutX="401.0" layoutY="15.241" text="Problem/Complaint"><font><Font size="11.0" /></font></Text>
-            <TextArea fx:id="problemTXTArea" layoutX="320.0" layoutY="21.0" prefHeight="123.0" prefWidth="264.0">
-               <font><Font size="11.0" /></font>
-            </TextArea>
+            <Text layoutX="320.0" layoutY="15.241" text="Problem/Complaint"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="problemTXTArea" layoutX="320.0" layoutY="30.0" wrappingWidth="265.0"><font><Font size="11.0" /></font></Text>
          </children>
       </Group>
 
-      <!-- ─── Labour section header ─────────────────────────────────── -->
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#d3d3d3" height="16.0" layoutX="4.0" layoutY="441.0" stroke="BLACK" strokeType="INSIDE" width="590.0" />
-      <Text layoutX="6.0" layoutY="453.0" style="-fx-font-weight: bold;" text="LABOUR">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text layoutX="90.0" layoutY="453.0" style="-fx-font-weight: bold;" text="Tech">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text layoutX="190.0" layoutY="453.0" style="-fx-font-weight: bold;" text="Description">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text layoutX="530.0" layoutY="453.0" style="-fx-font-weight: bold;" text="Price">
-         <font><Font size="11.0" /></font>
-      </Text>
+      <!-- ─── Labour header (static) ───────────────────────────────── -->
+      <Rectangle arcHeight="0" arcWidth="0" fill="#d3d3d3" height="16.0" layoutX="4.0" layoutY="430.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.5" width="590.0" />
+      <Text layoutX="6.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Tech"><font><Font size="11.0" /></font></Text>
+      <Text layoutX="96.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Date"><font><Font size="11.0" /></font></Text>
+      <Text layoutX="181.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Description"><font><Font size="11.0" /></font></Text>
+      <Text layoutX="549.0" layoutY="442.0" style="-fx-font-weight:bold;" text="Price"><font><Font size="11.0" /></font></Text>
 
-      <!-- Labour rows injected here by controller -->
-      <VBox fx:id="labourContainer" layoutX="4.0" layoutY="458.0" prefWidth="590.0" spacing="2.0" />
+      <!-- Labour rows — injected at Y=446 by controller as Text nodes in VBox -->
+      <VBox fx:id="labourVBox" layoutX="4.0" layoutY="446.0" prefWidth="590.0" spacing="0.0" />
 
-      <!-- ─── Parts section header ───────────────────────────────────── -->
-      <!-- layoutY is set dynamically by controller after labour rows -->
-      <VBox fx:id="partsSection" layoutX="4.0" layoutY="560.0" prefWidth="590.0" spacing="0.0">
-         <children>
-            <!-- Header row baked in; controller appends data rows below it -->
-            <AnchorPane prefHeight="16.0" prefWidth="590.0" style="-fx-background-color: #d3d3d3; -fx-border-color: black; -fx-border-width: 0.5;">
-               <children>
-                  <Text layoutX="2.0" layoutY="12.0" style="-fx-font-weight: bold;" text="PARTS"><font><Font size="11.0" /></font></Text>
-                  <Text layoutX="200.0" layoutY="12.0" style="-fx-font-weight: bold;" text="Qty"><font><Font size="11.0" /></font></Text>
-                  <Text layoutX="260.0" layoutY="12.0" style="-fx-font-weight: bold;" text="Unit Price"><font><Font size="11.0" /></font></Text>
-                  <Text layoutX="530.0" layoutY="12.0" style="-fx-font-weight: bold;" text="Total"><font><Font size="11.0" /></font></Text>
-               </children>
-            </AnchorPane>
-         </children>
-      </VBox>
+      <!-- ─── Parts header — repositioned by controller ─────────────── -->
+      <Rectangle fx:id="partsHeaderRect" arcHeight="0" arcWidth="0" fill="#d3d3d3" height="16.0" layoutX="4.0" layoutY="560.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.5" width="590.0" />
+      <Text fx:id="partsLabelPart" layoutX="6.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Part"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="partsLabelQty" layoutX="360.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Qty"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="partsLabelUnit" layoutX="430.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Unit Price"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="partsLabelTotal" layoutX="530.0" layoutY="572.0" style="-fx-font-weight:bold;" text="Total"><font><Font size="11.0" /></font></Text>
+
+      <!-- Parts rows — injected by controller as Text nodes in VBox -->
+      <VBox fx:id="partsVBox" layoutX="4.0" layoutY="576.0" prefWidth="590.0" spacing="0.0" />
 
       <!-- ─── Totals box ────────────────────────────────────────────── -->
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="465.0" layoutY="748.0" stroke="BLACK" strokeType="INSIDE" width="129.0" />
