@@ -1,12 +1,10 @@
 module main {
     requires java.sql;
-    requires com.jfoenix;
     requires javafx.controls;
-    requires MaterialFX;
     requires javafx.fxml;
     requires javafx.graphics;
-    requires pdfbox.app;
-    //requires org.apache.poi.ooxml;
+    requires MaterialFX;
+    requires org.apache.pdfbox;
     opens main to javafx.fxml;
     exports main;
     exports Skeletons;
