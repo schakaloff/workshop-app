@@ -121,6 +121,7 @@ public class ViewOrderController {
         setupDeletingHandlers();
     }
 
+
     // ─── INIT DATA (called after initialize) ────────────────────────────────────
 
     public void initData(WorkOrder wo, Customer co) {
