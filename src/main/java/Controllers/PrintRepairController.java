@@ -8,12 +8,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrintRepairController {
 
@@ -59,20 +62,32 @@ public class PrintRepairController {
     @FXML private Text totalTaxesTXT;
     @FXML private Text totalTXT;
 
+    // ─── Pagination state ────────────────────────────────────────────────────────
+    // Holds overflow parts rows that didn't fit on page 1
+    private final List<AnchorPane> overflowRows = new ArrayList<>();
+    private String  totalLabour;
+    private String  totalParts;
+    private String  totalTaxes;
+    private String  totalTotal;
+
     // ─── Constants ───────────────────────────────────────────────────────────────
     private static final double TAX_RATE      = 0.12;
     private static final String CURRENCY_FMT  = "$%.2f";
     private static final double ROW_H         = 16.0;
-    private static final double LABOUR_Y      = 446.0; // must match FXML labourVBox layoutY
+    private static final double LABOUR_Y      = 446.0;
     private static final double PARTS_GAP     = 8.0;
     private static final double HEADER_H      = 16.0;
+    private static final double PAGE_CUTOFF   = 735.0; // parts rows below this go to page 2
+    private static final double PAGE_H        = 842.0;
+    private static final double PAGE_W        = 595.0;
 
-    // Column X positions — must match FXML header Text layoutX
+    // Labour column X positions
     private static final double L_TECH  = 2.0;
     private static final double L_DATE  = 90.0;
     private static final double L_DESC  = 175.0;
     private static final double L_PRICE = 543.0;
 
+    // Parts column X positions
     private static final double P_NAME  = 2.0;
     private static final double P_QTY   = 354.0;
     private static final double P_UNIT  = 424.0;
@@ -94,14 +109,96 @@ public class PrintRepairController {
         populateDevice(wo);
         woTXT.setText(String.valueOf(wo.getWorkorderNumber()));
 
+        // Pre-compute totals strings so page 2 can reuse them
+        double labour = repairData.stream().mapToDouble(WorkTable::getPrice).sum();
+        double parts  = partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
+        double taxes  = (labour + parts) * TAX_RATE;
+        double total  = labour + parts + taxes;
+        totalLabour = String.format(CURRENCY_FMT, labour);
+        totalParts  = String.format(CURRENCY_FMT, parts);
+        totalTaxes  = String.format(CURRENCY_FMT, taxes);
+        totalTotal  = String.format(CURRENCY_FMT, total);
+
         buildLabourRows(repairData);
 
-        // Defer parts repositioning to after JavaFX has laid out labourVBox
+        // Defer parts positioning + overflow detection until after layout
         javafx.application.Platform.runLater(() -> {
-            repositionParts(repairData.size());
-            buildPartsRows(partsData);
+            double partsHeaderY = repositionParts(repairData.size());
+            buildPartsRowsWithOverflow(partsData, partsHeaderY);
+            populateTotals();
         });
-        populateTotals(repairData, partsData);
+    }
+
+    /**
+     * Returns a fully built page 2 AnchorPane if there are overflow parts rows,
+     * or null if everything fit on page 1.
+     * Called by DocumentOutput AFTER the hidden stage has rendered page 1.
+     */
+    public AnchorPane buildPage2() {
+        if (overflowRows.isEmpty()) return null;
+
+        AnchorPane page = new AnchorPane();
+        page.setPrefWidth(PAGE_W);
+        page.setPrefHeight(PAGE_H);
+        page.setStyle("-fx-background-color: white;");
+
+        // Parts header at top of page 2
+        double y = 20.0;
+
+        Rectangle hdrRect = new Rectangle(4, y, 590, HEADER_H);
+        hdrRect.setFill(Color.LIGHTGRAY);
+        hdrRect.setStroke(Color.BLACK);
+        hdrRect.setStrokeWidth(0.5);
+        page.getChildren().add(hdrRect);
+
+        page.getChildren().addAll(
+                staticText("Part (continued)", 6,  y + 12, true),
+                staticText("Qty",              354, y + 12, true),
+                staticText("Unit Price",       424, y + 12, true),
+                staticText("Total",            524, y + 12, true)
+        );
+
+        y += HEADER_H;
+
+        // Add overflow rows
+        for (AnchorPane row : overflowRows) {
+            row.setLayoutX(4);
+            row.setLayoutY(y);
+            page.getChildren().add(row);
+            y += row.getPrefHeight() <= 0 ? ROW_H : row.getPrefHeight();
+        }
+
+        // Totals box at bottom of page 2
+        double totalsY = PAGE_H - 110;
+
+        Rectangle totalsRect = new Rectangle(465, totalsY, 129, 93);
+        totalsRect.setFill(Color.WHITE);
+        totalsRect.setStroke(Color.BLACK);
+        totalsRect.setArcWidth(5);
+        totalsRect.setArcHeight(5);
+        page.getChildren().add(totalsRect);
+
+        double lx = 471, rx = 532, ty = totalsY + 16;
+        page.getChildren().addAll(
+                staticText("Labour:", lx, ty,      false),
+                staticText("Parts:",  lx, ty + 16, false),
+                staticText("Taxes:",  lx, ty + 32, false),
+                staticText("TOTAL:",  lx, ty + 50, false)
+        );
+        page.getChildren().addAll(
+                staticText(totalLabour, rx, ty,      false),
+                staticText(totalParts,  rx, ty + 16, false),
+                staticText(totalTaxes,  rx, ty + 32, false),
+                staticText(totalTotal,  rx, ty + 50, false)
+        );
+
+        // Footer line
+        Rectangle footer = new Rectangle(2, PAGE_H - 37, 200, 34);
+        footer.setFill(Color.WHITE);
+        footer.setStroke(Color.BLACK);
+        page.getChildren().add(footer);
+
+        return page;
     }
 
     // ─── Populate helpers ────────────────────────────────────────────────────────
@@ -134,6 +231,13 @@ public class PrintRepairController {
         problemTXTArea.setText(nullSafe(wo.getProblemDesc()));
     }
 
+    private void populateTotals() {
+        totalLabourTXT.setText(totalLabour);
+        totalPartsTXT.setText(totalParts);
+        totalTaxesTXT.setText(totalTaxes);
+        totalTXT.setText(totalTotal);
+    }
+
     // ─── Labour rows ─────────────────────────────────────────────────────────────
 
     private void buildLabourRows(ObservableList<WorkTable> repairData) {
@@ -145,7 +249,6 @@ public class PrintRepairController {
             String desc  = nullSafe(row.getDescription());
             String price = String.format(CURRENCY_FMT, row.getPrice());
 
-            // Each row is an AnchorPane so Text nodes pin to exact X positions
             AnchorPane ap = new AnchorPane();
             ap.setPrefWidth(590);
             ap.setPrefHeight(AnchorPane.USE_COMPUTED_SIZE);
@@ -155,7 +258,7 @@ public class PrintRepairController {
             ap.getChildren().addAll(
                     pin(tech,  L_TECH),
                     pin(date,  L_DATE),
-                    pinWrapped(desc, L_DESC, 355.0, 9.0),  // smaller font to fit more text
+                    pinWrapped(desc, L_DESC, 355.0, 11),
                     pin(price, L_PRICE)
             );
             labourVBox.getChildren().add(ap);
@@ -164,20 +267,12 @@ public class PrintRepairController {
 
     // ─── Parts repositioning ─────────────────────────────────────────────────────
 
-    /**
-     * Moves all parts header nodes and partsVBox down based on the actual
-     * rendered height of labourVBox — accounts for rows that wrap to multiple lines.
-     */
-    private void repositionParts(int labourRowCount) {
-        // Force labourVBox to compute its layout so getHeight() is accurate
+    private double repositionParts(int labourRowCount) {
         labourVBox.applyCss();
         labourVBox.layout();
 
         double labourActualH = labourVBox.getBoundsInLocal().getHeight();
-        // Fall back to row count estimate if layout hasn't run yet (height == 0)
-        if (labourActualH <= 0) {
-            labourActualH = labourRowCount * ROW_H;
-        }
+        if (labourActualH <= 0) labourActualH = labourRowCount * ROW_H;
 
         double newHeaderY = LABOUR_Y + labourActualH + PARTS_GAP;
         double newVBoxY   = newHeaderY + HEADER_H;
@@ -188,12 +283,18 @@ public class PrintRepairController {
         partsLabelUnit.setLayoutY(newHeaderY + 12);
         partsLabelTotal.setLayoutY(newHeaderY + 12);
         partsVBox.setLayoutY(newVBoxY);
+
+        return newVBoxY; // return Y where parts rows start
     }
 
-    // ─── Parts rows ──────────────────────────────────────────────────────────────
+    // ─── Parts rows with overflow detection ──────────────────────────────────────
 
-    private void buildPartsRows(ObservableList<PartTable> partsData) {
+    private void buildPartsRowsWithOverflow(ObservableList<PartTable> partsData,
+                                            double partsStartY) {
         partsVBox.getChildren().clear();
+        overflowRows.clear();
+
+        double currentY = partsStartY;
 
         for (PartTable row : partsData) {
             String name  = nullSafe(row.getName());
@@ -208,33 +309,34 @@ public class PrintRepairController {
             ap.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 0.5 0;");
 
             ap.getChildren().addAll(
-                    pinWrapped(name, P_NAME, 345.0),   // capped before qty column
+                    pinWrapped(name, P_NAME, 345.0),
                     pin(qty,   P_QTY),
                     pin(unit,  P_UNIT),
                     pin(total, P_TOTAL)
             );
-            partsVBox.getChildren().add(ap);
+
+            if (currentY < PAGE_CUTOFF) {
+                // Fits on page 1
+                partsVBox.getChildren().add(ap);
+                currentY += ROW_H;
+            } else {
+                // Overflows to page 2
+                overflowRows.add(ap);
+            }
         }
-    }
 
-    // ─── Totals ──────────────────────────────────────────────────────────────────
-
-    private void populateTotals(ObservableList<WorkTable> repairData,
-                                ObservableList<PartTable>  partsData) {
-        double labour = repairData.stream().mapToDouble(WorkTable::getPrice).sum();
-        double parts  = partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
-        double taxes  = (labour + parts) * TAX_RATE;
-        double total  = labour + parts + taxes;
-
-        totalLabourTXT.setText(String.format(CURRENCY_FMT, labour));
-        totalPartsTXT.setText(String.format(CURRENCY_FMT, parts));
-        totalTaxesTXT.setText(String.format(CURRENCY_FMT, taxes));
-        totalTXT.setText(String.format(CURRENCY_FMT, total));
+        // If there are overflow rows, hide the totals box on page 1
+        // (they will appear on page 2 instead)
+        if (!overflowRows.isEmpty()) {
+            totalLabourTXT.setVisible(false);
+            totalPartsTXT.setVisible(false);
+            totalTaxesTXT.setVisible(false);
+            totalTXT.setVisible(false);
+        }
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-    /** Creates a Text node pinned to a specific X position inside an AnchorPane. */
     private Text pin(String value, double x) {
         Text t = new Text(value);
         t.setFont(Font.font(11));
@@ -243,7 +345,6 @@ public class PrintRepairController {
         return t;
     }
 
-    /** Same as pin() but caps the text at maxWidth and allows a custom font size. */
     private Text pinWrapped(String value, double x, double maxWidth) {
         return pinWrapped(value, x, maxWidth, 11.0);
     }
@@ -254,6 +355,15 @@ public class PrintRepairController {
         t.setWrappingWidth(maxWidth);
         AnchorPane.setLeftAnchor(t, x);
         AnchorPane.setTopAnchor(t, 3.0);
+        return t;
+    }
+
+    private Text staticText(String value, double x, double y, boolean bold) {
+        Text t = new Text(value);
+        t.setFont(bold ? Font.font("System", javafx.scene.text.FontWeight.BOLD, 11)
+                : Font.font(11));
+        t.setLayoutX(x);
+        t.setLayoutY(y);
         return t;
     }
 
