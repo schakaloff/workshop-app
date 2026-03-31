@@ -51,13 +51,11 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>3.0.7</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
             <version>9.0.10</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.languagetool</groupId>
@@ -74,6 +72,10 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                    <compilerArgs>
+                        <arg>--add-reads</arg>
+                        <arg>main=ALL-UNNAMED</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -82,17 +84,19 @@
                 <version>0.0.8</version>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.example.workodermanager/com.example.workodermanager.HelloApplication
-                            </mainClass>
+                            <mainClass>main/com.example.workodermanager.HelloApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
+                            <options>
+                                <option>--add-reads</option>
+                                <option>main=ALL-UNNAMED</option>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>
