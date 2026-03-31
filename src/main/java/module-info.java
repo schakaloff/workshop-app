@@ -5,7 +5,9 @@ module main {
     requires javafx.graphics;
     requires MaterialFX;
     requires org.apache.pdfbox;
-    requires languagetool.core;
+    requires java.desktop;
+    requires java.logging;
+
     opens main to javafx.fxml;
     exports main;
     exports Skeletons;
