@@ -94,6 +94,7 @@ public class ActualWorkshopController {
         personalwork.setVisible(false);
         personalwork.setManaged(false);
         techTXF.setText(LoginController.tech);
+        techTable.setFooterVisible(false);
         loadTechStatsTable();
         table.setRowsPerPage(15);
         LoadOrders();
