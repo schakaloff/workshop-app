@@ -1,5 +1,7 @@
 package Controllers;
 
+import Controllers.DbRepo.WorkshopQueries;
+import Skeletons.TechWorkRow;
 import Skeletons.Technicians;
 import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
@@ -21,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.io.IOException;
+import java.util.List;
 
 public class SettingsController {
     @FXML private ActualWorkshopController mainController;
@@ -132,33 +135,19 @@ public class SettingsController {
             return;
         }
 
+        WorkshopQueries workshopQueries = new WorkshopQueries();
+        List<TechWorkRow> rows = workshopQueries.loadTechWorkByDateRange(techName, fromDate, toDate);
+
         double totalEarned = 0.0;
         int totalRepairs = 0;
 
-        String sql = """
-        SELECT wo.id, wo.workorder_number, ln.labour_amount
-        FROM work_orders wo
-        JOIN labour_notes ln ON wo.id = ln.work_order_id
-        JOIN technician t ON ln.technician_id = t.id
-        WHERE t.username = ?
-          AND wo.status = 'repair complete'
-          AND wo.repair_completed_date BETWEEN ? AND ?
-    """;
-
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, techName);
-            ps.setString(2, fromDate.toString());
-            ps.setString(3, toDate.plusDays(1).toString());
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                totalEarned += rs.getDouble("labour_amount");
+        for (TechWorkRow row : rows) {
+            String status = row.getStatus();
+            if (status != null && (status.equalsIgnoreCase("repair complete")
+                    || status.equalsIgnoreCase("billing complete"))) {
+                totalEarned += row.getLabourAmount();
                 totalRepairs++;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
 
         totalEarnedTXF.setText(String.format("$%.2f", totalEarned));
