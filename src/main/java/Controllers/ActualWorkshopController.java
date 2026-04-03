@@ -441,6 +441,21 @@ public class ActualWorkshopController {
         return 0;
     }
 
+    private String getLoggedTechRole() {
+        String username = LoginController.tech;
+        if (username == null || username.isBlank()) return "";
+        String sql = "SELECT role FROM technician WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString("role").trim().toUpperCase();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     private long ageDays(WorkOrder wo) {
         try {
             LocalDateTime created = LocalDateTime.parse(wo.getCreatedAt(), DB_DT);
@@ -631,6 +646,11 @@ public class ActualWorkshopController {
     }
 
     public void openSettingsMenu() throws IOException {
+        String role = getLoggedTechRole();
+        if (!role.equals("ADMIN") && !role.equals("ACCOUNTANT")) {
+            // optionally show a message
+            return;
+        }
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/settings.fxml"));
