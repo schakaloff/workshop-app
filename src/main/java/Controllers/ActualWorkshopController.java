@@ -524,6 +524,8 @@ public class ActualWorkshopController {
     }
 
     public void loadOrdersTable() {
+        table.getItems().clear();
+        table.getFilters().clear();
         MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("Workorder", false);
         MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", false);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", false);

@@ -107,6 +107,8 @@ public class ViewOrderController {
 
     // ─── INITIALIZE ─────────────────────────────────────────────────────────────
 
+    private static final long MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024; // 3 MB
+
     public void initialize() {
         tabPane.setFocusTraversable(false);
         statusCombo.setItems(WORK_ORDER_STATUSES);
@@ -465,6 +467,12 @@ public class ViewOrderController {
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("All files", "*.*"));
         File file = fc.showOpenDialog(dialogInstance.getScene().getWindow());
         if (file == null) return;
+
+        if (file.length() > MAX_FILE_SIZE_BYTES) {
+            showWarning("File is too large. Maximum allowed size is "
+                    + (MAX_FILE_SIZE_BYTES / (1024 * 1024)) + " MB.");
+            return;
+        }
 
         try {
             ViewControllerQueries.addFileToDb(currentWorkOrder.getWorkorderNumber(), file);
