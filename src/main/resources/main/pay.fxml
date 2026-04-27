@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="650.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PaymentController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="650.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.PaymentController">
    <center>
       <AnchorPane prefHeight="488.0" prefWidth="650.0" BorderPane.alignment="CENTER">
          <children>
@@ -23,9 +23,9 @@
             </VBox>
             <MFXTextField fx:id="techIDTXF" alignment="CENTER" allowEdit="false" layoutX="57.0" layoutY="3.0" minHeight="25.0" minWidth="28.0" prefHeight="25.0" prefWidth="35.0" />
             <Text layoutX="8.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="TechID:" />
-            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="448.0" layoutY="322.0" onAction="#pay" text="Save/Print" />
-            <MFXTextField fx:id="dateTXF" alignment="CENTER" allowEdit="false" layoutX="450.0" layoutY="16.0" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="137.0" />
-            <Text layoutX="419.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Date" />
+            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="556.0" layoutY="392.0" onAction="#pay" text="Save/Print" />
+            <MFXTextField fx:id="dateTXF" alignment="CENTER" allowEdit="false" layoutX="503.0" layoutY="3.0" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="137.0" />
+            <Text layoutX="472.0" layoutY="21.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Date" />
             <VBox layoutX="230.0" layoutY="170.0" prefHeight="115.0" prefWidth="105.0" spacing="5.0">
                <children>
                   <MFXTextField fx:id="visaTXF" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
@@ -34,6 +34,8 @@
                   <MFXTextField fx:id="masterCardTXF" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
                </children>
             </VBox>
+            <MFXCheckbox fx:id="depositCB" layoutX="113.0" layoutY="321.0" onAction="#depositSelected" text="Deposit" />
+            <MFXTextField fx:id="depositTXF" layoutX="220.0" layoutY="323.0" minHeight="25.0" minWidth="39.0" prefHeight="25.0" prefWidth="94.0" />
          </children>
       </AnchorPane>
    </center>
