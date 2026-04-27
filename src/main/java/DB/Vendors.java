@@ -1,6 +1,6 @@
 package DB;
 
-import Controllers.DbRepo.VendorDAO;
+import Controllers.DbRepo.VendorsQueries;
 import Controllers.VendorsController;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
@@ -18,7 +18,7 @@ public class Vendors {
 
     /** Loads vendor names from the database into an ObservableList. */
     public static ObservableList<String> loadIntoBox() {
-        List<String> data = VendorDAO.getAllVendorNames();
+        List<String> data = VendorsQueries.getAllVendorNames();
         return FXCollections.observableArrayList(data);
     }
 

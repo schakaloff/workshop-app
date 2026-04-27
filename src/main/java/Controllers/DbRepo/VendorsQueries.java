@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VendorDAO {
+public class VendorsQueries {
 
     public static List<String> getAllVendorNames() {
         List<String> vendors = new ArrayList<>();
