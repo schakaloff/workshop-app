@@ -1,7 +1,7 @@
 package Controllers;
 
 
-import Controllers.DbRepo.VendorDAO;
+import Controllers.DbRepo.VendorsQueries;
 import DB.Vendors;
 import io.github.palexdev.materialfx.controls.MFXComboBox;
 import io.github.palexdev.materialfx.controls.MFXTextField;
@@ -30,7 +30,7 @@ public class VendorsController {
             return;
         }
 
-        boolean saved = VendorDAO.insertVendor(name);
+        boolean saved = VendorsQueries.insertVendor(name);
 
         if (saved) {
             // Refresh the combo box in the parent window
