@@ -42,14 +42,18 @@ public class PaymentController {
     @FXML private MFXCheckbox masterCardCB;
     @FXML private MFXCheckbox cashCB;
 
-
     @FXML private MFXTextField visaTXF;
     @FXML private MFXTextField debitTXF;
     @FXML private MFXTextField masterCardTXF;
     @FXML private MFXTextField cashTXF;
 
+    @FXML private MFXCheckbox depositCB;
+    @FXML private MFXTextField depositTXF;
+
     private InvoiceType invoiceType;
     private Window ownerWindow;
+
+    private Double totalAmount;
 
     @FXML
     public void initialize() {
@@ -61,13 +65,50 @@ public class PaymentController {
         cashTXF.setDisable(true);
     }
 
+    @FXML
+    public void depositSelected() {
+        boolean checked = depositCB.isSelected();
+        depositTXF.setDisable(!checked);
+
+        if (!checked) {
+            depositTXF.clear();
+            suggestedAmount = totalAmount;
+        } else {
+            depositTXF.setText(formatCad(currentWorkOrder.getDepositAmount()));
+            suggestedAmount = totalAmount - currentWorkOrder.getDepositAmount();
+        }
+
+        refreshActivePaymentField();
+    }
+
+    private void refreshActivePaymentField() {
+        if (visaCB.isSelected())       { visaTXF.clear();       autofill(visaTXF); }
+        if (debitCB.isSelected())      { debitTXF.clear();      autofill(debitTXF); }
+        if (masterCardCB.isSelected()) { masterCardTXF.clear(); autofill(masterCardTXF); }
+        if (cashCB.isSelected())       { cashTXF.clear();       autofill(cashTXF); }
+    }
+
+
+
     public void setContext(WorkOrder wo, Customer co, InvoiceType type, Window owner) {
         this.currentWorkOrder = wo;
         this.currentCustomer = co;
         this.invoiceType = type;
         this.ownerWindow = owner;
+
         if (type == InvoiceType.DEPOSIT) {
+            this.totalAmount = wo.getDepositAmount();
             this.suggestedAmount = wo.getDepositAmount();
+            depositCB.setSelected(true);
+            depositTXF.setDisable(false);
+            depositTXF.setText(formatCad(wo.getDepositAmount()));
+        } else if (type == InvoiceType.FINAL) {
+            boolean hasDeposit = wo.getDepositAmount() > 0;
+            depositCB.setSelected(hasDeposit);
+            depositTXF.setDisable(!hasDeposit);
+            depositTXF.setText(formatCad(wo.getDepositAmount()));
+            // suggestedAmount already set by setSuggestedAmount(), just subtract deposit if checked
+            suggestedAmount = hasDeposit ? totalAmount - wo.getDepositAmount() : totalAmount;
         }
     }
 
@@ -185,20 +226,6 @@ public class PaymentController {
         }
     }
 
-    private void attachPdfToWorkOrder(File pdfFile, String displayName) throws Exception {
-        byte[] bytes = java.nio.file.Files.readAllBytes(pdfFile.toPath());
-
-        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, currentWorkOrder.getWorkorderNumber());
-            ps.setString(2, displayName);
-            ps.setBytes(3, bytes);
-            ps.executeUpdate();
-        }
-    }
-
     private void updateWoStatus(String newStatus) {
         String sql = "UPDATE work_order SET status = ? WHERE workorder = ?";
 
@@ -240,6 +267,7 @@ public class PaymentController {
 
     public void setSuggestedAmount(Double amount) {
         this.suggestedAmount = amount;
+        this.totalAmount = amount;
     }
 
     private double getEnteredAmount(String method) {

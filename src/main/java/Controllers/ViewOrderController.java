@@ -626,7 +626,6 @@
             pc.setMainController(mainController);
 
             Window owner = dialogInstance.getScene().getWindow();
-            pc.setContext(wo, co, invoiceType, owner);
 
             if (invoiceType == InvoiceType.FINAL) {
                 savePartsToDb();
@@ -638,6 +637,8 @@
                 isDirty   = false;
                 pc.setSuggestedAmount(finalDueDb());
             }
+
+            pc.setContext(wo,co,invoiceType,owner);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
