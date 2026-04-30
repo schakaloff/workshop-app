@@ -4,13 +4,7 @@ import DB.DbConfig;
 import Skeletons.Customer;
 import Skeletons.TechWorkRow;
 import Skeletons.WorkOrder;
-import io.github.palexdev.materialfx.controls.MFXButton;
-import io.github.palexdev.materialfx.controls.MFXDatePicker;
-import io.github.palexdev.materialfx.controls.MFXPaginatedTableView;
-import io.github.palexdev.materialfx.controls.MFXTableColumn;
-import io.github.palexdev.materialfx.controls.MFXTableRow;
-import io.github.palexdev.materialfx.controls.MFXTableView;
-import io.github.palexdev.materialfx.controls.MFXTextField;
+import io.github.palexdev.materialfx.controls.*;
 import io.github.palexdev.materialfx.controls.cell.MFXTableRowCell;
 import io.github.palexdev.materialfx.dialogs.MFXGenericDialog;
 import io.github.palexdev.materialfx.filter.IntegerFilter;
@@ -85,6 +79,8 @@ public class ActualWorkshopController {
     private final ObservableList<WorkOrder> data = FXCollections.observableArrayList();
     private final ObservableList<WorkOrder> allData = FXCollections.observableArrayList();
 
+    @FXML private MFXComboBox<String> searchCondition;
+
     private MFXGenericDialog viewOrderDialog;
     private ViewOrderController viewOrderController;
 
@@ -101,7 +97,15 @@ public class ActualWorkshopController {
         fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
         toDPicker.setValue(LocalDate.now());
         preloadViewOrderDialog();
+        //searchTxtField.setOnAction(e -> onSearchEnter());
+        searchCondition.setItems(FXCollections.observableArrayList(
+                "WO Number", "Phone Number", "First Name", "Last Name", "Full Name"
+        ));
+        searchCondition.selectItem("WO Number");
         searchTxtField.setOnAction(e -> onSearchEnter());
+        searchTxtField.textProperty().addListener((obs, o, n) -> {
+            if (n == null || n.isBlank()) table.setItems(allData);
+        });
     }
 
     public void LoadOrders() {
@@ -143,17 +147,83 @@ public class ActualWorkshopController {
         loadTechWorkByDateRange(fromDate, toDate);
     }
 
-    public void onSearchEnter() {
-        String text = searchTxtField.getText();
-        if (text == null || text.isBlank()) return;
+//    public void onSearchEnter() {
+//        String text = searchTxtField.getText();
+//        if (text == null || text.isBlank()) return;
+//        int woNumber;
+//        try {
+//            woNumber = Integer.parseInt(text.trim());
+//        } catch (NumberFormatException ex) {
+//            return;
+//        }
+//        WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
+//        UILoader(wo);
+//    }
+
+public void onSearchEnter() {
+    String text = searchTxtField.getText();
+    if (text == null || text.isBlank()) return;
+
+    String trimmed = text.trim();
+    String condition = searchCondition.getValue();
+
+    switch (condition) {
+        case "WO Number"    -> searchByWoNumber(trimmed);
+        case "Phone Number" -> searchByPhone(trimmed);
+        case "First Name"   -> searchByCustomerField(trimmed, "first_name");
+        case "Last Name"    -> searchByCustomerField(trimmed, "last_name");
+        case "Full Name"    -> searchByFullName(trimmed);
+    }
+}
+
+    private void searchByWoNumber(String text) {
         int woNumber;
         try {
-            woNumber = Integer.parseInt(text.trim());
-        } catch (NumberFormatException ex) {
+            woNumber = Integer.parseInt(text);
+        } catch (NumberFormatException e) {
             return;
         }
-        WorkOrder wo = allData.stream().filter(w -> w.getWorkorderNumber() == woNumber).findFirst().orElse(null);
-        UILoader(wo);
+
+        ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                allData.stream()
+                        .filter(w -> w.getWorkorderNumber() == woNumber)
+                        .toList()
+        );
+        table.setItems(filtered);
+    }
+    private void searchByCustomerField(String value, String column) {
+        List<Integer> customerIds = workshopQueries.getCustomerIdsByField(column, value);
+        applyCustomerFilter(customerIds);
+    }
+
+    private void searchByFullName(String fullName) {
+        String[] parts = fullName.split("\\s+", 2);
+        if (parts.length < 2) {
+            // only one word typed, search both first and last
+            List<Integer> ids = workshopQueries.getCustomerIdsByField("first_name", parts[0]);
+            ids.addAll(workshopQueries.getCustomerIdsByField("last_name", parts[0]));
+            applyCustomerFilter(ids);
+        } else {
+            List<Integer> ids = workshopQueries.getCustomerIdsByFullName(parts[0], parts[1]);
+            applyCustomerFilter(ids);
+        }
+    }
+
+    private void applyCustomerFilter(List<Integer> customerIds) {
+        if (customerIds.isEmpty()) {
+            table.setItems(FXCollections.observableArrayList());
+            return;
+        }
+        ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
+                allData.stream()
+                        .filter(wo -> customerIds.contains(wo.getCustomerId()))
+                        .toList()
+        );
+        table.setItems(filtered);
+    }
+
+    private void searchByPhone(String phone) {
+        applyCustomerFilter(workshopQueries.getCustomerIdsByPhone(phone));
     }
 
     @FXML
@@ -526,31 +596,37 @@ public class ActualWorkshopController {
     public void loadOrdersTable() {
         table.getItems().clear();
         table.getFilters().clear();
-        MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("Workorder", false);
-        MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", false);
-        MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Type", false);
-        MFXTableColumn<WorkOrder> date = new MFXTableColumn<>("Date", false);
+
+        MFXTableColumn<WorkOrder> workOrder   = new MFXTableColumn<>("Workorder", false);
+        MFXTableColumn<WorkOrder> status      = new MFXTableColumn<>("Status", false);
+        MFXTableColumn<WorkOrder> type        = new MFXTableColumn<>("Type", false);
+        MFXTableColumn<WorkOrder> customerCol = new MFXTableColumn<>("Customer", false);
+        MFXTableColumn<WorkOrder> date        = new MFXTableColumn<>("Date", false);
 
         workOrder.setColumnResizable(true);
         status.setColumnResizable(true);
         type.setColumnResizable(true);
+        customerCol.setColumnResizable(true);
         date.setColumnResizable(true);
 
         workOrder.setMinWidth(110);
         status.setMinWidth(160);
-        type.setMinWidth(260);
+        type.setMinWidth(200);
+        customerCol.setMinWidth(160);
         date.setMinWidth(180);
 
-        workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
-        status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
-        type.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getType));
-        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{ setAlignment(Pos.CENTER_RIGHT); }});
+        workOrder.setRowCellFactory(order   -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
+        status.setRowCellFactory(order      -> new MFXTableRowCell<>(WorkOrder::getStatus));
+        type.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getType));
+        customerCol.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCustomerName));
+        date.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{ setAlignment(Pos.CENTER_RIGHT); }});
 
         date.setAlignment(Pos.CENTER_RIGHT);
-        table.getTableColumns().addAll(workOrder, status, type, date);
+        table.getTableColumns().addAll(workOrder, status, type, customerCol, date);
 
         table.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
         table.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
+        table.getFilters().addAll(new StringFilter<>("Customer", WorkOrder::getCustomerName));
         table.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
         table.getFilters().addAll(new StringFilter<>("Warranty Number", WorkOrder::getWarrantyNumber));
     }
