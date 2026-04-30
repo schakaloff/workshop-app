@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
@@ -28,8 +29,6 @@
                         <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="1.0" layoutY="41.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="1.0" layoutY="106.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
                         <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="1.0" layoutY="73.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="555.0" layoutY="385.0" onAction="#updateOrder" prefHeight="15.0" prefWidth="100.0" text="Save" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="312.0" layoutY="385.0" onAction="#printOrder" prefHeight="20.0" prefWidth="100.0" text="Print" />
                         <MFXTextField fx:id="idTFX" allowEdit="false" floatMode="BORDER" floatingText="ID" layoutX="386.0" layoutY="27.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="firstNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Name" layoutX="493.0" layoutY="61.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="lastNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Last Name" layoutX="605.0" layoutY="61.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
@@ -37,16 +36,22 @@
                         <MFXTextField fx:id="addressTFX" floatMode="BORDER" floatingText="Address" layoutX="386.0" layoutY="94.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="townTFX" floatMode="BORDER" floatingText="Town" layoutX="493.0" layoutY="94.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
                         <MFXTextField fx:id="zipTFX" floatMode="BORDER" floatingText="ZIP" layoutX="605.0" layoutY="94.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-                        <MFXComboBox fx:id="vendorId" floatMode="BORDER" floatingText="Warranty Provider" layoutX="140.0" layoutY="1.0" maxHeight="30.0" maxWidth="120.0" minHeight="35.0" minWidth="120.0" prefHeight="30.0" prefWidth="120.0" />
-                        <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Ref#" layoutX="140.0" layoutY="39.0" maxHeight="30.0" maxWidth="120.0" minHeight="35.0" minWidth="120.0" prefHeight="30.0" prefWidth="120.0" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="200.0" layoutY="385.0" onAction="#Pay" prefHeight="20.0" prefWidth="100.0" text="Pay" />
-                        <MFXTextField fx:id="mainNumberTFX" allowEdit="false" floatMode="BORDER" floatingText="W/O" layoutX="615.0" layoutY="-7.0" minHeight="25.0" minWidth="100.0" />
+                        <MFXComboBox fx:id="vendorId" floatMode="BORDER" floatingText="Warranty Provider" layoutX="199.0" layoutY="1.0" maxHeight="30.0" maxWidth="120.0" minHeight="35.0" minWidth="120.0" prefHeight="30.0" prefWidth="120.0" />
+                        <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Ref#" layoutX="199.0" layoutY="39.0" maxHeight="30.0" maxWidth="120.0" minHeight="35.0" minWidth="120.0" prefHeight="30.0" prefWidth="120.0" />
+                        <MFXTextField fx:id="mainNumberTFX" allowEdit="false" floatMode="BORDER" floatingText="W/O" layoutX="606.0" layoutY="-6.0" minHeight="25.0" minWidth="100.0" />
                         <Text layoutY="403.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deposit:" />
                         <MFXTextField fx:id="depositTXF" alignment="CENTER" allowEdit="false" floatMode="BORDER" floatingText="\$" layoutX="56.0" layoutY="385.0" minHeight="25.0" minWidth="100.0" />
-                        <MFXComboBox fx:id="statusCombo" floatMode="BORDER" floatingText="Status" layoutX="1.0" layoutY="1.0" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="35.0" />
-                        <MFXComboBox fx:id="techIdCombo" floatMode="BORDER" floatingText="Tech" layoutY="142.0" maxHeight="30.0" maxWidth="75.0" minHeight="30.0" minWidth="75.0" prefHeight="30.0" prefWidth="75.0" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="425.0" layoutY="385.0" onAction="#printRepaired" prefHeight="26.0" prefWidth="117.0" text="Print Repaired" />
-                        <MFXCheckbox fx:id="warrantyCheckBox" layoutX="140.0" layoutY="77.0" onAction="#warrantySelected" />
+                        <MFXComboBox fx:id="statusCombo" floatMode="BORDER" floatingText="Status" layoutX="1.0" layoutY="1.0" minHeight="30.0" minWidth="145.0" />
+                        <MFXComboBox fx:id="techIdCombo" floatMode="BORDER" floatingText="Tech" layoutY="142.0" maxHeight="30.0" maxWidth="75.0" minHeight="25.0" minWidth="75.0" prefHeight="25.0" prefWidth="75.0" />
+                        <MFXCheckbox fx:id="warrantyCheckBox" layoutX="199.0" layoutY="77.0" onAction="#warrantySelected" />
+                        <HBox layoutX="250.0" layoutY="383.0" prefHeight="35.0" prefWidth="456.0" spacing="15.0">
+                           <children>
+                              <MFXButton buttonType="RAISED" depthLevel="LEVEL5" minHeight="25.0" minWidth="100.0" onAction="#Pay" text="Pay" />
+                              <MFXButton buttonType="RAISED" depthLevel="LEVEL5" minHeight="25.0" minWidth="100.0" onAction="#printOrder" text="Print" />
+                              <MFXButton buttonType="RAISED" depthLevel="LEVEL5" minHeight="25.0" minWidth="100.0" onAction="#updateOrder" text="Save" />
+                              <MFXButton buttonType="RAISED" depthLevel="LEVEL5" minHeight="25.0" minWidth="100.0" onAction="#printRepaired" text="Print Repaired" />
+                           </children>
+                        </HBox>
                      </children>
                   </AnchorPane>
                </content>
