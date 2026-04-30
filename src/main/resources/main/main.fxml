@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXDrawer?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXDatePicker?>
 <?import io.github.palexdev.materialfx.controls.MFXPaginatedTableView?>
 <?import io.github.palexdev.materialfx.controls.MFXTableView?>
@@ -16,7 +17,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootStack" maxHeight="675.0" maxWidth="1000.0" minHeight="675.0" minWidth="1000.0" prefHeight="675.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
+<StackPane fx:id="rootStack" maxHeight="675.0" maxWidth="1000.0" minHeight="675.0" minWidth="1000.0" prefHeight="675.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
    <children>
       <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
          <left>
@@ -50,16 +51,6 @@
          <center>
             <AnchorPane prefHeight="675.0" prefWidth="850.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
                <children>
-                  <MFXPaginatedTableView fx:id="table" layoutX="12.0" layoutY="79.0" maxWidth="795.0" minWidth="795.0" prefHeight="517.0" prefWidth="795.0" />
-                  <MFXButton fx:id="newOrderBTN" alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="687.0" layoutY="605.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
-                     <effect>
-                        <Glow />
-                     </effect></MFXButton>
-                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="713.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
-                  <MFXButton fx:id="btnAllWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="10.0" layoutY="27.0" onAction="#showAllOpenWO" prefHeight="25.0" prefWidth="150.0" text="ALL OPEN WO: 0" />
-                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="170.0" layoutY="27.0" onAction="#showOldNewOver10" prefHeight="25.0" prefWidth="150.0" text="OLD OPENED WO: 0" />
-                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="330.0" layoutY="27.0" onAction="#showRepairedNotPaid" prefHeight="25.0" prefWidth="180.0" text="REPAIRED BUT NOT PAID: 0" />
-                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="520.0" layoutY="27.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showMyWO" prefHeight="25.0" prefWidth="150.0" text="MY CURRENT WO: 0" />
                   <AnchorPane fx:id="personalwork" layoutX="2.0" prefHeight="675.0" prefWidth="815.0" style="-fx-background-color: white;">
                      <children>
                         <MFXDatePicker fx:id="fromDPicker" floatMode="BORDER" floatingText="From" layoutX="118.0" layoutY="30.0" prefHeight="38.0" prefWidth="100.0" />
@@ -71,6 +62,17 @@
                         <MFXDatePicker fx:id="toDPicker" floatMode="BORDER" floatingText="To" layoutX="264.0" layoutY="31.0" prefHeight="38.0" prefWidth="100.0" />
                      </children>
                   </AnchorPane>
+                  <MFXPaginatedTableView fx:id="table" layoutX="12.0" layoutY="79.0" maxWidth="795.0" minWidth="795.0" prefHeight="517.0" prefWidth="795.0" />
+                  <MFXButton fx:id="newOrderBTN" alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="687.0" layoutY="605.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
+                     <effect>
+                        <Glow />
+                     </effect></MFXButton>
+                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="713.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
+                  <MFXButton fx:id="btnAllWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="10.0" layoutY="27.0" onAction="#showAllOpenWO" prefHeight="25.0" prefWidth="150.0" text="ALL OPEN WO: 0" />
+                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="170.0" layoutY="27.0" onAction="#showOldNewOver10" prefHeight="25.0" prefWidth="150.0" text="OLD OPENED WO: 0" />
+                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="330.0" layoutY="27.0" onAction="#showRepairedNotPaid" prefHeight="25.0" prefWidth="180.0" text="REPAIRED BUT NOT PAID: 0" />
+                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="520.0" layoutY="27.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showMyWO" prefHeight="25.0" prefWidth="150.0" text="MY CURRENT WO: 0" />
+                  <MFXComboBox fx:id="searchCondition" layoutY="598.0" />
                </children>
                <opaqueInsets>
                   <Insets />

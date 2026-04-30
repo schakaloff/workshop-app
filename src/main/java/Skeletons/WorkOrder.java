@@ -131,6 +131,11 @@ public class WorkOrder {
         createdAt.set(value);
     }
 
+    private final StringProperty customerName = new SimpleStringProperty("");
+    public StringProperty customerNameProperty() { return customerName; }
+    public String getCustomerName() { return customerName.get(); }
+    public void setCustomerName(String value) { customerName.set(value); }
+
 
 
 

@@ -91,13 +91,21 @@ public class WorkshopQueries {
     public List<WorkOrder> loadOrdersIntoTable() {
         List<WorkOrder> list = new ArrayList<>();
 
-        String sql = "SELECT workorder, status, type, DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
-                "vendorId, warrantyNumber, model, serialNumber, problemDesc, customer_id, deposit_amount, tech_id " +
-                "FROM work_order ORDER BY work_order.createdAt DESC";
+        String sql = "SELECT wo.workorder, wo.status, wo.type, " +
+                "DATE_FORMAT(wo.createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
+                "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
+                "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
+                "COALESCE(c.first_name, '') AS first_name, " +
+                "COALESCE(c.last_name, '')  AS last_name " +
+                "FROM work_order wo " +
+                "LEFT JOIN customer c ON wo.customer_id = c.id " +
+                "ORDER BY wo.createdAt DESC";
+
         try {
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
                 WorkOrder wo = new WorkOrder(
                         rs.getInt("workorder"),
@@ -112,9 +120,12 @@ public class WorkshopQueries {
                         rs.getInt("customer_id"),
                         rs.getDouble("deposit_amount")
                 );
+
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
                 wo.setTechId(techId);
+
+                wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
 
                 list.add(wo);
             }
@@ -168,5 +179,47 @@ public class WorkshopQueries {
         }
 
         return -1;
+    }
+    public List<Integer> getCustomerIdsByPhone(String phone) {
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT id FROM customer WHERE phone LIKE ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + phone + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) ids.add(rs.getInt("id"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ids;
+    }
+    public List<Integer> getCustomerIdsByField(String column, String value) {
+        List<Integer> ids = new ArrayList<>();
+        // column is hardcoded from our own switch, safe to interpolate
+        String sql = "SELECT id FROM customer WHERE " + column + " LIKE ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + value + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) ids.add(rs.getInt("id"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ids;
+    }
+
+    public List<Integer> getCustomerIdsByFullName(String firstName, String lastName) {
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT id FROM customer WHERE first_name LIKE ? AND last_name LIKE ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + firstName + "%");
+            ps.setString(2, "%" + lastName + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) ids.add(rs.getInt("id"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ids;
     }
 }
