@@ -116,6 +116,7 @@
             statusCombo.setItems(WORK_ORDER_STATUSES);
 
             refreshTechList();
+
             setupTables();
             setupSpellCheck();
             setupServiceNotesExpand();
@@ -124,6 +125,7 @@
             setupStatusComboListener();
             setupFileDoubleClick();
             setupDeletingHandlers();
+            setupCustomerDoubleClick();
         }
 
         private void setupSpellCheck() {
@@ -284,6 +286,34 @@
                     reloadRepairs();
                 }
             });
+        }
+
+        private void setupCustomerDoubleClick() {
+            for (MFXTextField field : new MFXTextField[]{
+                    firstNameTXF, lastNameTXF, phoneTFX, addressTFX, townTFX, zipTFX, idTFX
+            }) {
+                field.setOnMouseClicked(e -> {
+                    if (e.getClickCount() == 2) {
+                        try { openViewCustomerDialog(); }
+                        catch (Exception ex) { ex.printStackTrace(); }
+                    }
+                });
+            }
+        }
+
+        private void openViewCustomerDialog() throws Exception {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewCustomer.fxml"));
+            MFXGenericDialog dialog = loader.load();
+
+            ViewCustomerController vc = loader.getController();
+            vc.setCustomerData(currentCustomer);
+            vc.setOnSaved(() -> populateCustomerFields(currentCustomer)); // refresh fields after save
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Edit Customer");
+            stage.setScene(new Scene(dialog));
+            stage.showAndWait();
         }
 
         // ─── POPULATE UI ────────────────────────────────────────────────────────────
@@ -649,6 +679,7 @@
 
             loadFilesFromDb();
         }
+
 
         // ─── PRINT ──────────────────────────────────────────────────────────────────
 

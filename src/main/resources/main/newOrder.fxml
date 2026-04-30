@@ -11,35 +11,15 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="450.0" prefWidth="650.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewOrderController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="450.0" prefWidth="650.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewOrderController">
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
             <TextArea fx:id="problemDesc" layoutX="7.0" layoutY="213.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" wrapText="true" />
             <MFXCheckbox fx:id="warrantyCheckBox" layoutX="3.0" layoutY="66.0" minHeight="15.0" onAction="#warrantySelected" prefHeight="17.0" prefWidth="74.0" text="Warranty" />
-            <Text layoutX="7.0" layoutY="200.0" text="Problem:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <Text layoutX="7.0" layoutY="110.0" text="Type:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <Text layoutX="7.0" layoutY="140.0" text="Model:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <Text layoutX="7.0" layoutY="170.0" text="Serial Number:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="110.0" layoutY="95.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="110.0" layoutY="125.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="110.0" layoutY="155.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+            <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="5.0" layoutY="95.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+            <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="5.0" layoutY="125.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
+            <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="5.0" layoutY="155.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
             <MFXComboBox fx:id="vendorId" layoutX="110.0" layoutY="62.0" minHeight="25.0" prefHeight="25.0" prefWidth="124.0" promptText="Vendor" />
             <Text layoutX="4.0" layoutY="19.0" text="Created By:">
                <font>
@@ -48,7 +28,7 @@
             </Text>
             <MFXTextField fx:id="TechNewOrder" editable="false" floatMode="BORDER" layoutX="85.0" layoutY="4.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="33.0" />
             <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Number" layoutX="243.0" layoutY="64.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXButton layoutX="572.0" layoutY="376.0" onAction="#makeNewOrder" text="Save" />
+            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="535.0" layoutY="389.0" onAction="#makeNewOrder" prefHeight="26.0" prefWidth="101.0" text="Save" />
             <MFXTextField fx:id="firstNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Name" layoutX="417.0" layoutY="71.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
             <MFXButton layoutX="405.0" layoutY="258.0" onAction="#selectCustomer" text="Choose Customer" />
             <MFXTextField fx:id="lastNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Last Name" layoutX="418.0" layoutY="103.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
@@ -57,8 +37,8 @@
             <MFXTextField fx:id="townTFX" allowEdit="false" floatMode="BORDER" floatingText="Town" layoutX="418.0" layoutY="193.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="100.0" />
             <MFXTextField fx:id="zipTFX" allowEdit="false" floatMode="BORDER" floatingText="ZIP" graphicTextGap="5.0" layoutX="418.0" layoutY="226.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="100.0" />
             <MFXTextField fx:id="idTFX" allowEdit="false" floatMode="BORDER" floatingText="ID" layoutX="417.0" layoutY="41.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-            <Text layoutX="305.0" layoutY="336.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deposit:" />
-            <MFXTextField fx:id="depositTXF" alignment="CENTER" floatMode="BORDER" floatingText="\$" layoutX="360.0" layoutY="319.0" minHeight="25.0" minWidth="100.0" />
+            <Text layoutX="210.0" layoutY="407.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deposit:" />
+            <MFXTextField fx:id="depositTXF" alignment="CENTER" floatMode="BORDER" floatingText="\$" layoutX="265.0" layoutY="390.0" minHeight="25.0" minWidth="100.0" />
          </children>
       </AnchorPane>
    </center>

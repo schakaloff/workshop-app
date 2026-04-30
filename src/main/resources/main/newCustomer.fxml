@@ -7,26 +7,25 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="238.0" prefWidth="279.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewCustomerController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="238.0" prefWidth="279.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewCustomerController">
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <VBox layoutX="14.0" layoutY="14.0" prefHeight="84.0" prefWidth="33.0" spacing="10.0">
+            <VBox layoutX="14.0" layoutY="14.0" prefHeight="177.0" prefWidth="90.0" spacing="10.0">
                <children>
-                  <MFXTextField fx:id="firstName" floatingText="Name" minHeight="25.0" />
-                  <MFXTextField fx:id="lastName" floatingText="Last Name" minHeight="25.0" />
-                  <MFXTextField fx:id="phone" floatingText="Phone" minHeight="25.0" />
-                  <MFXTextField fx:id="address" floatingText="Address" minHeight="25.0" />
+                  <MFXTextField fx:id="firstName" floatMode="BORDER" floatingText="Name" minHeight="30.0" />
+                  <MFXTextField fx:id="lastName" floatMode="BORDER" floatingText="Last Name" minHeight="30.0" />
+                  <MFXTextField fx:id="phone" floatMode="BORDER" floatingText="Phone" minHeight="30.0" />
+                  <MFXTextField fx:id="address" floatMode="BORDER" floatingText="Address" minHeight="30.0" />
                </children>
             </VBox>
             <VBox layoutX="149.0" layoutY="14.0" prefHeight="84.0" prefWidth="33.0" spacing="10.0">
                <children>
-                  <MFXTextField fx:id="postalCode" floatingText="Postal Code" minHeight="25.0" />
-                  <MFXTextField fx:id="town" floatingText="Town" minHeight="25.0" />
+                  <MFXTextField fx:id="postalCode" floatMode="BORDER" floatingText="Postal Code" minHeight="30.0" />
+                  <MFXTextField fx:id="town" floatMode="BORDER" floatingText="Town" minHeight="30.0" />
                </children>
             </VBox>
-            <MFXButton layoutX="179.0" layoutY="155.0" onAction="#addNewCustomerIntoDB" text="Save" />
+            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="174.0" layoutY="174.0" onAction="#addNewCustomerIntoDB" prefHeight="26.0" prefWidth="89.0" text="Save" />
          </children>
       </AnchorPane>
    </center>
