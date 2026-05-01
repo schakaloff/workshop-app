@@ -84,26 +84,40 @@ public class ActualWorkshopController {
     private MFXGenericDialog viewOrderDialog;
     private ViewOrderController viewOrderController;
 
-    // 15 rows x 5 pages = 75 WOs shown on dashboard by default
-    private static final int ROWS_PER_PAGE  = 15;
+    private static final int ROWS_PER_PAGE   = 15;
     private static final int DASHBOARD_LIMIT = 75;
 
-    // ─── CORE HELPER ────────────────────────────────────────────────────────────
+
+    // ─── CORE HELPERS ───────────────────────────────────────────────────────────
 
     /**
-     * Safe way to set table items — clears first to reset MFX virtual flow,
-     * then sets new items, then defers goToPage(1) by one pulse.
+     * Sets table items safely. Clears first to reset MFX virtual flow,
+     * then sets new items on next pulse, then goes to page 1 on the pulse after.
+     * All wrapped in try-catch to silently absorb MFX internal IndexOutOfBounds bugs.
      */
     private void setTableItems(ObservableList<WorkOrder> items) {
-        table.setItems(FXCollections.observableArrayList());
         Platform.runLater(() -> {
-            table.setItems(items);
-            table.virtualFlowInitializedProperty().addListener((obs, wasReady, isReady) -> {
-                if (isReady) table.goToPage(1);
+            try {
+                table.setItems(items);
+                table.setCurrentPage(1);
+            } catch (Exception ignored) {}
+            Platform.runLater(() -> {
+                try {
+                    table.goToPage(1);
+                    table.setCurrentPage(1);
+                } catch (Exception ignored) {}
             });
-            Platform.runLater(() -> table.goToPage(1));
         });
     }
+
+    /** Shows the 75 most recent WOs (15 per page × 5 pages max). */
+    private void showDashboardItems() {
+        ObservableList<WorkOrder> recent = FXCollections.observableArrayList(
+                allData.stream().limit(DASHBOARD_LIMIT).toList()
+        );
+        setTableItems(recent);
+    }
+
     // ─── INITIALIZE ─────────────────────────────────────────────────────────────
 
     public void initialize() {
@@ -115,10 +129,10 @@ public class ActualWorkshopController {
         techTable.setFooterVisible(false);
         loadTechStatsTable();
         table.setRowsPerPage(ROWS_PER_PAGE);
+        preloadViewOrderDialog(); // moved BEFORE LoadOrders
         LoadOrders();
         fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
         toDPicker.setValue(LocalDate.now());
-        preloadViewOrderDialog();
 
         searchCondition.setItems(FXCollections.observableArrayList(
                 "WO Number", "Phone Number", "First Name", "Last Name", "Full Name"
@@ -127,10 +141,7 @@ public class ActualWorkshopController {
 
         searchTxtField.setOnAction(e -> onSearchEnter());
         searchTxtField.textProperty().addListener((obs, o, n) -> {
-            if (n == null || n.isBlank()) {
-                // restore dashboard view (75 most recent)
-                showDashboardItems();
-            }
+            if (n == null || n.isBlank()) showDashboardItems();
         });
     }
 
@@ -149,21 +160,6 @@ public class ActualWorkshopController {
         updateOldNewButtonCount();
         updateRepairedNotBilledButtonCount();
         updateMyWoButtonCount();
-    }
-
-    /** Shows the 75 most recent WOs on the dashboard (15 per page x 5 pages max). */
-    private void showDashboardItems() {
-        ObservableList<WorkOrder> recent = FXCollections.observableArrayList(
-                allData.stream().limit(DASHBOARD_LIMIT).toList()
-        );
-        table.setItems(recent);
-
-        // hook into MFX's own ready signal instead of guessing with runLater
-        table.virtualFlowInitializedProperty().addListener((obs, wasReady, isReady) -> {
-            if (isReady) {
-                table.goToPage(1);
-            }
-        });
     }
 
     // ─── SEARCH ─────────────────────────────────────────────────────────────────
@@ -192,13 +188,11 @@ public class ActualWorkshopController {
             return;
         }
 
-        // check allData first (fast, covers recent WOs)
         WorkOrder found = allData.stream()
                 .filter(w -> w.getWorkorderNumber() == woNumber)
                 .findFirst().orElse(null);
 
         if (found != null) {
-            // found in memory — show it in table
             setTableItems(FXCollections.observableArrayList(found));
         } else {
             // old WO not in allData — fetch from DB and open directly
@@ -231,7 +225,6 @@ public class ActualWorkshopController {
             setTableItems(FXCollections.observableArrayList());
             return;
         }
-        // search against ALL allData, not just the 75 shown
         ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
                 allData.stream().filter(wo -> customerIds.contains(wo.getCustomerId())).toList()
         );
@@ -239,7 +232,6 @@ public class ActualWorkshopController {
     }
 
     // ─── FILTER BUTTONS ─────────────────────────────────────────────────────────
-    // All filter buttons work against full allData — finds ALL matching WOs
 
     @FXML
     public void showAllOpenWO() {
@@ -499,7 +491,7 @@ public class ActualWorkshopController {
     // ─── TABLE SETUP ────────────────────────────────────────────────────────────
 
     public void loadOrdersIntoTable() {
-        data.setAll(workshopQueries.loadOrdersIntoTable()); // loads ALL WOs
+        data.setAll(workshopQueries.loadOrdersIntoTable());
     }
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
