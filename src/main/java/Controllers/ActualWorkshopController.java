@@ -70,10 +70,15 @@ public class ActualWorkshopController {
     @FXML private MFXButton calcBTN;
     @FXML private MFXComboBox<String> searchCondition;
 
+    // ─── LOADING OVERLAY ────────────────────────────────────────────────────────
+    @FXML private StackPane loadingOverlay;
+    @FXML private MFXProgressSpinner loadingSpinner;
+
     private boolean oldNewFilterEnabled = false;
     private boolean repairedNotBilledFilterEnabled = false;
     private boolean myWoFilterEnabled = false;
     private boolean allOpenFilterEnabled = false;
+    private boolean isDashboardLoaded = false;
 
     private final ObservableList<TechWorkRow> techWorkData = FXCollections.observableArrayList();
     private final WorkshopQueries workshopQueries = new WorkshopQueries();
@@ -87,14 +92,30 @@ public class ActualWorkshopController {
     private static final int ROWS_PER_PAGE   = 15;
     private static final int DASHBOARD_LIMIT = 75;
 
+    // ─── LOADING OVERLAY HELPERS ────────────────────────────────────────────────
+
+    private void showLoadingOverlay() {
+        loadingSpinner.setProgress(-1); // indeterminate spin
+        loadingOverlay.setOpacity(1.0);
+        loadingOverlay.setVisible(true);
+        loadingOverlay.setManaged(true);
+        loadingOverlay.toFront();
+    }
+
+    private void hideLoadingOverlay() {
+        FadeTransition fade = new FadeTransition(Duration.millis(300), loadingOverlay);
+        fade.setFromValue(1.0);
+        fade.setToValue(0.0);
+        fade.setOnFinished(e -> {
+            loadingOverlay.setVisible(false);
+            loadingOverlay.setManaged(false);
+            loadingOverlay.setOpacity(1.0); // reset for next time
+        });
+        fade.play();
+    }
 
     // ─── CORE HELPERS ───────────────────────────────────────────────────────────
 
-    /**
-     * Sets table items safely. Clears first to reset MFX virtual flow,
-     * then sets new items on next pulse, then goes to page 1 on the pulse after.
-     * All wrapped in try-catch to silently absorb MFX internal IndexOutOfBounds bugs.
-     */
     private void setTableItems(ObservableList<WorkOrder> items) {
         Platform.runLater(() -> {
             try {
@@ -110,7 +131,6 @@ public class ActualWorkshopController {
         });
     }
 
-    /** Shows the 75 most recent WOs (15 per page × 5 pages max). */
     private void showDashboardItems() {
         ObservableList<WorkOrder> recent = FXCollections.observableArrayList(
                 allData.stream().limit(DASHBOARD_LIMIT).toList()
@@ -121,27 +141,67 @@ public class ActualWorkshopController {
     // ─── INITIALIZE ─────────────────────────────────────────────────────────────
 
     public void initialize() {
+        // lightweight stuff first — renders immediately
         welcomeTech.setText(LoginController.tech);
         avatar(techAvatar);
         personalwork.setVisible(false);
         personalwork.setManaged(false);
         techTXF.setText(LoginController.tech);
         techTable.setFooterVisible(false);
-        loadTechStatsTable();
         table.setRowsPerPage(ROWS_PER_PAGE);
-        preloadViewOrderDialog(); // moved BEFORE LoadOrders
-        LoadOrders();
-        fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
-        toDPicker.setValue(LocalDate.now());
 
         searchCondition.setItems(FXCollections.observableArrayList(
                 "WO Number", "Phone Number", "First Name", "Last Name", "Full Name"
         ));
         searchCondition.selectItem("WO Number");
-
-        searchTxtField.setOnAction(e -> onSearchEnter());
+        searchTxtField.setOnAction(ev -> onSearchEnter());
         searchTxtField.textProperty().addListener((obs, o, n) -> {
-            if (n == null || n.isBlank()) showDashboardItems();
+            if (n == null || n.isBlank()) {
+                showLoadingOverlay();
+                showDashboardItems();
+                Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
+            }
+        });
+
+        // defer heavy work to AFTER the scene is rendered
+        Platform.runLater(() -> {
+            showLoadingOverlay();
+
+            // load viewOrder.fxml on background thread — saves 793ms of FX thread blocking
+            Task<Void> preloadTask = new Task<>() {
+                private MFXGenericDialog dialog;
+                private ViewOrderController controller;
+
+                @Override
+                protected Void call() throws Exception {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
+                    dialog = loader.load();
+                    controller = loader.getController();
+                    return null;
+                }
+
+                @Override
+                protected void succeeded() {
+                    // back on FX thread — safe to touch nodes now
+                    viewOrderDialog = dialog;
+                    viewOrderController = controller;
+                    viewOrderController.setMainController(ActualWorkshopController.this);
+                    viewOrderController.setDialogInstance(viewOrderDialog);
+
+                    // now do the rest
+                    loadTechStatsTable();
+                    fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
+                    toDPicker.setValue(LocalDate.now());
+                    LoadOrders();
+                }
+
+                @Override
+                protected void failed() {
+                    throw new RuntimeException("Failed to preload viewOrder.fxml", getException());
+                }
+            };
+
+            new Thread(preloadTask).start();
         });
     }
 
@@ -149,17 +209,94 @@ public class ActualWorkshopController {
 
     public void LoadOrders() {
         showDashboardControls();
+
         table.getTableColumns().clear();
         table.getItems().clear();
         loadOrdersTable();
         viewOrder(table);
-        loadOrdersIntoTable();
-        allData.setAll(data);
-        showDashboardItems();
-        updateAllOpenWOButtonCount();
-        updateOldNewButtonCount();
-        updateRepairedNotBilledButtonCount();
-        updateMyWoButtonCount();
+        loadOrdersAsync();
+    }
+
+    /** Called externally (e.g. after new WO created) to force a full reload. */
+    public void reloadOrders() {
+        isDashboardLoaded = false;
+        LoadOrders();
+    }
+
+    @FXML
+    public void showDashboard() {
+        showDashboardControls();
+        showLoadingOverlay();
+
+        if (isDashboardLoaded) {
+            showDashboardItems();
+            refreshOrdersInBackground();
+        } else {
+            LoadOrders();
+        }
+    }
+
+    private void refreshOrdersInBackground() {
+        Task<List<WorkOrder>> task = new Task<>() {
+            @Override
+            protected List<WorkOrder> call() {
+                return workshopQueries.loadOrdersIntoTable();
+            }
+        };
+
+        task.setOnSucceeded(ev -> {
+            List<WorkOrder> result = task.getValue();
+            data.setAll(result);
+            allData.setAll(result);
+            showDashboardItems();
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
+        });
+
+        task.setOnFailed(ev -> {
+            task.getException().printStackTrace();
+            hideLoadingOverlay();
+        });
+
+        new Thread(task).start();
+    }
+
+    private void loadOrdersAsync() {
+        Task<List<WorkOrder>> task = new Task<>() {
+            @Override
+            protected List<WorkOrder> call() {
+                return workshopQueries.loadOrdersIntoTable();
+            }
+        };
+
+        task.setOnSucceeded(ev -> {
+            List<WorkOrder> result = task.getValue();
+            data.setAll(result);
+            allData.setAll(result);
+            showDashboardItems();
+            isDashboardLoaded = true;
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
+            // hide spinner after table items are set — deferred so render completes first
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
+        });
+
+        task.setOnFailed(ev -> {
+            task.getException().printStackTrace();
+            hideLoadingOverlay();
+        });
+
+        new Thread(task).start();
+    }
+
+    // kept for compatibility — some callers may still use this directly
+    public void loadOrdersIntoTable() {
+        data.setAll(workshopQueries.loadOrdersIntoTable());
     }
 
     // ─── SEARCH ─────────────────────────────────────────────────────────────────
@@ -195,7 +332,6 @@ public class ActualWorkshopController {
         if (found != null) {
             setTableItems(FXCollections.observableArrayList(found));
         } else {
-            // old WO not in allData — fetch from DB and open directly
             WorkOrder wo = workshopQueries.getWorkOrderById(woNumber);
             if (wo != null) UILoader(wo);
         }
@@ -489,10 +625,6 @@ public class ActualWorkshopController {
     }
 
     // ─── TABLE SETUP ────────────────────────────────────────────────────────────
-
-    public void loadOrdersIntoTable() {
-        data.setAll(workshopQueries.loadOrdersIntoTable());
-    }
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
                                        String problemDesc, int customerId, String vendorId,
