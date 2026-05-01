@@ -1,5 +1,6 @@
 package Controllers;
 import DB.DbConfig;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,46 +35,60 @@ public class LoginController {
 
     }
 
-    public void userLogin(ActionEvent e) throws  IOException{
+    public void userLogin(ActionEvent e) throws IOException {
         String username = usernameField.getText();
         String userPassword = passwordField.getText();
 
-        try{
-            Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password); //actual connection to db
-            String logInQuery = "SELECT * FROM technician WHERE username = ? AND password = SHA1(?)"; //prepared statement to prevent sql injection
-            PreparedStatement stmt = connection.prepareStatement(logInQuery); //declaring prepared statement
+        // disable button to prevent double click
+        ((Node) e.getSource()).setDisable(true);
+        wrongLogin.setText("Logging in...");
 
-            stmt.setString(1, username);    //setting prepared string for username;
-            stmt.setString(2, userPassword); //setting prepared string for password
-
-            ResultSet rs = stmt.executeQuery(); //result set is used whenever we need to read database from the database, we use it when query returns a table of data
-
-            if(rs.next()){ //checks if that tech exists
-                System.out.println("technician exists");
-                tech = username;
-                launchWorkshop(e);
-            }else{
-                System.out.println("wrong data");
-                wrongLogin.setText("Invalid Data");
-
+        Task<Boolean> loginTask = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
+                Connection connection = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+                String logInQuery = "SELECT * FROM technician WHERE username = ? AND password = SHA1(?)";
+                PreparedStatement stmt = connection.prepareStatement(logInQuery);
+                stmt.setString(1, username);
+                stmt.setString(2, userPassword);
+                ResultSet rs = stmt.executeQuery();
+                boolean exists = rs.next();
+                rs.close(); stmt.close(); connection.close();
+                return exists;
             }
-//            int rowsInserted = stmt.executeUpdate(); //checks if row is at 1, if so the new user was created
-//            if(rowsInserted > 0){
-//                System.out.println("new technician is created");
-//            }
-        }catch (SQLException sql){
-            sql.printStackTrace();
-        }
-    }
-    public void launchWorkshop(ActionEvent e) throws IOException{
-        root = FXMLLoader.load(Main.class.getResource("main.fxml"));
-        stage = (Stage)((Node)e.getSource()).getScene().getWindow();
-        scene = new Scene(root);
+        };
 
+        loginTask.setOnSucceeded(ev -> {
+            boolean exists = loginTask.getValue();
+            if (exists) {
+                tech = username;
+                try { launchWorkshop(e); }
+                catch (IOException ex) { ex.printStackTrace(); }
+            } else {
+                wrongLogin.setText("Invalid Data");
+                ((Node) e.getSource()).setDisable(false);
+            }
+        });
+
+        loginTask.setOnFailed(ev -> {
+            loginTask.getException().printStackTrace();
+            wrongLogin.setText("Connection error.");
+            ((Node) e.getSource()).setDisable(false);
+        });
+
+        new Thread(loginTask).start();
+    }
+    public void launchWorkshop(ActionEvent e) throws IOException {
+        stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+
+        // Switch scene immediately — login disappears fast
+        root = FXMLLoader.load(Main.class.getResource("main.fxml"));
+        scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
-        
+        stage.setResizable(false);
+        stage.setWidth(1000);
+        stage.setHeight(675);
         stage.setScene(scene);
         stage.show();
-
     }
 }

@@ -17,6 +17,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
+<?import io.github.palexdev.materialfx.controls.MFXProgressSpinner?>
 <StackPane fx:id="rootStack" maxHeight="675.0" maxWidth="1000.0" minHeight="675.0" minWidth="1000.0" prefHeight="675.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
    <children>
       <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
@@ -36,7 +37,7 @@
                               <Font size="15.0" />
                            </font>
                         </Label>
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#LoadOrders" prefHeight="30.0" prefWidth="105.0" text="Dashboard" />
+                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#showDashboard" prefHeight="30.0" prefWidth="105.0" text="Dashboard" />
                         <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#myStats" prefHeight="30.0" prefWidth="105.0" text="My Work" />
                         <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#openSettingsMenu" prefHeight="30.0" prefWidth="105.0" text="Shop Settings" />
                         <MFXButton fx:id="signOutBtn" buttonType="RAISED" depthLevel="LEVEL5" onAction="#signOut" prefHeight="30.0" prefWidth="105.0" text="Sign Out" />
@@ -81,4 +82,9 @@
          </center>
       </BorderPane>
    </children>
+   <StackPane fx:id="loadingOverlay"
+              style="-fx-background-color: rgba(0,0,0,0.25);"
+              visible="false" managed="false">
+      <MFXProgressSpinner fx:id="loadingSpinner" prefHeight="60" prefWidth="60" />
+   </StackPane>
 </StackPane>
