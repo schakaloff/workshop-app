@@ -72,7 +72,7 @@
                   <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="170.0" layoutY="27.0" onAction="#showOldNewOver10" prefHeight="25.0" prefWidth="150.0" text="OLD OPENED WO: 0" />
                   <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="330.0" layoutY="27.0" onAction="#showRepairedNotPaid" prefHeight="25.0" prefWidth="180.0" text="REPAIRED BUT NOT PAID: 0" />
                   <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="520.0" layoutY="27.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showMyWO" prefHeight="25.0" prefWidth="150.0" text="MY CURRENT WO: 0" />
-                  <MFXComboBox fx:id="searchCondition" layoutY="598.0" />
+                  <MFXComboBox fx:id="searchCondition" layoutX="256.0" layoutY="598.0" />
                </children>
                <opaqueInsets>
                   <Insets />

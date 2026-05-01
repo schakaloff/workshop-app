@@ -74,6 +74,8 @@ public class CustomersController {
         table.setItems(filtered);
     }
 
+
+
     public void chooseCustomer() {
         table.setTableRowFactory(customer -> {
             MFXTableRow<Customer> row = new MFXTableRow<>(table, customer);
