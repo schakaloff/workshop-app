@@ -67,12 +67,12 @@
                      <effect>
                         <Glow />
                      </effect></MFXButton>
-                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="713.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="90.0" />
-                  <MFXButton fx:id="btnAllWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="10.0" layoutY="27.0" onAction="#showAllOpenWO" prefHeight="25.0" prefWidth="150.0" text="ALL OPEN WO: 0" />
-                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="170.0" layoutY="27.0" onAction="#showOldNewOver10" prefHeight="25.0" prefWidth="150.0" text="OLD OPENED WO: 0" />
-                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="330.0" layoutY="27.0" onAction="#showRepairedNotPaid" prefHeight="25.0" prefWidth="180.0" text="REPAIRED BUT NOT PAID: 0" />
-                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="520.0" layoutY="27.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showMyWO" prefHeight="25.0" prefWidth="150.0" text="MY CURRENT WO: 0" />
-                  <MFXComboBox fx:id="searchCondition" layoutX="256.0" layoutY="598.0" />
+                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="731.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="90.0" />
+                  <MFXButton fx:id="btnAllWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="-12.0" layoutY="27.0" onAction="#showAllOpenWO" prefHeight="25.0" prefWidth="150.0" text="ALL OPEN WO: 0" />
+                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="148.0" layoutY="27.0" onAction="#showOldNewOver10" prefHeight="25.0" prefWidth="150.0" text="OLD OPENED WO: 0" />
+                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="308.0" layoutY="27.0" onAction="#showRepairedNotPaid" prefHeight="25.0" prefWidth="180.0" text="REPAIRED BUT NOT PAID: 0" />
+                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="498.0" layoutY="27.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showMyWO" prefHeight="25.0" prefWidth="150.0" text="MY CURRENT WO: 0" />
+                  <MFXComboBox fx:id="searchCondition" layoutX="652.0" layoutY="27.0" maxWidth="75.0" minHeight="25.0" minWidth="75.0" />
                </children>
                <opaqueInsets>
                   <Insets />
