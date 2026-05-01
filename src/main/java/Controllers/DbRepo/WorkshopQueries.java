@@ -222,4 +222,52 @@ public class WorkshopQueries {
         }
         return ids;
     }
+
+    public WorkOrder getWorkOrderById(int woNumber) {
+        String sql = "SELECT wo.workorder, wo.status, wo.type, " +
+                "DATE_FORMAT(wo.createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
+                "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
+                "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
+                "COALESCE(c.first_name, '') AS first_name, " +
+                "COALESCE(c.last_name, '')  AS last_name " +
+                "FROM work_order wo " +
+                "LEFT JOIN customer c ON wo.customer_id = c.id " +
+                "WHERE wo.workorder = ?";
+
+        try {
+            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, woNumber);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                WorkOrder wo = new WorkOrder(
+                        rs.getInt("workorder"),
+                        rs.getString("status"),
+                        rs.getString("type"),
+                        rs.getString("createdAt"),
+                        rs.getString("vendorId"),
+                        rs.getString("warrantyNumber"),
+                        rs.getString("model"),
+                        rs.getString("serialNumber"),
+                        rs.getString("problemDesc"),
+                        rs.getInt("customer_id"),
+                        rs.getDouble("deposit_amount")
+                );
+                int techId = rs.getInt("tech_id");
+                if (rs.wasNull()) techId = 0;
+                wo.setTechId(techId);
+                wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+
+                rs.close(); stmt.close(); conn.close();
+                return wo;
+            }
+
+            rs.close(); stmt.close(); conn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
