@@ -653,8 +653,8 @@ public class ActualWorkshopController {
         workOrder.setMinWidth(110);
         status.setMinWidth(160);
         type.setMinWidth(200);
-        customerCol.setMinWidth(160);
-        date.setMinWidth(180);
+        customerCol.setMinWidth(150);
+        date.setMinWidth(170);
 
         workOrder.setRowCellFactory(order   -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
         status.setRowCellFactory(order      -> new MFXTableRowCell<>(WorkOrder::getStatus));
@@ -698,19 +698,6 @@ public class ActualWorkshopController {
     }
 
     // ─── VIEW ORDER ─────────────────────────────────────────────────────────────
-
-    private void preloadViewOrderDialog() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/viewOrder.fxml"));
-            viewOrderDialog     = loader.load();
-            viewOrderController = loader.getController();
-            viewOrderController.setMainController(this);
-            viewOrderController.setDialogInstance(viewOrderDialog);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to preload viewOrder.fxml", e);
-        }
-    }
-
     public void viewOrder(MFXTableView<WorkOrder> table) {
         table.setTableRowFactory(wo -> {
             MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, wo);
