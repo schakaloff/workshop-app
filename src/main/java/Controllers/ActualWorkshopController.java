@@ -135,6 +135,8 @@ public class ActualWorkshopController {
         ObservableList<WorkOrder> recent = FXCollections.observableArrayList(
                 allData.stream().limit(DASHBOARD_LIMIT).toList()
         );
+        // clear first to prevent MFX seeing more than DASHBOARD_LIMIT items
+        try { table.setItems(FXCollections.observableArrayList()); } catch (Exception ignored) {}
         setTableItems(recent);
     }
 
@@ -275,14 +277,13 @@ public class ActualWorkshopController {
         task.setOnSucceeded(ev -> {
             List<WorkOrder> result = task.getValue();
             data.setAll(result);
-            allData.setAll(result);
-            showDashboardItems();
+            allData.setAll(result); // always full dataset
+            showDashboardItems();   // always shows max 75
             isDashboardLoaded = true;
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
-            // hide spinner after table items are set — deferred so render completes first
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         });
 
