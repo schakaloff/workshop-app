@@ -17,7 +17,14 @@ public class Customer {
     private final StringProperty postalCode;
     private final StringProperty town;
 
-    public Customer(String id, String firstName, String lastName, String additionalName, String phone, String additionalPhone, String address, String postalCode, String town){
+    private final StringProperty pstNumber;
+    private final StringProperty gstNumber;
+
+    public Customer(String id, String firstName, String lastName, String additionalName, String phone, String additionalPhone, String address, String postalCode, String town) {
+        this(id, firstName, lastName, additionalName, phone, additionalPhone, address, postalCode, town, null, null);
+    }
+
+    public Customer(String id, String firstName, String lastName, String additionalName, String phone, String additionalPhone, String address, String postalCode, String town, String pstNumber, String gstNumber){
         this.id = new SimpleStringProperty(id);
         this.firstName = new SimpleStringProperty(firstName);
         this.lastName = new SimpleStringProperty(lastName);
@@ -28,6 +35,9 @@ public class Customer {
         this.address = new SimpleStringProperty(address);
         this.postalCode = new SimpleStringProperty(postalCode);
         this.town = new SimpleStringProperty(town);
+
+        this.pstNumber      = new SimpleStringProperty(pstNumber);
+        this.gstNumber      = new SimpleStringProperty(gstNumber);
     }
     public StringProperty idProperty(){ return id;}
     public String getId(){return id.get();}
@@ -113,6 +123,14 @@ public class Customer {
     public void setTown(String value) {
         town.set(value);
     }
+
+    public StringProperty pstNumberProperty() { return pstNumber; }
+    public String getPstNumber() { return pstNumber.get(); }
+    public void setPstNumber(String value) { pstNumber.set(value); }
+
+    public StringProperty gstNumberProperty() { return gstNumber; }
+    public String getGstNumber() { return gstNumber.get(); }
+    public void setGstNumber(String value) { gstNumber.set(value); }
 
 
 

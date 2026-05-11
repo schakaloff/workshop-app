@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" onClose="#closeDialog" prefHeight="520.0" prefWidth="750.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
+<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" onClose="#closeDialog" prefHeight="535.0" prefWidth="750.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewOrderController">
    <center>
       <TabPane fx:id="tabPane" prefHeight="520.0" prefWidth="750.0" styleClass="modern-tabs" stylesheets="@../tab.css" BorderPane.alignment="CENTER">
          <tabs>

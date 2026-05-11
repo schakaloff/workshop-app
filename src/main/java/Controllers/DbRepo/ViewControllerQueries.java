@@ -464,4 +464,15 @@ public class ViewControllerQueries {
 
         return null;
     }
+
+    public static void saveTaxesToDb(int woNumber, double pst, double gst) {
+        String sql = "UPDATE work_order SET pst = ?, gst = ? WHERE workorder = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, pst);
+            ps.setDouble(2, gst);
+            ps.setInt(3, woNumber);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
 }

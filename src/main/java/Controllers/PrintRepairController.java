@@ -1,9 +1,11 @@
 package Controllers;
 
+import DB.ShopSettings;
 import Skeletons.Customer;
 import Skeletons.PartTable;
 import Skeletons.WorkTable;
 import Skeletons.WorkOrder;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
@@ -60,6 +62,8 @@ public class PrintRepairController {
     @FXML private Text      totalLabourTXT;
     @FXML private Text      totalPartsTXT;
     @FXML private Text      totalTaxesTXT;
+    @FXML private Text      totalPSTTXT;     // new
+    @FXML private Text      totalGSTTXT;     // new
     @FXML private Text      totalTXT;
     @FXML private Rectangle totalsRect;
     @FXML private VBox      totalsLabelVBox;
@@ -71,11 +75,12 @@ public class PrintRepairController {
     private final List<AnchorPane> overflowRows = new ArrayList<>();
     private String  totalLabour;
     private String  totalParts;
+    private String totalPST;
+    private String totalGST;
     private String  totalTaxes;
     private String  totalTotal;
 
     // ─── Constants ───────────────────────────────────────────────────────────────
-    private static final double TAX_RATE      = 0.12;
     private static final String CURRENCY_FMT  = "$%.2f";
     private static final double ROW_H         = 16.0;
     private static final double LABOUR_Y      = 446.0;
@@ -113,31 +118,37 @@ public class PrintRepairController {
         populateDevice(wo);
         woTXT.setText(String.valueOf(wo.getWorkorderNumber()));
 
-        // Pre-compute totals strings so page 2 can reuse them
-        double labour = repairData.stream().mapToDouble(WorkTable::getPrice).sum();
-        double parts  = partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
-        double taxes  = (labour + parts) * TAX_RATE;
-        double total  = labour + parts + taxes;
+        boolean hasWarranty = wo.getVendorId() != null && !wo.getVendorId().isBlank();
+        boolean hasPstNum   = co.getPstNumber() != null && !co.getPstNumber().isBlank();
+        boolean hasGstNum   = co.getGstNumber() != null && !co.getGstNumber().isBlank();
+
+        double labour       = repairData.stream().mapToDouble(WorkTable::getPrice).sum();
+        double partsDisplay = partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
+
+// warranty = parts not included in bill at all
+        double taxBase = hasWarranty ? labour : labour + partsDisplay;
+        double billParts = hasWarranty ? 0.0 : partsDisplay;
+
+        double pst = ShopSettings.get().calcPst(taxBase, hasPstNum);
+        double gst = ShopSettings.get().calcGst(taxBase, hasGstNum);
+
+        double total = labour + billParts + pst + gst;
+
         totalLabour = String.format(CURRENCY_FMT, labour);
-        totalParts  = String.format(CURRENCY_FMT, parts);
-        totalTaxes  = String.format(CURRENCY_FMT, taxes);
+        totalParts  = String.format(CURRENCY_FMT, billParts); // shows $0.00 if warranty
+        totalPST    = String.format(CURRENCY_FMT, pst);
+        totalGST    = String.format(CURRENCY_FMT, gst);
         totalTotal  = String.format(CURRENCY_FMT, total);
 
         buildLabourRows(repairData);
 
-        // Defer parts positioning + overflow detection until after layout
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             double partsHeaderY = repositionParts(repairData.size());
             buildPartsRowsWithOverflow(partsData, partsHeaderY);
             populateTotals();
         });
     }
 
-    /**
-     * Returns a fully built page 2 AnchorPane if there are overflow parts rows,
-     * or null if everything fit on page 1.
-     * Called by DocumentOutput AFTER the hidden stage has rendered page 1.
-     */
     public AnchorPane buildPage2() {
         if (overflowRows.isEmpty()) return null;
 
@@ -156,10 +167,10 @@ public class PrintRepairController {
         page.getChildren().add(hdrRect);
 
         page.getChildren().addAll(
-                staticText("Part (continued)", 6,  y + 12, true),
-                staticText("Qty",              354, y + 12, true),
-                staticText("Unit Price",       424, y + 12, true),
-                staticText("Total",            524, y + 12, true)
+                staticText("Part (continued)", 6,   y + 12, true),
+                staticText("Qty",              354,  y + 12, true),
+                staticText("Unit Price",       424,  y + 12, true),
+                staticText("Total",            524,  y + 12, true)
         );
 
         y += HEADER_H;
@@ -172,28 +183,30 @@ public class PrintRepairController {
             y += row.getPrefHeight() <= 0 ? ROW_H : row.getPrefHeight();
         }
 
-        // Totals box at bottom of page 2
-        double totalsY = PAGE_H - 110;
+        // Totals box at bottom of page 2 — taller to fit 5 lines
+        double totalsY = PAGE_H - 120;
 
-        Rectangle totalsRect = new Rectangle(465, totalsY, 129, 93);
+        Rectangle totalsRect = new Rectangle(465, totalsY, 129, 109);
         totalsRect.setFill(Color.WHITE);
         totalsRect.setStroke(Color.BLACK);
         totalsRect.setArcWidth(5);
         totalsRect.setArcHeight(5);
         page.getChildren().add(totalsRect);
 
-        double lx = 471, rx = 532, ty = totalsY + 16;
+        double lx = 471, rx = 532, ty = totalsY + 14;
         page.getChildren().addAll(
-                staticText("Labour:", lx, ty,      false),
-                staticText("Parts:",  lx, ty + 16, false),
-                staticText("Taxes:",  lx, ty + 32, false),
-                staticText("TOTAL:",  lx, ty + 50, false)
+                staticText("Labour:", lx, ty,       false),
+                staticText("Parts:",  lx, ty + 16,  false),
+                staticText("PST:",    lx, ty + 32,  false),
+                staticText("GST:",    lx, ty + 48,  false),
+                staticText("TOTAL:",  lx, ty + 66,  false)
         );
         page.getChildren().addAll(
-                staticText(totalLabour, rx, ty,      false),
-                staticText(totalParts,  rx, ty + 16, false),
-                staticText(totalTaxes,  rx, ty + 32, false),
-                staticText(totalTotal,  rx, ty + 50, false)
+                staticText(totalLabour, rx, ty,       false),
+                staticText(totalParts,  rx, ty + 16,  false),
+                staticText(totalPST,    rx, ty + 32,  false),
+                staticText(totalGST,    rx, ty + 48,  false),
+                staticText(totalTotal,  rx, ty + 66,  false)
         );
 
         // Footer line
@@ -238,7 +251,8 @@ public class PrintRepairController {
     private void populateTotals() {
         totalLabourTXT.setText(totalLabour);
         totalPartsTXT.setText(totalParts);
-        totalTaxesTXT.setText(totalTaxes);
+        totalPSTTXT.setText(totalPST);
+        totalGSTTXT.setText(totalGST);
         totalTXT.setText(totalTotal);
     }
 
@@ -333,7 +347,8 @@ public class PrintRepairController {
         if (!overflowRows.isEmpty()) {
             totalLabourTXT.setVisible(false);
             totalPartsTXT.setVisible(false);
-            totalTaxesTXT.setVisible(false);
+            totalPSTTXT.setVisible(false);   // new
+            totalGSTTXT.setVisible(false);   // new
             totalTXT.setVisible(false);
             totalsRect.setVisible(false);
             totalsLabelVBox.setVisible(false);
