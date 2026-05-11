@@ -270,4 +270,34 @@ public class WorkshopQueries {
         }
         return null;
     }
+
+    public static double[] loadShopStats(LocalDate fromDate, LocalDate toDate) {
+        String sql = """
+        SELECT SUM(r.price) AS total_labour,
+               COUNT(DISTINCT w.workorder) AS total_repairs,
+               SUM(w.pst) AS total_pst,
+               SUM(w.gst) AS total_gst
+        FROM work_order_repairs r
+        JOIN work_order w ON w.workorder = r.workorder_id
+        WHERE w.status IN ('Repair Complete', 'Billing Complete')
+        AND r.repair_date BETWEEN ? AND ?
+    """;
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, java.sql.Date.valueOf(fromDate));
+            ps.setDate(2, java.sql.Date.valueOf(toDate));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new double[]{
+                        rs.getDouble("total_labour"),
+                        rs.getDouble("total_repairs"),
+                        rs.getDouble("total_pst"),
+                        rs.getDouble("total_gst")
+                };
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new double[]{0, 0, 0, 0};
+    }
 }
