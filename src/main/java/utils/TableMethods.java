@@ -316,4 +316,75 @@
                 e.printStackTrace();
             }
         }
+
+        public static void loadVendorsTable(MFXTableView<Skeletons.Vendor> vendorsTable,
+                                            ObservableList<Skeletons.Vendor> vendorData) {
+            vendorsTable.getTableColumns().clear();
+
+            vendorsTable.setTableRowFactory(item -> {
+                MFXTableRow<Skeletons.Vendor> row = new MFXTableRow<>(vendorsTable, item);
+                row.setPrefHeight(45);
+                return row;
+            });
+
+            MFXTableColumn<Skeletons.Vendor> nameCol   = new MFXTableColumn<>("Vendor");
+            MFXTableColumn<Skeletons.Vendor> labourCol = new MFXTableColumn<>("Pays Labour");
+            MFXTableColumn<Skeletons.Vendor> partsCol  = new MFXTableColumn<>("Pays Parts");
+            MFXTableColumn<Skeletons.Vendor> pstCol    = new MFXTableColumn<>("Pays PST");
+            MFXTableColumn<Skeletons.Vendor> gstCol    = new MFXTableColumn<>("Pays GST");
+
+            nameCol.setMinWidth(160);
+            labourCol.setMinWidth(110);
+            partsCol.setMinWidth(110);
+            pstCol.setMinWidth(100);
+            gstCol.setMinWidth(100);
+
+            nameCol.setRowCellFactory(item ->
+                    new MFXTableRowCell<>(Skeletons.Vendor::getName)
+            );
+
+            labourCol.setRowCellFactory(item -> {
+                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
+                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysLabour);
+                CheckBox cb = new CheckBox();
+                cb.selectedProperty().bindBidirectional(item.paysLabourProperty());
+                cell.setGraphic(cb);
+                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                return cell;
+            });
+
+            partsCol.setRowCellFactory(item -> {
+                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
+                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysParts);
+                CheckBox cb = new CheckBox();
+                cb.selectedProperty().bindBidirectional(item.paysPartsProperty());
+                cell.setGraphic(cb);
+                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                return cell;
+            });
+
+            pstCol.setRowCellFactory(item -> {
+                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
+                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysPst);
+                CheckBox cb = new CheckBox();
+                cb.selectedProperty().bindBidirectional(item.paysPstProperty());
+                cell.setGraphic(cb);
+                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                return cell;
+            });
+
+            gstCol.setRowCellFactory(item -> {
+                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
+                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysGst);
+                CheckBox cb = new CheckBox();
+                cb.selectedProperty().bindBidirectional(item.paysGstProperty());
+                cell.setGraphic(cb);
+                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                return cell;
+            });
+
+            vendorsTable.getTableColumns().addAll(nameCol, labourCol, partsCol, pstCol, gstCol);
+            vendorsTable.setItems(vendorData);
+            vendorsTable.setFooterVisible(false);
+        }
     }

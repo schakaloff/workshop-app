@@ -113,26 +113,33 @@
       <VBox fx:id="partsVBox" layoutX="4.0" layoutY="576.0" prefWidth="590.0" spacing="0.0" />
 
       <!-- ─── Totals box ────────────────────────────────────────────── -->
-      <Rectangle fx:id="totalsRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="93.0" layoutX="465.0" layoutY="748.0" stroke="BLACK" strokeType="INSIDE" width="129.0" />
-      <VBox fx:id="totalsLabelVBox" layoutX="471.0" layoutY="753.0" prefHeight="77.0" prefWidth="59.0" spacing="4.0">
+      <Rectangle fx:id="totalsRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE"
+                 height="109.0" layoutX="465.0" layoutY="732.0"
+                 stroke="BLACK" strokeType="INSIDE" width="129.0" />
+      <VBox fx:id="totalsLabelVBox" layoutX="471.0" layoutY="737.0"
+            prefHeight="93.0" prefWidth="59.0" spacing="4.0">
          <children>
             <Text text="Labour:" />
             <Text text="Parts:" />
-            <Text text="Taxes:" />
+            <Text text="PST:" />
+            <Text text="GST:" />
             <Text text="TOTAL:"><font><Font size="14.0" /></font></Text>
          </children>
       </VBox>
-      <VBox fx:id="totalsValueVBox" layoutX="532.0" layoutY="753.0" prefHeight="77.0" prefWidth="59.0" spacing="4.0">
+      <VBox fx:id="totalsValueVBox" layoutX="532.0" layoutY="737.0"
+            prefHeight="93.0" prefWidth="59.0" spacing="4.0">
          <children>
             <Text fx:id="totalLabourTXT" text="" />
             <Text fx:id="totalPartsTXT"  text="" />
-            <Text fx:id="totalTaxesTXT"  text="" />
+            <Text fx:id="totalPSTTXT"    text="" />
+            <Text fx:id="totalGSTTXT"    text="" />
             <Text fx:id="totalTXT"       text=""><font><Font size="14.0" /></font></Text>
          </children>
       </VBox>
 
       <!-- Footer signature line -->
-      <Rectangle fx:id="footerRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="2.0" layoutY="805.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
-
+      <Rectangle fx:id="footerRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE"
+                 height="34.0" layoutX="2.0" layoutY="805.0"
+                 stroke="BLACK" strokeType="INSIDE" width="200.0" />
    </children>
 </AnchorPane>

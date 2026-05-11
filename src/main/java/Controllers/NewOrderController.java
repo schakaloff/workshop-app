@@ -64,9 +64,7 @@ public class NewOrderController {
         vendorId.setDisable(true);
         warrantyNumber.setDisable(true);
 
-        //vendorID.getItems().setAll(Vendors.loadIntoBox("src/main/resources/VendorsList.txt"));
-        Vendors.addNewVendor(vendorId);
-
+        vendorId.setItems(Vendors.loadIntoBox());
     }
 
     public void warrantySelected(){

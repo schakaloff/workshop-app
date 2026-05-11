@@ -378,9 +378,6 @@ public class ActualWorkshopController {
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
             myWoFilterEnabled = false;
-            updateOldNewButtonCount();
-            updateRepairedNotBilledButtonCount();
-            updateMyWoButtonCount();
             btnOldNew.setStyle("");
             btnRepairedNotPaid.setStyle("");
             btnShowMyWO.setStyle("");
@@ -388,9 +385,17 @@ public class ActualWorkshopController {
                     allData.stream().filter(this::isOpenWO).toList());
             setTableItems(filtered);
             btnAllWO.setText("SHOWING ALL OPEN WO: " + filtered.size());
+            // update the OTHER buttons only
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
         } else {
             showDashboardItems();
+            // update ALL buttons when turning off
             updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
         }
         Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
@@ -403,9 +408,6 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
             myWoFilterEnabled = false;
-            updateAllOpenWOButtonCount();
-            updateRepairedNotBilledButtonCount();
-            updateMyWoButtonCount();
             btnRepairedNotPaid.setStyle("");
             btnShowMyWO.setStyle("");
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
@@ -416,9 +418,15 @@ public class ActualWorkshopController {
             setTableItems(filtered);
             btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
             btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.35);");
+            updateAllOpenWOButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
         } else {
             showDashboardItems();
+            updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
         }
         Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
@@ -431,9 +439,6 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
             myWoFilterEnabled = false;
-            updateAllOpenWOButtonCount();
-            updateOldNewButtonCount();
-            updateMyWoButtonCount();
             btnOldNew.setStyle("");
             btnShowMyWO.setStyle("");
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
@@ -441,9 +446,15 @@ public class ActualWorkshopController {
             setTableItems(filtered);
             btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
             btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.35);");
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateMyWoButtonCount();
         } else {
             showDashboardItems();
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateMyWoButtonCount();
         }
         Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
@@ -456,9 +467,6 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
-            updateAllOpenWOButtonCount();
-            updateOldNewButtonCount();
-            updateRepairedNotBilledButtonCount();
             btnOldNew.setStyle("");
             btnRepairedNotPaid.setStyle("");
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
@@ -466,13 +474,18 @@ public class ActualWorkshopController {
             setTableItems(filtered);
             btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
             btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
         } else {
             showDashboardItems();
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
         }
         Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
-
     // ─── BUTTON COUNTS ──────────────────────────────────────────────────────────
 
     private void updateAllOpenWOButtonCount() {
@@ -707,8 +720,11 @@ public class ActualWorkshopController {
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
-                    Customer customer = workshopQueries.getCustomerById(wo.getCustomerId());
-                    openWorkOrderFast(wo, customer);
+                    // get the CURRENT data from the row, not the captured lambda variable
+                    WorkOrder current = row.getData();
+                    if (current == null) return;
+                    Customer customer = workshopQueries.getCustomerById(current.getCustomerId());
+                    openWorkOrderFast(current, customer);
                 }
             });
             return row;
@@ -810,16 +826,41 @@ public class ActualWorkshopController {
     public void openSettingsMenu() throws IOException {
         String role = getLoggedTechRole();
         if (!role.equals("ADMIN") && !role.equals("ACCOUNTANT")) return;
-        contentPane.setEffect(new GaussianBlur(4));
-        contentPane.setDisable(true);
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/settings.fxml"));
-        MFXGenericDialog dialog = loader.load();
-        SettingsController dialogController = loader.getController();
-        dialogController.setMainController(this);
-        dialogController.setDialogInstance(dialog);
-        dialog.setOpacity(0); dialog.setScaleX(0.8); dialog.setScaleY(0.8);
-        rootStack.getChildren().add(dialog);
-        playShowAnimation(dialog);
+
+        showLoadingOverlay();
+
+        Task<Void> loadTask = new Task<>() {
+            private MFXGenericDialog dialog;
+            private SettingsController controller;
+
+            @Override
+            protected Void call() throws Exception {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/settings.fxml"));
+                dialog = loader.load();
+                controller = loader.getController();
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                hideLoadingOverlay();
+                contentPane.setEffect(new GaussianBlur(4));
+                contentPane.setDisable(true);
+                controller.setMainController(ActualWorkshopController.this);
+                controller.setDialogInstance(dialog);
+                dialog.setOpacity(0); dialog.setScaleX(0.8); dialog.setScaleY(0.8);
+                rootStack.getChildren().add(dialog);
+                playShowAnimation(dialog);
+            }
+
+            @Override
+            protected void failed() {
+                hideLoadingOverlay();
+                getException().printStackTrace();
+            }
+        };
+
+        new Thread(loadTask).start();
     }
 
     // ─── UI HELPERS ─────────────────────────────────────────────────────────────
