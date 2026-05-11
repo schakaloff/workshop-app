@@ -874,6 +874,7 @@ public class ActualWorkshopController {
         searchTxtField.setVisible(true);     searchTxtField.setManaged(true);
         newOrderBTN.setVisible(true);        newOrderBTN.setManaged(true);
         personalwork.setVisible(false);      personalwork.setManaged(false);
+        searchCondition.setVisible(true);
     }
 
     private void hideDashboardControls() {
@@ -884,6 +885,7 @@ public class ActualWorkshopController {
         btnShowMyWO.setVisible(false);        btnShowMyWO.setManaged(false);
         searchTxtField.setVisible(false);     searchTxtField.setManaged(false);
         newOrderBTN.setVisible(false);        newOrderBTN.setManaged(false);
+        searchCondition.setVisible(false);
     }
 
     public void avatar(Circle techAvatar) {

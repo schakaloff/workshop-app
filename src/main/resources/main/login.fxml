@@ -1,37 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import io.github.palexdev.materialfx.controls.MFXProgressBar?>
-<?import javafx.scene.control.Button?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXPasswordField?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LoginController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity"
+            minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.LoginController">
+
+   <!-- ─── Left panel ─────────────────────────────── -->
    <left>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <VBox prefWidth="200" prefHeight="400"
+            alignment="CENTER" spacing="10"
+            style="-fx-background-color: #0097A7; -fx-padding: 40;">
+         <Label text="Teltronics" style="-fx-text-fill: white;">
+            <font><Font size="18" /></font>
+         </Label>
+         <Label text="Service Centre"
+                style="-fx-text-fill: rgba(255,255,255,0.6);">
+            <font><Font size="13" /></font>
+         </Label>
+         <Label text="Workshop Management"
+                style="-fx-text-fill: rgba(255,255,255,0.3); -fx-padding: 40 0 0 0;">
+            <font><Font size="11" /></font>
+         </Label>
+      </VBox>
    </left>
-   <right>
-      <AnchorPane prefHeight="400.0" prefWidth="404.0" BorderPane.alignment="CENTER">
+
+   <!-- ─── Right panel ────────────────────────────── -->
+   <center>
+      <AnchorPane prefWidth="400" prefHeight="400"
+                  style="-fx-background-color: white;">
          <children>
-            <Label layoutX="11.0" layoutY="186.0" text="Username">
-               <font>
-                  <Font size="20.0" />
-               </font>
+            <Label text="Welcome back"
+                   layoutX="40" layoutY="100">
+               <font><Font size="20" /></font>
             </Label>
-            <Label layoutX="11.0" layoutY="229.0" text="Password">
-               <font>
-                  <Font size="20.0" />
-               </font>
+            <Label text="Sign in to your account"
+                   layoutX="40" layoutY="128"
+                   style="-fx-text-fill: #888;">
+               <font><Font size="13" /></font>
             </Label>
-            <TextField fx:id="usernameField" layoutX="138.0" layoutY="189.0" promptText="username" />
-            <PasswordField fx:id="passwordField" layoutX="138.0" layoutY="231.0" promptText="password" />
-            <Button fx:id="button" layoutX="140.0" layoutY="298.0" mnemonicParsing="false" onAction="#userLogin" text="Log In" />
-            <Label fx:id="wrongLogin" layoutX="140.0" layoutY="154.0" textFill="#ee0101" />
-            <MFXProgressBar layoutX="78.0" layoutY="47.0" />
+
+            <Label fx:id="wrongLogin"
+                   layoutX="40" layoutY="158"
+                   style="-fx-text-fill: #ee0101;">
+               <font><Font size="12" /></font>
+            </Label>
+
+            <MFXTextField fx:id="usernameField"
+                          floatMode="BORDER"
+                          floatingText="Username"
+                          layoutX="40" layoutY="175"
+                          prefWidth="310" />
+
+            <MFXPasswordField fx:id="passwordField"
+                              floatMode="BORDER"
+                              floatingText="Password"
+                              layoutX="40" layoutY="230"
+                              prefWidth="310" />
+
+            <MFXButton text="Log In"
+                       onAction="#userLogin"
+                       buttonType="RAISED"
+                       layoutX="40" layoutY="300"
+                       prefWidth="310" prefHeight="36"
+                       style="-fx-background-color: #0097A7; -fx-text-fill: white;" />
          </children>
       </AnchorPane>
-   </right>
+   </center>
+
 </BorderPane>

@@ -1,5 +1,7 @@
 package Controllers;
 import DB.DbConfig;
+import io.github.palexdev.materialfx.controls.MFXPasswordField;
+import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,9 +20,9 @@ import java.sql.*;
 public class LoginController {
     public static String tech;
     @FXML
-    private TextField usernameField;
-    @FXML
-    private TextField passwordField;
+    private MFXTextField usernameField;
+
+    @FXML private MFXPasswordField passwordField;
     @FXML
     private Label wrongLogin;
 
@@ -41,7 +43,7 @@ public class LoginController {
 
         // disable button to prevent double click
         ((Node) e.getSource()).setDisable(true);
-        wrongLogin.setText("Logging in...");
+            wrongLogin.setText("Logging in...");
 
         Task<Boolean> loginTask = new Task<>() {
             @Override
