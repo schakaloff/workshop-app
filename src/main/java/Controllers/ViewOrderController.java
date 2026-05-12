@@ -119,7 +119,7 @@
 
                 setupTables();
                 setupSpellCheck();
-                setupServiceNotesExpand();
+                //setupServiceNotesExpand();
                 setupDirtyListeners();
                 setupTechComboListener();
                 setupStatusComboListener();
@@ -183,24 +183,24 @@
                 isDirty   = false;
             }
 
-            private void setupServiceNotesExpand() {
-                final double COLLAPSED_H = 60;
-                final double EXPANDED_H  = 180;
-
-                serviceNotesTXT.setPrefHeight(COLLAPSED_H);
-                serviceNotesTXT.setTranslateY(0);
-
-                serviceNotesTXT.focusedProperty().addListener((obs, was, focused) -> {
-                    if (focused) {
-                        serviceNotesTXT.setPrefHeight(EXPANDED_H);
-                        serviceNotesTXT.setTranslateY(-(EXPANDED_H - COLLAPSED_H));
-                        serviceNotesTXT.toFront();
-                    } else {
-                        serviceNotesTXT.setTranslateY(0);
-                        serviceNotesTXT.setPrefHeight(COLLAPSED_H);
-                    }
-                });
-            }
+//            private void setupServiceNotesExpand() {
+//                final double COLLAPSED_H = 60;
+//                final double EXPANDED_H  = 180;
+//
+//                serviceNotesTXT.setPrefHeight(COLLAPSED_H);
+//                serviceNotesTXT.setTranslateY(0);
+//
+//                serviceNotesTXT.focusedProperty().addListener((obs, was, focused) -> {
+//                    if (focused) {
+//                        serviceNotesTXT.setPrefHeight(EXPANDED_H);
+//                        serviceNotesTXT.setTranslateY(-(EXPANDED_H - COLLAPSED_H));
+//                        serviceNotesTXT.toFront();
+//                    } else {
+//                        serviceNotesTXT.setTranslateY(0);
+//                        serviceNotesTXT.setPrefHeight(COLLAPSED_H);
+//                    }
+//                });
+//            }
 
             private void setupDirtyListeners() {
                 // Text fields

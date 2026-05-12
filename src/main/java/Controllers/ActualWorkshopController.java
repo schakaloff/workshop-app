@@ -1,4 +1,5 @@
 package Controllers;
+
 import Controllers.DbRepo.WorkshopQueries;
 import DB.DbConfig;
 import Skeletons.Customer;
@@ -21,7 +22,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
@@ -48,16 +48,20 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public class ActualWorkshopController {
+
     @FXML private Label welcomeTech;
     @FXML private Circle techAvatar;
     @FXML public StackPane rootStack;
     @FXML public BorderPane contentPane;
     @FXML public MFXButton signOutBtn;
-    @FXML private Button newOrderBTN;
-    @FXML private Button btnAllWO;
-    @FXML private Button btnOldNew;
-    @FXML private Button btnRepairedNotPaid;
-    @FXML private Button btnShowMyWO;
+
+    // ─── filter / search buttons — now MFXButton ────────────────────────────────
+    @FXML private MFXButton newOrderBTN;
+    @FXML private MFXButton btnAllWO;
+    @FXML private MFXButton btnOldNew;
+    @FXML private MFXButton btnRepairedNotPaid;
+    @FXML private MFXButton btnShowMyWO;
+
     @FXML private MFXTextField searchTxtField;
     @FXML private MFXPaginatedTableView<WorkOrder> table;
     @FXML private AnchorPane personalwork;
@@ -69,6 +73,10 @@ public class ActualWorkshopController {
     @FXML private MFXTableView<TechWorkRow> techTable;
     @FXML private MFXButton calcBTN;
     @FXML private MFXComboBox<String> searchCondition;
+
+    @FXML private MFXButton btnNavDashboard;
+    @FXML private MFXButton btnNavMyWork;
+    @FXML private MFXButton btnNavSettings;
 
     // ─── LOADING OVERLAY ────────────────────────────────────────────────────────
     @FXML private StackPane loadingOverlay;
@@ -92,10 +100,23 @@ public class ActualWorkshopController {
     private static final int ROWS_PER_PAGE   = 15;
     private static final int DASHBOARD_LIMIT = 75;
 
+
+    // ─── Button style constants ──────────────────────────────────────────────────
+    private static final String STYLE_BTN_DEFAULT  = "-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;";
+    private static final String STYLE_BTN_CYAN     = "-fx-background-color: #e8f8f9; -fx-text-fill: #0097A7; -fx-background-radius: 6; -fx-border-color: #0097A7; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;";
+    private static final String STYLE_BTN_RED_LO   = "-fx-background-color: rgba(255,0,0,0.15); -fx-background-radius: 6; -fx-border-color: rgba(255,0,0,0.35); -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #c0392b; -fx-font-size: 10;";
+    private static final String STYLE_BTN_RED_HI   = "-fx-background-color: rgba(255,0,0,0.30); -fx-background-radius: 6; -fx-border-color: #c0392b; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #c0392b; -fx-font-size: 10;";
+    private static final String STYLE_BTN_BLUE_LO  = "-fx-background-color: rgba(0,120,255,0.10); -fx-background-radius: 6; -fx-border-color: rgba(0,120,255,0.35); -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #1a6fcc; -fx-font-size: 10;";
+    private static final String STYLE_BTN_BLUE_HI  = "-fx-background-color: rgba(0,120,255,0.30); -fx-background-radius: 6; -fx-border-color: #1a6fcc; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #1a6fcc; -fx-font-size: 10;";
+    private static final String STYLE_BTN_PURP_LO  = "-fx-background-color: rgba(160,70,255,0.10); -fx-background-radius: 6; -fx-border-color: rgba(160,70,255,0.35); -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #7b2fbe; -fx-font-size: 10;";
+    private static final String STYLE_BTN_PURP_HI  = "-fx-background-color: rgba(160,70,255,0.30); -fx-background-radius: 6; -fx-border-color: #7b2fbe; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #7b2fbe; -fx-font-size: 10;";
+    private static final String SIDEBAR_ACTIVE   = "-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: white; -fx-background-radius: 8;";
+    private static final String SIDEBAR_INACTIVE = "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.75); -fx-background-radius: 8;";
+
     // ─── LOADING OVERLAY HELPERS ────────────────────────────────────────────────
 
     private void showLoadingOverlay() {
-        loadingSpinner.setProgress(-1); // indeterminate spin
+        loadingSpinner.setProgress(-1);
         loadingOverlay.setOpacity(1.0);
         loadingOverlay.setVisible(true);
         loadingOverlay.setManaged(true);
@@ -109,7 +130,7 @@ public class ActualWorkshopController {
         fade.setOnFinished(e -> {
             loadingOverlay.setVisible(false);
             loadingOverlay.setManaged(false);
-            loadingOverlay.setOpacity(1.0); // reset for next time
+            loadingOverlay.setOpacity(1.0);
         });
         fade.play();
     }
@@ -135,7 +156,6 @@ public class ActualWorkshopController {
         ObservableList<WorkOrder> recent = FXCollections.observableArrayList(
                 allData.stream().limit(DASHBOARD_LIMIT).toList()
         );
-        // clear first to prevent MFX seeing more than DASHBOARD_LIMIT items
         try { table.setItems(FXCollections.observableArrayList()); } catch (Exception ignored) {}
         setTableItems(recent);
     }
@@ -143,7 +163,6 @@ public class ActualWorkshopController {
     // ─── INITIALIZE ─────────────────────────────────────────────────────────────
 
     public void initialize() {
-        // lightweight stuff first — renders immediately
         welcomeTech.setText(LoginController.tech);
         avatar(techAvatar);
         personalwork.setVisible(false);
@@ -165,11 +184,9 @@ public class ActualWorkshopController {
             }
         });
 
-        // defer heavy work to AFTER the scene is rendered
         Platform.runLater(() -> {
             showLoadingOverlay();
 
-            // load viewOrder.fxml on background thread — saves 793ms of FX thread blocking
             Task<Void> preloadTask = new Task<>() {
                 private MFXGenericDialog dialog;
                 private ViewOrderController controller;
@@ -184,13 +201,10 @@ public class ActualWorkshopController {
 
                 @Override
                 protected void succeeded() {
-                    // back on FX thread — safe to touch nodes now
                     viewOrderDialog = dialog;
                     viewOrderController = controller;
                     viewOrderController.setMainController(ActualWorkshopController.this);
                     viewOrderController.setDialogInstance(viewOrderDialog);
-
-                    // now do the rest
                     loadTechStatsTable();
                     fromDPicker.setValue(LocalDate.now().withDayOfMonth(1));
                     toDPicker.setValue(LocalDate.now());
@@ -211,7 +225,6 @@ public class ActualWorkshopController {
 
     public void LoadOrders() {
         showDashboardControls();
-
         table.getTableColumns().clear();
         table.getItems().clear();
         loadOrdersTable();
@@ -219,7 +232,6 @@ public class ActualWorkshopController {
         loadOrdersAsync();
     }
 
-    /** Called externally (e.g. after new WO created) to force a full reload. */
     public void reloadOrders() {
         isDashboardLoaded = false;
         LoadOrders();
@@ -227,9 +239,9 @@ public class ActualWorkshopController {
 
     @FXML
     public void showDashboard() {
+        setSidebarActive(btnNavDashboard);
         showDashboardControls();
         showLoadingOverlay();
-
         if (isDashboardLoaded) {
             showDashboardItems();
             refreshOrdersInBackground();
@@ -245,7 +257,6 @@ public class ActualWorkshopController {
                 return workshopQueries.loadOrdersIntoTable();
             }
         };
-
         task.setOnSucceeded(ev -> {
             List<WorkOrder> result = task.getValue();
             data.setAll(result);
@@ -257,12 +268,10 @@ public class ActualWorkshopController {
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         });
-
         task.setOnFailed(ev -> {
             task.getException().printStackTrace();
             hideLoadingOverlay();
         });
-
         new Thread(task).start();
     }
 
@@ -273,12 +282,11 @@ public class ActualWorkshopController {
                 return workshopQueries.loadOrdersIntoTable();
             }
         };
-
         task.setOnSucceeded(ev -> {
             List<WorkOrder> result = task.getValue();
             data.setAll(result);
-            allData.setAll(result); // always full dataset
-            showDashboardItems();   // always shows max 75
+            allData.setAll(result);
+            showDashboardItems();
             isDashboardLoaded = true;
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
@@ -286,16 +294,13 @@ public class ActualWorkshopController {
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         });
-
         task.setOnFailed(ev -> {
             task.getException().printStackTrace();
             hideLoadingOverlay();
         });
-
         new Thread(task).start();
     }
 
-    // kept for compatibility — some callers may still use this directly
     public void loadOrdersIntoTable() {
         data.setAll(workshopQueries.loadOrdersIntoTable());
     }
@@ -305,10 +310,8 @@ public class ActualWorkshopController {
     public void onSearchEnter() {
         String text = searchTxtField.getText();
         if (text == null || text.isBlank()) return;
-
         String trimmed   = text.trim();
         String condition = searchCondition.getValue();
-
         switch (condition) {
             case "WO Number"    -> searchByWoNumber(trimmed);
             case "Phone Number" -> searchByPhone(trimmed);
@@ -325,11 +328,9 @@ public class ActualWorkshopController {
         } catch (NumberFormatException e) {
             return;
         }
-
         WorkOrder found = allData.stream()
                 .filter(w -> w.getWorkorderNumber() == woNumber)
                 .findFirst().orElse(null);
-
         if (found != null) {
             setTableItems(FXCollections.observableArrayList(found));
         } else {
@@ -378,20 +379,19 @@ public class ActualWorkshopController {
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
             myWoFilterEnabled = false;
-            btnOldNew.setStyle("");
-            btnRepairedNotPaid.setStyle("");
-            btnShowMyWO.setStyle("");
+            btnOldNew.setStyle(STYLE_BTN_DEFAULT);
+            btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
+            btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
                     allData.stream().filter(this::isOpenWO).toList());
             setTableItems(filtered);
             btnAllWO.setText("SHOWING ALL OPEN WO: " + filtered.size());
-            // update the OTHER buttons only
+            btnAllWO.setStyle(STYLE_BTN_CYAN);
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
         } else {
             showDashboardItems();
-            // update ALL buttons when turning off
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
@@ -408,8 +408,8 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
             myWoFilterEnabled = false;
-            btnRepairedNotPaid.setStyle("");
-            btnShowMyWO.setStyle("");
+            btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
+            btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
                     allData.stream()
                             .filter(wo -> isStatusNew(wo.getStatus()))
@@ -417,7 +417,7 @@ public class ActualWorkshopController {
                             .toList());
             setTableItems(filtered);
             btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
-            btnOldNew.setStyle("-fx-background-color: rgba(255,0,0,0.35);");
+            btnOldNew.setStyle(STYLE_BTN_RED_HI);
             updateAllOpenWOButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
@@ -439,13 +439,13 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
             myWoFilterEnabled = false;
-            btnOldNew.setStyle("");
-            btnShowMyWO.setStyle("");
+            btnOldNew.setStyle(STYLE_BTN_DEFAULT);
+            btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
                     allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).toList());
             setTableItems(filtered);
             btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
-            btnRepairedNotPaid.setStyle("-fx-background-color: rgba(0, 120, 255, 0.35);");
+            btnRepairedNotPaid.setStyle(STYLE_BTN_BLUE_HI);
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateMyWoButtonCount();
@@ -467,13 +467,13 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
-            btnOldNew.setStyle("");
-            btnRepairedNotPaid.setStyle("");
+            btnOldNew.setStyle(STYLE_BTN_DEFAULT);
+            btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
             ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
                     allData.stream().filter(this::isMyWO).toList());
             setTableItems(filtered);
             btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
-            btnShowMyWO.setStyle("-fx-background-color: rgba(160, 70, 255, 0.35);");
+            btnShowMyWO.setStyle(STYLE_BTN_PURP_HI);
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
@@ -486,32 +486,34 @@ public class ActualWorkshopController {
         }
         Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
+
     // ─── BUTTON COUNTS ──────────────────────────────────────────────────────────
 
     private void updateAllOpenWOButtonCount() {
         if (btnAllWO == null) return;
         btnAllWO.setText("ALL OPEN WO: " + countAllOpenWO());
+        btnAllWO.setStyle(STYLE_BTN_CYAN);
     }
 
     private void updateOldNewButtonCount() {
         if (btnOldNew == null) return;
         int count = countOldNewOver10();
         btnOldNew.setText("OLD OPENED WO: " + count);
-        btnOldNew.setStyle(count > 0 ? "-fx-background-color: rgba(255,0,0,0.20);" : "");
+        btnOldNew.setStyle(count > 0 ? STYLE_BTN_RED_LO : STYLE_BTN_DEFAULT);
     }
 
     private void updateRepairedNotBilledButtonCount() {
         if (btnRepairedNotPaid == null) return;
         int count = countRepairedNotBilled();
         btnRepairedNotPaid.setText("REPAIRED NOT BILLED: " + count);
-        btnRepairedNotPaid.setStyle(count > 0 ? "-fx-background-color: rgba(0, 120, 255, 0.20);" : "");
+        btnRepairedNotPaid.setStyle(count > 0 ? STYLE_BTN_BLUE_LO : STYLE_BTN_DEFAULT);
     }
 
     private void updateMyWoButtonCount() {
         if (btnShowMyWO == null) return;
         int count = countMyWO();
         btnShowMyWO.setText("MY WO: " + count);
-        btnShowMyWO.setStyle(count > 0 ? "-fx-background-color: rgba(160, 70, 255, 0.20);" : "");
+        btnShowMyWO.setStyle(count > 0 ? STYLE_BTN_PURP_LO : STYLE_BTN_DEFAULT);
     }
 
     // ─── STATUS HELPERS ─────────────────────────────────────────────────────────
@@ -569,7 +571,9 @@ public class ActualWorkshopController {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("id");
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -582,7 +586,9 @@ public class ActualWorkshopController {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getString("role").trim().toUpperCase();
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return "";
     }
 
@@ -590,13 +596,16 @@ public class ActualWorkshopController {
         try {
             LocalDateTime created = LocalDateTime.parse(wo.getCreatedAt(), DB_DT);
             return ChronoUnit.DAYS.between(created, LocalDateTime.now(ZoneId.systemDefault()));
-        } catch (Exception ignored) { return 0; }
+        } catch (Exception ignored) {
+            return 0;
+        }
     }
 
     // ─── STATS ──────────────────────────────────────────────────────────────────
 
     @FXML
     public void myStats() {
+        setSidebarActive(btnNavMyWork);
         hideDashboardControls();
         personalwork.setVisible(true);
         personalwork.setManaged(true);
@@ -625,7 +634,7 @@ public class ActualWorkshopController {
         }
         List<TechWorkRow> rows = workshopQueries.loadTechWorkByDateRange(techUsername, fromDate, toDate);
         double totalEarned = 0.0;
-        int repairsCount   = 0;
+        int repairsCount = 0;
         for (TechWorkRow row : rows) {
             techWorkData.add(row);
             totalEarned += row.getLabourAmount();
@@ -673,7 +682,9 @@ public class ActualWorkshopController {
         status.setRowCellFactory(order      -> new MFXTableRowCell<>(WorkOrder::getStatus));
         type.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getType));
         customerCol.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCustomerName));
-        date.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{ setAlignment(Pos.CENTER_RIGHT); }});
+        date.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{
+            setAlignment(Pos.CENTER_RIGHT);
+        }});
 
         date.setAlignment(Pos.CENTER_RIGHT);
         table.getTableColumns().addAll(workOrder, status, type, customerCol, date);
@@ -711,16 +722,17 @@ public class ActualWorkshopController {
     }
 
     // ─── VIEW ORDER ─────────────────────────────────────────────────────────────
+
     public void viewOrder(MFXTableView<WorkOrder> table) {
         table.setTableRowFactory(wo -> {
             MFXTableRow<WorkOrder> row = new MFXTableRow<>(table, wo);
             applyRowStyle(row, wo);
-            try { row.dataProperty().addListener((obs, oldVal, newVal) -> applyRowStyle(row, newVal)); }
-            catch (Exception ignored) {}
+            try {
+                row.dataProperty().addListener((obs, oldVal, newVal) -> applyRowStyle(row, newVal));
+            } catch (Exception ignored) {}
             row.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
                 if (e.getClickCount() == 2) {
                     e.consume();
-                    // get the CURRENT data from the row, not the captured lambda variable
                     WorkOrder current = row.getData();
                     if (current == null) return;
                     Customer customer = workshopQueries.getCustomerById(current.getCustomerId());
@@ -735,19 +747,19 @@ public class ActualWorkshopController {
         row.setStyle("");
         if (wo == null) return;
         if (isStatusBillingComplete(wo.getStatus())) {
-            row.setStyle("-fx-background-color: rgba(0, 200, 0, 0.22);");
+            row.setStyle("-fx-background-color: rgba(0,200,0,0.18);");
             return;
         }
         if (isStatusComplete(wo.getStatus())) {
-            row.setStyle("-fx-background-color: rgba(0, 120, 255, 0.22);");
+            row.setStyle("-fx-background-color: rgba(0,120,255,0.18);");
             return;
         }
         if (isAgingStatus(wo.getStatus())) {
             long days = ageDays(wo);
-            if (days > 10)     { row.setStyle("-fx-background-color: rgba(255, 0, 0, 0.25);"); return; }
-            else if (days > 5) { row.setStyle("-fx-background-color: rgba(255, 215, 0, 0.25);"); return; }
+            if (days > 10)     { row.setStyle("-fx-background-color: rgba(255,0,0,0.18);"); return; }
+            else if (days > 5) { row.setStyle("-fx-background-color: rgba(255,215,0,0.20);"); return; }
         }
-        if (isMyWO(wo)) row.setStyle("-fx-background-color: rgba(160, 70, 255, 0.18);");
+        if (isMyWO(wo)) row.setStyle("-fx-background-color: rgba(160,70,255,0.15);");
     }
 
     public void openWorkOrderFast(WorkOrder order, Customer co) {
@@ -778,7 +790,9 @@ public class ActualWorkshopController {
                 try {
                     openWorkOrderFast(wo, customer);
                     searchTxtField.clear();
-                } catch (Exception e) { e.printStackTrace(); }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         task.setOnFailed(ev -> task.getException().printStackTrace());
@@ -804,7 +818,9 @@ public class ActualWorkshopController {
         NewOrderController dialogController = loader.getController();
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
-        dialog.setOpacity(0); dialog.setScaleX(0.8); dialog.setScaleY(0.8);
+        dialog.setOpacity(0);
+        dialog.setScaleX(0.8);
+        dialog.setScaleY(0.8);
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
     }
@@ -818,12 +834,15 @@ public class ActualWorkshopController {
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
         dialogController.initData(order, co);
-        dialog.setOpacity(0); dialog.setScaleX(0.8); dialog.setScaleY(0.8);
+        dialog.setOpacity(0);
+        dialog.setScaleX(0.8);
+        dialog.setScaleY(0.8);
         rootStack.getChildren().add(dialog);
         playShowAnimation(dialog);
     }
 
     public void openSettingsMenu() throws IOException {
+        setSidebarActive(btnNavSettings);
         String role = getLoggedTechRole();
         if (!role.equals("ADMIN") && !role.equals("ACCOUNTANT")) return;
 
@@ -848,7 +867,9 @@ public class ActualWorkshopController {
                 contentPane.setDisable(true);
                 controller.setMainController(ActualWorkshopController.this);
                 controller.setDialogInstance(dialog);
-                dialog.setOpacity(0); dialog.setScaleX(0.8); dialog.setScaleY(0.8);
+                dialog.setOpacity(0);
+                dialog.setScaleX(0.8);
+                dialog.setScaleY(0.8);
                 rootStack.getChildren().add(dialog);
                 playShowAnimation(dialog);
             }
@@ -874,7 +895,7 @@ public class ActualWorkshopController {
         searchTxtField.setVisible(true);     searchTxtField.setManaged(true);
         newOrderBTN.setVisible(true);        newOrderBTN.setManaged(true);
         personalwork.setVisible(false);      personalwork.setManaged(false);
-        searchCondition.setVisible(true);
+        searchCondition.setVisible(true);    searchCondition.setManaged(true);
     }
 
     private void hideDashboardControls() {
@@ -885,7 +906,7 @@ public class ActualWorkshopController {
         btnShowMyWO.setVisible(false);        btnShowMyWO.setManaged(false);
         searchTxtField.setVisible(false);     searchTxtField.setManaged(false);
         newOrderBTN.setVisible(false);        newOrderBTN.setManaged(false);
-        searchCondition.setVisible(false);
+        searchCondition.setVisible(false);    searchCondition.setManaged(false);
     }
 
     public void avatar(Circle techAvatar) {
@@ -897,9 +918,21 @@ public class ActualWorkshopController {
 
     private void playShowAnimation(MFXGenericDialog dialog) {
         FadeTransition fade = new FadeTransition(Duration.millis(250), dialog);
-        fade.setFromValue(0); fade.setToValue(1);
+        fade.setFromValue(0);
+        fade.setToValue(1);
         ScaleTransition scale = new ScaleTransition(Duration.millis(250), dialog);
-        scale.setFromX(0.8); scale.setToX(1); scale.setFromY(0.8); scale.setToY(1);
+        scale.setFromX(0.8);
+        scale.setToX(1);
+        scale.setFromY(0.8);
+        scale.setToY(1);
         new ParallelTransition(fade, scale).play();
     }
+
+    private void setSidebarActive(MFXButton active) {
+        btnNavDashboard.setStyle(SIDEBAR_INACTIVE);
+        btnNavMyWork.setStyle(SIDEBAR_INACTIVE);
+        btnNavSettings.setStyle(SIDEBAR_INACTIVE);
+        active.setStyle(SIDEBAR_ACTIVE);
+    }
 }
+

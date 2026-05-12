@@ -1,4 +1,112 @@
-.mfx-text-field:focus-within,
-.mfx-button:focus {
-    -mfx-main: blue;
+/* ─── Global MFX accent color ───────────────────────────────────── */
+.mfx-text-field {
+    -mfx-main-color: #0097A7;
 }
+
+.mfx-combo-box {
+    -mfx-main-color: #0097A7;
+}
+
+.mfx-date-picker {
+    -mfx-main-color: #0097A7;
+}
+
+.mfx-checkbox {
+    -mfx-main-color: #0097A7;
+}
+
+.mfx-progress-spinner {
+    -mfx-color1: #0097A7;
+    -mfx-color2: #00BCD4;
+    -mfx-color3: #0097A7;
+    -mfx-color4: #00BCD4;
+}
+
+/* ─── MFX buttons — don't set globally, breaks sidebar custom styles ── */
+/* Only set on buttons that aren't already styled inline */
+
+/* ─── Table column header ────────────────────────────────────────── */
+.mfx-table-view .columns-container,
+.mfx-paginated-table-view .columns-container {
+    -fx-background-color: #f0f4f5;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.mfx-table-column .label {
+    -fx-text-fill: #555;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* ─── Table rows ─────────────────────────────────────────────────── */
+.mfx-table-row {
+    -fx-background-color: white;
+}
+
+.mfx-table-row:hover {
+    -fx-background-color: #e8f8f9;
+    -fx-cursor: hand;
+}
+
+.mfx-table-row-cell .label {
+    -fx-text-fill: #333;
+    -fx-font-size: 12px;
+}
+
+/* ─── Paginated footer ───────────────────────────────────────────── */
+.mfx-paginated-table-view .default-footer {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 4 8 4 8;
+}
+
+/* pagination page buttons */
+.mfx-paginated-table-view .default-footer .mfx-pagination .mfx-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #555;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-font-size: 12px;
+}
+
+.mfx-paginated-table-view .default-footer .mfx-pagination .mfx-button:hover {
+    -fx-background-color: #e8f8f9;
+    -fx-text-fill: #0097A7;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 6 16 6 16;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: #0097A7;
+    -fx-border-width: 0 0 2 0;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #888;
+    -fx-font-size: 12px;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #0097A7;
+    -fx-font-weight: bold;
+}
+
+.mfx-generic-dialog .mfx-text-field,
+.mfx-generic-dialog .mfx-combo-box {
+    -mfx-main-color: white;
+}
+

@@ -1,90 +1,233 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXDrawer?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.controls.MFXComboBox?>
 <?import io.github.palexdev.materialfx.controls.MFXDatePicker?>
 <?import io.github.palexdev.materialfx.controls.MFXPaginatedTableView?>
+<?import io.github.palexdev.materialfx.controls.MFXProgressSpinner?>
 <?import io.github.palexdev.materialfx.controls.MFXTableView?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.effect.Glow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<?import io.github.palexdev.materialfx.controls.MFXProgressSpinner?>
-<StackPane fx:id="rootStack" maxHeight="675.0" maxWidth="1000.0" minHeight="675.0" minWidth="1000.0" prefHeight="675.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
+<StackPane fx:id="rootStack"
+           maxHeight="675.0" maxWidth="1000.0"
+           minHeight="675.0" minWidth="1000.0"
+           prefHeight="675.0" prefWidth="1000.0"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controllers.ActualWorkshopController">
    <children>
-      <BorderPane fx:id="contentPane" prefHeight="400.0" prefWidth="600.0">
+      <BorderPane fx:id="contentPane" prefHeight="675.0" prefWidth="1000.0">
+
+         <!-- ─── Sidebar ─────────────────────────────────────────────────── -->
          <left>
-            <JFXDrawer prefHeight="400.0" prefWidth="112.0" BorderPane.alignment="CENTER">
+            <VBox fx:id="sidePanel"
+                  alignment="TOP_CENTER"
+                  prefHeight="675.0" prefWidth="140.0"
+                  spacing="6"
+                  style="-fx-background-color: #0097A7; -fx-padding: 20 12 16 12;"
+                  BorderPane.alignment="CENTER">
                <children>
-                  <VBox fx:id="sidePanel" prefHeight="396.0" prefWidth="130.0" style="-fx-background-color: white; -fx-spacing: 15; -fx-padding: 30;">
-                     <children>
-                        <Circle fx:id="techAvatar" fill="DODGERBLUE" radius="55.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                        <Label text="Welcome!">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="welcomeTech">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Label>
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#showDashboard" prefHeight="30.0" prefWidth="105.0" text="Dashboard" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#myStats" prefHeight="30.0" prefWidth="105.0" text="My Work" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" onAction="#openSettingsMenu" prefHeight="30.0" prefWidth="105.0" text="Shop Settings" />
-                        <MFXButton fx:id="signOutBtn" buttonType="RAISED" depthLevel="LEVEL5" onAction="#signOut" prefHeight="30.0" prefWidth="105.0" text="Sign Out" />
-                     </children>
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets>
-                  </VBox>
+
+                  <!-- Avatar -->
+                  <Circle fx:id="techAvatar"
+                          fill="#00bcd4" radius="35.0"
+                          stroke="rgba(255,255,255,0.4)"
+                          strokeType="INSIDE" strokeWidth="2.0" />
+
+                  <Label text="Welcome!"
+                         style="-fx-text-fill: white;">
+                     <font><Font size="12.0" /></font>
+                  </Label>
+
+                  <Label fx:id="welcomeTech"
+                         style="-fx-text-fill: rgba(255,255,255,0.75);"
+                         textAlignment="CENTER" wrapText="true">
+                     <font><Font size="11.0" /></font>
+                     <VBox.margin><Insets bottom="14" /></VBox.margin>
+                  </Label>
+
+                  <!-- Nav buttons — all three have fx:id for active state -->
+                  <MFXButton fx:id="btnNavDashboard"
+                             buttonType="FLAT"
+                             onAction="#showDashboard"
+                             prefHeight="36.0" prefWidth="116.0"
+                             text="Dashboard"
+                             style="-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: white; -fx-background-radius: 8;" />
+
+                  <MFXButton fx:id="btnNavMyWork"
+                             buttonType="FLAT"
+                             onAction="#myStats"
+                             prefHeight="36.0" prefWidth="116.0"
+                             text="My Work"
+                             style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.75); -fx-background-radius: 8;" />
+
+                  <MFXButton fx:id="btnNavSettings"
+                             buttonType="FLAT"
+                             onAction="#openSettingsMenu"
+                             prefHeight="36.0" prefWidth="116.0"
+                             text="Shop Settings"
+                             style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.75); -fx-background-radius: 8;" />
+
+                  <!-- Spacer pushes sign out to bottom -->
+                  <Region VBox.vgrow="ALWAYS" />
+
+                  <MFXButton fx:id="signOutBtn"
+                             buttonType="FLAT"
+                             onAction="#signOut"
+                             prefHeight="36.0" prefWidth="116.0"
+                             text="Sign Out"
+                             style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.55); -fx-background-radius: 8;" />
                </children>
-            </JFXDrawer>
+            </VBox>
          </left>
+
+         <!-- ─── Main content ───────────────────────────────────────────── -->
          <center>
-            <AnchorPane prefHeight="675.0" prefWidth="850.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+            <VBox prefHeight="675.0" prefWidth="860.0"
+                  style="-fx-background-color: #f5f7fa;"
+                  BorderPane.alignment="CENTER">
                <children>
-                  <AnchorPane fx:id="personalwork" layoutX="2.0" prefHeight="675.0" prefWidth="815.0" style="-fx-background-color: white;">
+
+                  <!-- Top bar with filter buttons + search -->
+                  <HBox alignment="CENTER_LEFT"
+                        prefHeight="50.0" prefWidth="860.0"
+                        spacing="8"
+                        style="-fx-background-color: white; -fx-padding: 0 16 0 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                      <children>
-                        <MFXDatePicker fx:id="fromDPicker" floatMode="BORDER" floatingText="From" layoutX="118.0" layoutY="30.0" prefHeight="38.0" prefWidth="100.0" />
-                        <MFXTextField fx:id="tEarnedTXF" floatMode="BORDER" floatingText="Total Earned:" layoutX="417.0" layoutY="22.0" prefHeight="51.0" prefWidth="188.0" text="0" />
-                        <MFXTextField fx:id="repairsTXF" floatMode="BORDER" floatingText="Repairs Complete" layoutX="613.0" layoutY="23.0" prefHeight="51.0" prefWidth="188.0" text="0" />
-                        <MFXTextField fx:id="techTXF" floatingText="Tech" layoutX="14.0" layoutY="24.0" text="Tech" />
-                        <MFXTableView fx:id="techTable" layoutX="14.0" layoutY="100.0" maxHeight="521.0" maxWidth="775.0" minHeight="521.0" minWidth="775.0" prefHeight="521.0" prefWidth="775.0" />
-                        <MFXButton fx:id="calcBTN" buttonType="RAISED" depthLevel="LEVEL5" layoutX="632.0" layoutY="606.0" onAction="#calculateWork" prefHeight="26.0" prefWidth="150.0" text="Calculate" />
-                        <MFXDatePicker fx:id="toDPicker" floatMode="BORDER" floatingText="To" layoutX="264.0" layoutY="31.0" prefHeight="38.0" prefWidth="100.0" />
+                        <MFXButton fx:id="btnAllWO"
+                                   buttonType="FLAT"
+                                   onAction="#showAllOpenWO"
+                                   prefHeight="28.0" prefWidth="130.0"
+                                   text="ALL OPEN WO: 0"
+                                   style="-fx-background-color: #e8f8f9; -fx-text-fill: #0097A7; -fx-background-radius: 6; -fx-border-color: #0097A7; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" />
+                        <MFXButton fx:id="btnOldNew"
+                                   buttonType="FLAT"
+                                   onAction="#showOldNewOver10"
+                                   prefHeight="28.0" prefWidth="130.0"
+                                   text="OLD OPENED WO: 0"
+                                   style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" />
+                        <MFXButton fx:id="btnRepairedNotPaid"
+                                   buttonType="FLAT"
+                                   onAction="#showRepairedNotPaid"
+                                   prefHeight="28.0" prefWidth="150.0"
+                                   text="REPAIRED NOT BILLED: 0"
+                                   style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" />
+                        <MFXButton fx:id="btnShowMyWO"
+                                   buttonType="FLAT"
+                                   onAction="#showMyWO"
+                                   prefHeight="28.0" prefWidth="100.0"
+                                   text="MY WO: 0"
+                                   style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" />
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <MFXComboBox fx:id="searchCondition"
+                                     prefHeight="28.0" prefWidth="100.0"
+                                     maxWidth="100.0" minWidth="100.0" />
+                        <MFXTextField fx:id="searchTxtField"
+                                      floatMode="BORDER"
+                                      floatingText="Quick Search"
+                                      prefHeight="28.0" prefWidth="120.0"
+                                      minWidth="120.0" maxWidth="120.0" />
+                        <MFXButton fx:id="newOrderBTN"
+                                   buttonType="RAISED"
+                                   onAction="#createNewOrder"
+                                   prefHeight="28.0" prefWidth="70.0"
+                                   text="+ New"
+                                   style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
                      </children>
-                  </AnchorPane>
-                  <MFXPaginatedTableView fx:id="table" layoutX="12.0" layoutY="79.0" maxWidth="795.0" minWidth="795.0" prefHeight="517.0" prefWidth="795.0" />
-                  <MFXButton fx:id="newOrderBTN" alignment="CENTER" buttonType="RAISED" depthLevel="LEVEL5" layoutX="687.0" layoutY="605.0" onAction="#createNewOrder" prefHeight="26.0" prefWidth="120.0" rippleColor="#bdbdbd" text="New" textAlignment="CENTER">
-                     <effect>
-                        <Glow />
-                     </effect></MFXButton>
-                  <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" layoutX="731.0" layoutY="27.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="90.0" />
-                  <MFXButton fx:id="btnAllWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="-12.0" layoutY="27.0" onAction="#showAllOpenWO" prefHeight="25.0" prefWidth="150.0" text="ALL OPEN WO: 0" />
-                  <MFXButton fx:id="btnOldNew" buttonType="RAISED" depthLevel="LEVEL5" layoutX="148.0" layoutY="27.0" onAction="#showOldNewOver10" prefHeight="25.0" prefWidth="150.0" text="OLD OPENED WO: 0" />
-                  <MFXButton fx:id="btnRepairedNotPaid" buttonType="RAISED" depthLevel="LEVEL5" layoutX="308.0" layoutY="27.0" onAction="#showRepairedNotPaid" prefHeight="25.0" prefWidth="180.0" text="REPAIRED BUT NOT PAID: 0" />
-                  <MFXButton fx:id="btnShowMyWO" buttonType="RAISED" depthLevel="LEVEL5" layoutX="498.0" layoutY="27.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showMyWO" prefHeight="25.0" prefWidth="150.0" text="MY CURRENT WO: 0" />
-                  <MFXComboBox fx:id="searchCondition" layoutX="652.0" layoutY="27.0" maxWidth="75.0" minHeight="25.0" minWidth="75.0" />
+                  </HBox>
+
+                  <!-- Content area — table or my work stacked -->
+                  <StackPane VBox.vgrow="ALWAYS">
+                     <children>
+
+                        <!-- Dashboard table -->
+                        <AnchorPane style="-fx-background-color: #f5f7fa; -fx-padding: 12;">
+                           <children>
+                              <MFXPaginatedTableView fx:id="table"
+                                                     AnchorPane.topAnchor="0"
+                                                     AnchorPane.leftAnchor="0"
+                                                     AnchorPane.rightAnchor="0"
+                                                     AnchorPane.bottomAnchor="0" />
+                           </children>
+                        </AnchorPane>
+
+                        <!-- My Work panel -->
+                        <AnchorPane fx:id="personalwork"
+                                    prefHeight="621.0" prefWidth="860.0"
+                                    style="-fx-background-color: #f5f7fa;"
+                                    visible="false" managed="false">
+                           <children>
+
+                              <!-- Top controls bar -->
+                              <HBox layoutX="0" layoutY="0"
+                                    prefHeight="50" prefWidth="860"
+                                    spacing="10" alignment="CENTER_LEFT"
+                                    style="-fx-background-color: white; -fx-padding: 0 16 0 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                                 <children>
+                                    <MFXTextField fx:id="techTXF"
+                                                  floatMode="BORDER"
+                                                  floatingText="Tech"
+                                                  prefHeight="28.0" prefWidth="110.0" />
+                                    <MFXDatePicker fx:id="fromDPicker"
+                                                   floatMode="BORDER"
+                                                   floatingText="From"
+                                                   prefHeight="36.0" prefWidth="120.0" />
+                                    <MFXDatePicker fx:id="toDPicker"
+                                                   floatMode="BORDER"
+                                                   floatingText="To"
+                                                   prefHeight="36.0" prefWidth="120.0" />
+                                    <MFXTextField fx:id="tEarnedTXF"
+                                                  floatMode="BORDER"
+                                                  floatingText="Total Earned"
+                                                  prefHeight="36.0" prefWidth="150.0" />
+                                    <MFXTextField fx:id="repairsTXF"
+                                                  floatMode="BORDER"
+                                                  floatingText="Repairs Complete"
+                                                  prefHeight="36.0" prefWidth="160.0" />
+                                    <MFXButton fx:id="calcBTN"
+                                               buttonType="RAISED"
+                                               onAction="#calculateWork"
+                                               prefHeight="36.0" prefWidth="100.0"
+                                               text="Calculate"
+                                               style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                 </children>
+                              </HBox>
+
+                              <!-- Tech work table -->
+                              <MFXTableView fx:id="techTable"
+                                            AnchorPane.topAnchor="50"
+                                            AnchorPane.leftAnchor="12"
+                                            AnchorPane.rightAnchor="12"
+                                            AnchorPane.bottomAnchor="12" />
+                           </children>
+                        </AnchorPane>
+
+                     </children>
+                  </StackPane>
+
                </children>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-            </AnchorPane>
+            </VBox>
          </center>
       </BorderPane>
+
+      <!-- ─── Loading overlay ────────────────────────────────────────────── -->
+      <StackPane fx:id="loadingOverlay"
+                 managed="false" visible="false"
+                 style="-fx-background-color: rgba(0,0,0,0.20);">
+         <MFXProgressSpinner fx:id="loadingSpinner" prefHeight="60" prefWidth="60" />
+      </StackPane>
+
    </children>
-   <StackPane fx:id="loadingOverlay"
-              style="-fx-background-color: rgba(0,0,0,0.25);"
-              visible="false" managed="false">
-      <MFXProgressSpinner fx:id="loadingSpinner" prefHeight="60" prefWidth="60" />
-   </StackPane>
 </StackPane>
