@@ -735,12 +735,59 @@ public class ActualWorkshopController {
                     e.consume();
                     WorkOrder current = row.getData();
                     if (current == null) return;
-                    Customer customer = workshopQueries.getCustomerById(current.getCustomerId());
-                    openWorkOrderFast(current, customer);
+                    Task<Customer> task = new Task<>() {
+                        @Override
+                        protected Customer call() {
+                            return workshopQueries.getCustomerById(current.getCustomerId());
+                        }
+                    };
+                    task.setOnSucceeded(ev -> openWorkOrderFast(current, task.getValue()));
+                    task.setOnFailed(ev -> task.getException().printStackTrace());
+                    new Thread(task).start();
                 }
             });
             return row;
         });
+    }
+
+    public void openWorkOrderFast(WorkOrder order, Customer co) {
+        contentPane.setEffect(new GaussianBlur(4));
+        contentPane.setDisable(true);
+
+        // show dialog immediately with empty state — animation runs smooth
+        if (!rootStack.getChildren().contains(viewOrderDialog)) {
+            viewOrderDialog.setOpacity(0);
+            viewOrderDialog.setScaleX(0.8);
+            viewOrderDialog.setScaleY(0.8);
+            rootStack.getChildren().add(viewOrderDialog);
+        } else {
+            viewOrderDialog.toFront();
+        }
+
+        // play animation first
+        FadeTransition fade = new FadeTransition(Duration.millis(200), viewOrderDialog);
+        fade.setFromValue(0);
+        fade.setToValue(1);
+        ScaleTransition scale = new ScaleTransition(Duration.millis(200), viewOrderDialog);
+        scale.setFromX(0.8); scale.setToX(1);
+        scale.setFromY(0.8); scale.setToY(1);
+
+        ParallelTransition anim = new ParallelTransition(fade, scale);
+
+        // load data AFTER animation completes
+        anim.setOnFinished(e -> {
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() {
+                    viewOrderController.initData(order, co);
+                    return null;
+                }
+            };
+            task.setOnFailed(ev -> task.getException().printStackTrace());
+            new Thread(task).start();
+        });
+
+        anim.play();
     }
 
     private void applyRowStyle(MFXTableRow<WorkOrder> row, WorkOrder wo) {
@@ -762,20 +809,7 @@ public class ActualWorkshopController {
         if (isMyWO(wo)) row.setStyle("-fx-background-color: rgba(160,70,255,0.15);");
     }
 
-    public void openWorkOrderFast(WorkOrder order, Customer co) {
-        contentPane.setEffect(new GaussianBlur(4));
-        contentPane.setDisable(true);
-        viewOrderController.initData(order, co);
-        if (!rootStack.getChildren().contains(viewOrderDialog)) {
-            viewOrderDialog.setOpacity(0);
-            viewOrderDialog.setScaleX(0.8);
-            viewOrderDialog.setScaleY(0.8);
-            rootStack.getChildren().add(viewOrderDialog);
-            playShowAnimation(viewOrderDialog);
-        } else {
-            viewOrderDialog.toFront();
-        }
-    }
+
 
     private void UILoader(WorkOrder wo) {
         Task<Customer> task = new Task<>() {

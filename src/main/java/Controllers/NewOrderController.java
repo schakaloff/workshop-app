@@ -77,6 +77,8 @@ public class NewOrderController {
         }
     }
 
+
+
     public void selectCustomer() throws IOException {
         FXMLLoader loader = new FXMLLoader(Vendors.class.getResource("/main/customers.fxml"));
         MFXGenericDialog dialog = loader.load();
@@ -105,6 +107,8 @@ public class NewOrderController {
         zipTFX.setText(cus.getPostalCode());
 
     }
+
+
 
 
     @FXML

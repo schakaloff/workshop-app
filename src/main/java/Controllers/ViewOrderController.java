@@ -21,6 +21,7 @@
         import javafx.stage.Window;
         import utils.*;
         import utils.enums.InvoiceType;
+
         import java.awt.*;
         import java.io.*;
         import java.nio.file.Files;
@@ -28,6 +29,7 @@
         import java.time.LocalDate;
         import java.time.LocalDateTime;
         import java.time.format.DateTimeFormatter;
+        import java.util.List;
 
         public class ViewOrderController {
 
@@ -126,6 +128,11 @@
                 setupFileDoubleClick();
                 setupDeletingHandlers();
                 setupCustomerDoubleClick();
+                tabPane.getSelectionModel().selectedIndexProperty().addListener((obs, oldTab, newTab) -> {
+                    if (newTab.intValue() == 3 && currentWorkOrder != null) {
+                        loadFilesFromDb();
+                    }
+                });
             }
 
             private void setupSpellCheck() {
@@ -146,21 +153,23 @@
                 this.currentCustomer  = co;
 
                 deletingMethods.setWorkorderNumber(wo.getWorkorderNumber());
-
                 ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
-                refreshTechList();
 
-                populateCustomerFields(co);
-                populateDeviceFields(wo);
-                populateHeaderFields(wo, co);
-
-                loadServiceNotes();
-                loadFilesFromDb();
-                loadPartsFromDb();
-                loadRepairsFromDb();
-                applyBillingLockUI();
+                List<String> techList = ViewControllerQueries.loadTechList();
 
                 Platform.runLater(() -> {
+                    techNames.clear();
+                    techNames.addAll(techList);
+                    techIdCombo.setItems(techNames);
+
+                    populateCustomerFields(co);
+                    populateDeviceFields(wo);
+                    populateHeaderFields(wo, co);
+                    loadServiceNotes();
+                    //loadFilesFromDb();
+                    loadPartsFromDb();
+                    loadRepairsFromDb();
+                    applyBillingLockUI();
                     isLoading = false;
                     isDirty   = false;
                 });
@@ -170,7 +179,6 @@
 
             private void setupTables() {
                 isLoading = true;
-
                 repairTable.setFooterVisible(false);
                 TableMethods.loadRepairsTable(repairTable, repairData, techNames);
                 repairTable.setItems(repairData);
@@ -179,10 +187,13 @@
                 TableMethods.loadPartsTable(partsTable, partsData);
                 partsTable.setItems(partsData);
 
-                isLoading = false;
-                isDirty   = false;
-            }
+                // clear the placeholder rows that loadRepairsTable/loadPartsTable add
+                repairData.clear();
+                partsData.clear();
 
+                isLoading = false;
+                isDirty = false;
+            }
 //            private void setupServiceNotesExpand() {
 //                final double COLLAPSED_H = 60;
 //                final double EXPANDED_H  = 180;
@@ -248,7 +259,6 @@
                             isLoading = false;
                             return;
                         }
-                        // save taxes when status manually changed to Repair Complete
                         updateStatusInDb(newStatus);
                         return;
                     }
@@ -457,11 +467,15 @@
             }
 
             private void loadRepairsFromDb() {
+                isLoading = true;
+                repairTable.setItems(FXCollections.observableArrayList()); // clear table first
                 repairData.clear();
                 for (WorkTable row : ViewControllerQueries.loadRepairsFromDb(currentWorkOrder.getWorkorderNumber())) {
                     attachRepairListeners(row);
                     repairData.add(row);
                 }
+                repairTable.setItems(repairData);
+                isLoading = false;
             }
 
             private void saveRepairsToDb() {
@@ -493,11 +507,15 @@
             }
 
             private void loadPartsFromDb() {
+                isLoading = true;
+                partsTable.setItems(FXCollections.observableArrayList()); // clear table first
                 partsData.clear();
                 for (PartTable row : ViewControllerQueries.loadPartsFromDb(currentWorkOrder.getWorkorderNumber())) {
                     attachPartListeners(row);
                     partsData.add(row);
                 }
+                partsTable.setItems(partsData);
+                isLoading = false;
             }
 
             private void savePartsToDb() {
