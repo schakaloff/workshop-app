@@ -7,39 +7,137 @@
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onClose="#closeDialog" prefHeight="450.0" prefWidth="650.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewOrderController">
+<MFXGenericDialog
+        maxHeight="-Infinity" maxWidth="-Infinity"
+        onClose="#closeDialog"
+        prefHeight="470.0" prefWidth="780.0"
+        showAlwaysOnTop="false" showClose="true" showMinimize="false"
+        style="-fx-background-color: white;"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="Controllers.NewOrderController">
+
    <center>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+      <VBox prefHeight="470.0" prefWidth="780.0"
+            style="-fx-background-color: white;">
          <children>
-            <TextArea fx:id="problemDesc" layoutX="7.0" layoutY="213.0" prefHeight="200.0" prefWidth="200.0" promptText="Problem Description" style="-fx-faint-focus-color: transparent; -fx-focus-color: transparent; -fx-border-style: solid; -fx-border-radius: 5; -fx-background-insets: 0; -fx-font-family: Poppins; -fx-background-color: #FFFFF;" wrapText="true" />
-            <MFXCheckbox fx:id="warrantyCheckBox" layoutX="3.0" layoutY="66.0" minHeight="15.0" onAction="#warrantySelected" prefHeight="17.0" prefWidth="74.0" text="Warranty" />
-            <MFXTextField fx:id="type" floatMode="BORDER" floatingText="Type" layoutX="5.0" layoutY="95.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXTextField fx:id="model" floatMode="BORDER" floatingText="Model" layoutX="5.0" layoutY="125.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXTextField fx:id="serialNumber" floatMode="BORDER" floatingText="Serial Number" layoutX="5.0" layoutY="155.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXComboBox fx:id="vendorId" layoutX="110.0" layoutY="62.0" minHeight="25.0" prefHeight="25.0" prefWidth="124.0" promptText="Vendor" />
-            <Text layoutX="4.0" layoutY="19.0" text="Created By:">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Text>
-            <MFXTextField fx:id="TechNewOrder" editable="false" floatMode="BORDER" layoutX="85.0" layoutY="4.0" minHeight="20.0" minWidth="20.0" prefHeight="20.0" prefWidth="33.0" />
-            <MFXTextField fx:id="warrantyNumber" floatMode="BORDER" floatingText="Warranty Number" layoutX="243.0" layoutY="64.0" minHeight="20.0" prefHeight="0.0" prefWidth="90.0" />
-            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="535.0" layoutY="389.0" onAction="#makeNewOrder" prefHeight="26.0" prefWidth="101.0" text="Save" />
-            <MFXTextField fx:id="firstNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Name" layoutX="417.0" layoutY="71.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-            <MFXButton layoutX="405.0" layoutY="258.0" onAction="#selectCustomer" text="Choose Customer" />
-            <MFXTextField fx:id="lastNameTXF" allowEdit="false" floatMode="BORDER" floatingText="Last Name" layoutX="418.0" layoutY="103.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
-            <MFXTextField fx:id="phoneTFX" allowEdit="false" floatMode="BORDER" floatingText="Phone" layoutX="418.0" layoutY="133.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
-            <MFXTextField fx:id="addressTFX" allowEdit="false" floatMode="BORDER" floatingText="Address" layoutX="418.0" layoutY="163.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="90.0" />
-            <MFXTextField fx:id="townTFX" allowEdit="false" floatMode="BORDER" floatingText="Town" layoutX="418.0" layoutY="193.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="100.0" />
-            <MFXTextField fx:id="zipTFX" allowEdit="false" floatMode="BORDER" floatingText="ZIP" graphicTextGap="5.0" layoutX="418.0" layoutY="226.0" minHeight="25.0" minWidth="100.0" prefHeight="15.0" prefWidth="100.0" />
-            <MFXTextField fx:id="idTFX" allowEdit="false" floatMode="BORDER" floatingText="ID" layoutX="417.0" layoutY="41.0" minHeight="25.0" minWidth="100.0" prefHeight="18.0" prefWidth="102.0" />
-            <Text layoutX="210.0" layoutY="407.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deposit:" />
-            <MFXTextField fx:id="depositTXF" alignment="CENTER" floatMode="BORDER" floatingText="\$" layoutX="265.0" layoutY="390.0" minHeight="25.0" minWidth="100.0" />
+
+            <!-- ─── Top bar ──────────────────────────────────────────── -->
+            <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="780"
+                  spacing="10"
+                  style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
+               <children>
+                  <Text text="New Work Order"
+                        style="-fx-fill: white; -fx-font-size: 13; -fx-font-weight: bold;" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <MFXTextField fx:id="TechNewOrder"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="Tech"
+                                prefHeight="28" prefWidth="120" />
+               </children>
+            </HBox>
+
+            <!-- ─── Device row ───────────────────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 12 16 12 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <MFXTextField fx:id="type"
+                                floatMode="BORDER" floatingText="Type"
+                                prefHeight="36" prefWidth="100" />
+                  <MFXTextField fx:id="model"
+                                floatMode="BORDER" floatingText="Model"
+                                prefHeight="36" prefWidth="150" />
+                  <MFXTextField fx:id="serialNumber"
+                                floatMode="BORDER" floatingText="Serial Number"
+                                prefHeight="36" prefWidth="150" />
+                  <MFXCheckbox fx:id="warrantyCheckBox"
+                               onAction="#warrantySelected"
+                               text="Warranty" />
+                  <MFXComboBox fx:id="vendorId"
+                               floatMode="BORDER" floatingText="Vendor"
+                               prefHeight="36" prefWidth="130" />
+                  <MFXTextField fx:id="warrantyNumber"
+                                floatMode="BORDER" floatingText="Warranty Ref#"
+                                prefHeight="36" prefWidth="130" />
+               </children>
+            </HBox>
+
+            <!-- ─── Customer row ─────────────────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <MFXTextField fx:id="idTFX"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="ID"
+                                prefHeight="32" prefWidth="70" />
+                  <MFXTextField fx:id="firstNameTXF"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="First Name"
+                                prefHeight="32" prefWidth="110" />
+                  <MFXTextField fx:id="lastNameTXF"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="Last Name"
+                                prefHeight="32" prefWidth="110" />
+                  <MFXTextField fx:id="phoneTFX"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="Phone"
+                                prefHeight="32" prefWidth="110" />
+                  <MFXTextField fx:id="addressTFX"
+                                floatMode="BORDER" floatingText="Address"
+                                prefHeight="32" prefWidth="110" />
+                  <MFXTextField fx:id="townTFX"
+                                floatMode="BORDER" floatingText="Town"
+                                prefHeight="32" prefWidth="100" />
+                  <MFXTextField fx:id="zipTFX"
+                                floatMode="BORDER" floatingText="ZIP"
+                                prefHeight="32" prefWidth="80" />
+                  <MFXButton onAction="#selectCustomer"
+                             prefHeight="32" prefWidth="100"
+                             text="Pick Customer"
+                             style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+               </children>
+            </HBox>
+
+            <!-- ─── Problem description ──────────────────────────────── -->
+            <VBox style="-fx-background-color: white; -fx-padding: 12 16 12 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <TextArea fx:id="problemDesc"
+                            prefHeight="110" prefWidth="748"
+                            promptText="Problem / Complaint"
+                            wrapText="true"
+                            style="-fx-background-color: #f9f9f9; -fx-border-color: #e0e0e0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 12;" />
+               </children>
+            </VBox>
+
+            <!-- ─── Bottom action bar ────────────────────────────────── -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 10 16 10 16;"
+                  prefHeight="52">
+               <children>
+                  <Text text="Deposit:"
+                        style="-fx-font-size: 12; -fx-fill: #666;" />
+                  <MFXTextField fx:id="depositTXF"
+                                floatMode="BORDER" floatingText="Deposit"
+                                prefHeight="32" prefWidth="100" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <MFXButton onAction="#closeDialog"
+                             prefHeight="32" prefWidth="80"
+                             text="Cancel"
+                             style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
+                  <MFXButton buttonType="RAISED"
+                             onAction="#makeNewOrder"
+                             prefHeight="32" prefWidth="120"
+                             text="Create Order"
+                             style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+               </children>
+            </HBox>
+
          </children>
-      </AnchorPane>
+      </VBox>
    </center>
 </MFXGenericDialog>
