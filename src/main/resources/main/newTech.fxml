@@ -4,20 +4,79 @@
 <?import io.github.palexdev.materialfx.controls.MFXPasswordField?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<MFXGenericDialog fx:id="rootStack" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="300.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.NewTechController">
+<MFXGenericDialog
+        fx:id="rootStack"
+        maxHeight="-Infinity" maxWidth="-Infinity"
+        minHeight="-Infinity" minWidth="-Infinity"
+        prefHeight="310.0" prefWidth="460.0"
+        showAlwaysOnTop="false" showClose="true" showMinimize="false"
+        style="-fx-background-color: white;"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="Controllers.NewTechController">
+
    <center>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="310.0" prefWidth="460.0"
+            style="-fx-background-color: white;">
          <children>
-            <MFXTextField fx:id="usernameTXF" floatMode="BORDER" floatingText="Username" layoutX="105.0" layoutY="14.0" minHeight="25.0" />
-            <MFXTextField fx:id="fNameTXF" floatMode="BORDER" floatingText="First Name" layoutX="105.0" layoutY="56.0" minHeight="25.0" prefHeight="25.0" />
-            <MFXTextField fx:id="lNameTXF" floatMode="BORDER" floatingText="Last Name" layoutX="105.0" layoutY="96.0" minHeight="-Infinity" prefHeight="25.0" />
-            <MFXPasswordField fx:id="passwordTXF" floatMode="BORDER" floatingText="Password" layoutX="88.0" layoutY="138.0" minHeight="25.0" />
-            <MFXPasswordField fx:id="repPassworfTXF" floatMode="BORDER" floatingText="Repeat Password" layoutX="75.0" layoutY="174.0" minHeight="25.0" />
-            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="103.0" layoutY="224.0" onAction="#addTech" prefHeight="26.0" prefWidth="94.0" text="Create" />
+
+            <!-- ─── Top bar ──────────────────────────────────────────── -->
+            <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="460"
+                  spacing="10"
+                  style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
+               <children>
+                  <Text text="New Technician"
+                        style="-fx-fill: white; -fx-font-size: 13; -fx-font-weight: bold;" />
+               </children>
+            </HBox>
+
+            <!-- ─── Name + username row ──────────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 16 16 8 16;">
+               <children>
+                  <MFXTextField fx:id="fNameTXF"
+                                floatMode="BORDER" floatingText="First Name"
+                                prefHeight="36" prefWidth="130" />
+                  <MFXTextField fx:id="lNameTXF"
+                                floatMode="BORDER" floatingText="Last Name"
+                                prefHeight="36" prefWidth="130" />
+                  <MFXTextField fx:id="usernameTXF"
+                                floatMode="BORDER" floatingText="Username"
+                                prefHeight="36" prefWidth="130" />
+               </children>
+            </HBox>
+
+            <!-- ─── Password row ─────────────────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 8 16 16 16;">
+               <children>
+                  <MFXPasswordField fx:id="passwordTXF"
+                                    floatMode="BORDER" floatingText="Password"
+                                    prefHeight="36" prefWidth="200" />
+                  <MFXPasswordField fx:id="repPassworfTXF"
+                                    floatMode="BORDER" floatingText="Repeat Password"
+                                    prefHeight="36" prefWidth="200" />
+               </children>
+            </HBox>
+
+            <!-- ─── Action bar ───────────────────────────────────────── -->
+            <HBox alignment="CENTER_RIGHT" spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 0 16 16 16;">
+               <children>
+                  <MFXButton buttonType="RAISED"
+                             onAction="#addTech"
+                             prefHeight="32" prefWidth="100"
+                             text="Create"
+                             style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+               </children>
+            </HBox>
+
          </children>
-      </AnchorPane>
+      </VBox>
    </center>
 </MFXGenericDialog>

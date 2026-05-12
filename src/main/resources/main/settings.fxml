@@ -9,61 +9,208 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<MFXGenericDialog fx:id="dialogInstance" maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" onClose="#closeDialog" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SettingsController">
-   <center>
-      <TabPane styleClass="modern-tabs" stylesheets="@../tab.css" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-        <tabs>
-          <Tab text="Techs">
-            <content>
-              <AnchorPane>
-                     <children>
-                        <MFXTableView fx:id="techsTable" layoutX="7.0" prefHeight="475.0" prefWidth="750.0" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="647.0" layoutY="449.0" onAction="#saveTechs" prefHeight="25.0" prefWidth="110.0" text="Save" textAlignment="CENTER" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="519.0" layoutY="449.0" onAction="#addNewTech" prefHeight="25.0" prefWidth="110.0" text="Add Tech" textAlignment="CENTER" />
-                     </children></AnchorPane>
-            </content>
-          </Tab>
-          <Tab text="Shop Stats">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <MFXButton layoutX="686.0" layoutY="451.0" onAction="#calculateShopStats" text="Calculate" />
-                        <MFXTextField fx:id="shopTotalPSTTXF" floatMode="BORDER" floatingText="PST" layoutX="661.0" layoutY="21.0" text="0.0" />
-                        <MFXTextField fx:id="shopTotalGSTTXF" floatMode="BORDER" floatingText="GST" layoutX="555.0" layoutY="21.0" text="0.0" />
-                        <MFXTextField fx:id="shopTotalRepairsTXF" floatMode="BORDER" floatingText="Completed WO" layoutX="319.0" layoutY="21.0" text="0" />
-                        <MFXTextField fx:id="shopTotalEarnedTXF" floatMode="BORDER" floatingText="Totally Earned" layoutX="443.0" layoutY="21.0" text="0.0" />
-                        <MFXDatePicker fx:id="statsFromSettingDP" floatMode="BORDER" floatingText="From" layoutX="14.0" layoutY="21.0" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" />
-                        <MFXDatePicker fx:id="statsToSettingDP" floatMode="BORDER" floatingText="To" layoutX="164.0" layoutY="21.0" maxHeight="30.0" maxWidth="100.0" minHeight="20.0" />
-                     </children></AnchorPane>
-            </content>
-          </Tab>
-            <Tab text="Techs Stats">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <MFXDatePicker fx:id="fromDP" floatMode="BORDER" floatingText="From" layoutX="158.0" layoutY="11.0" prefHeight="38.0" prefWidth="0.0" />
-                        <MFXDatePicker fx:id="toDP" floatMode="BORDER" floatingText="To" layoutX="307.0" layoutY="11.0" prefHeight="38.0" prefWidth="0.0" />
-                        <MFXComboBox fx:id="techCombo" floatMode="BORDER" floatingText="Tech" layoutX="14.0" layoutY="12.0" />
-                        <MFXTextField fx:id="totalEarnedTXF" floatMode="BORDER" floatingText="Total Earned" layoutX="448.0" layoutY="15.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="100.0" />
-                        <MFXTextField fx:id="totalRepairsTXF" floatMode="BORDER" floatingText="Repairs Complete" layoutX="562.0" layoutY="15.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="120.0" />
-                        <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="686.0" layoutY="459.0" onAction="#calculate" text="Calculate" />
-                     </children></AnchorPane>
-               </content>
-            </Tab>
-            <Tab text="Settings">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <MFXTableView fx:id="vendorsTable" layoutX="7.0" layoutY="7.0" prefHeight="449.0" prefWidth="760.0" />
-                        <MFXButton layoutX="667.0" layoutY="459.0" onAction="#addNewVendorFull" text="New Vendor" />
-                        <MFXButton layoutX="596.0" layoutY="459.0" onAction="#saveVendors" text="Save" />
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-        </tabs>
-      </TabPane>
-   </center>
+<MFXGenericDialog
+        fx:id="dialogInstance"
+        maxHeight="620.0" maxWidth="820.0"
+        minHeight="620.0" minWidth="820.0"
+        onClose="#closeDialog"
+        prefHeight="620.0" prefWidth="820.0"
+        showAlwaysOnTop="false" showClose="true" showMinimize="false"
+        style="-fx-background-color: white;"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="Controllers.SettingsController">
+
+    <center>
+        <VBox prefHeight="620.0" prefWidth="820.0"
+              style="-fx-background-color: white;">
+            <children>
+
+                <!-- ─── Top bar ──────────────────────────────────────────── -->
+                <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="820"
+                      spacing="10"
+                      style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
+                    <children>
+                        <Text text="Shop Settings"
+                              style="-fx-fill: white; -fx-font-size: 13; -fx-font-weight: bold;" />
+                    </children>
+                </HBox>
+
+                <!-- ─── Tab pane ─────────────────────────────────────────── -->
+                <TabPane tabClosingPolicy="UNAVAILABLE"
+                         VBox.vgrow="ALWAYS"
+                         prefHeight="576.0" prefWidth="820.0">
+                    <tabs>
+
+                        <!-- ═══ TECHS TAB ══════════════════════════════════ -->
+                        <Tab text="Technicians">
+                            <content>
+                                <VBox spacing="0" style="-fx-background-color: white;">
+                                    <children>
+
+                                        <!-- Header bar -->
+                                        <HBox alignment="CENTER_RIGHT" spacing="10"
+                                              style="-fx-background-color: white; -fx-padding: 8 16 8 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;"
+                                              prefHeight="44">
+                                            <children>
+                                                <MFXButton onAction="#addNewTech"
+                                                           prefHeight="28" prefWidth="100"
+                                                           text="Add Tech"
+                                                           style="-fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
+                                                <MFXButton onAction="#saveTechs"
+                                                           prefHeight="28" prefWidth="80"
+                                                           text="Save"
+                                                           style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Table -->
+                                        <AnchorPane VBox.vgrow="ALWAYS"
+                                                    prefHeight="480"
+                                                    style="-fx-background-color: #f5f7fa; -fx-padding: 10 12 12 12;">
+                                            <children>
+                                                <MFXTableView fx:id="techsTable"
+                                                              AnchorPane.topAnchor="0"
+                                                              AnchorPane.leftAnchor="0"
+                                                              AnchorPane.rightAnchor="0"
+                                                              AnchorPane.bottomAnchor="0" />
+                                            </children>
+                                        </AnchorPane>
+
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+
+                        <!-- ═══ VENDORS TAB ════════════════════════════════ -->
+                        <Tab text="Vendors">
+                            <content>
+                                <VBox spacing="0" style="-fx-background-color: white;">
+                                    <children>
+
+                                        <!-- Header bar -->
+                                        <HBox alignment="CENTER_RIGHT" spacing="10"
+                                              style="-fx-background-color: white; -fx-padding: 8 16 8 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;"
+                                              prefHeight="44">
+                                            <children>
+                                                <MFXButton onAction="#addNewVendorFull"
+                                                           prefHeight="28" prefWidth="110"
+                                                           text="+ New Vendor"
+                                                           style="-fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
+                                                <MFXButton onAction="#saveVendors"
+                                                           prefHeight="28" prefWidth="80"
+                                                           text="Save"
+                                                           style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Table -->
+                                        <AnchorPane VBox.vgrow="ALWAYS"
+                                                    prefHeight="480"
+                                                    style="-fx-background-color: #f5f7fa; -fx-padding: 10 12 12 12;">
+                                            <children>
+                                                <MFXTableView fx:id="vendorsTable"
+                                                              AnchorPane.topAnchor="0"
+                                                              AnchorPane.leftAnchor="0"
+                                                              AnchorPane.rightAnchor="0"
+                                                              AnchorPane.bottomAnchor="0" />
+                                            </children>
+                                        </AnchorPane>
+
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+
+                        <!-- ═══ SHOP STATS TAB ═════════════════════════════ -->
+                        <Tab text="Shop Stats">
+                            <content>
+                                <VBox spacing="0" style="-fx-background-color: white;">
+                                    <children>
+
+                                        <!-- Controls bar -->
+                                        <HBox alignment="CENTER_LEFT" spacing="12"
+                                              style="-fx-background-color: white; -fx-padding: 12 16 12 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;"
+                                              prefHeight="60">
+                                            <children>
+                                                <MFXDatePicker fx:id="statsFromSettingDP"
+                                                               floatMode="BORDER" floatingText="From"
+                                                               prefHeight="36" prefWidth="130" />
+                                                <MFXDatePicker fx:id="statsToSettingDP"
+                                                               floatMode="BORDER" floatingText="To"
+                                                               prefHeight="36" prefWidth="130" />
+                                                <MFXTextField fx:id="shopTotalRepairsTXF"
+                                                              floatMode="BORDER" floatingText="Completed WO"
+                                                              prefHeight="36" prefWidth="130" />
+                                                <MFXTextField fx:id="shopTotalEarnedTXF"
+                                                              floatMode="BORDER" floatingText="Total Earned"
+                                                              prefHeight="36" prefWidth="130" />
+                                                <MFXTextField fx:id="shopTotalPSTTXF"
+                                                              floatMode="BORDER" floatingText="PST"
+                                                              prefHeight="36" prefWidth="100" />
+                                                <MFXTextField fx:id="shopTotalGSTTXF"
+                                                              floatMode="BORDER" floatingText="GST"
+                                                              prefHeight="36" prefWidth="100" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <MFXButton onAction="#calculateShopStats"
+                                                           prefHeight="36" prefWidth="100"
+                                                           text="Calculate"
+                                                           style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                            </children>
+                                        </HBox>
+
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+
+                        <!-- ═══ TECH STATS TAB ═════════════════════════════ -->
+                        <Tab text="Tech Stats">
+                            <content>
+                                <VBox spacing="0" style="-fx-background-color: white;">
+                                    <children>
+
+                                        <!-- Controls bar -->
+                                        <HBox alignment="CENTER_LEFT" spacing="12"
+                                              style="-fx-background-color: white; -fx-padding: 12 16 12 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;"
+                                              prefHeight="60">
+                                            <children>
+                                                <MFXComboBox fx:id="techCombo"
+                                                             floatMode="BORDER" floatingText="Tech"
+                                                             prefHeight="36" prefWidth="140" />
+                                                <MFXDatePicker fx:id="fromDP"
+                                                               floatMode="BORDER" floatingText="From"
+                                                               prefHeight="36" prefWidth="130" />
+                                                <MFXDatePicker fx:id="toDP"
+                                                               floatMode="BORDER" floatingText="To"
+                                                               prefHeight="36" prefWidth="130" />
+                                                <MFXTextField fx:id="totalEarnedTXF"
+                                                              floatMode="BORDER" floatingText="Total Earned"
+                                                              prefHeight="36" prefWidth="130" />
+                                                <MFXTextField fx:id="totalRepairsTXF"
+                                                              floatMode="BORDER" floatingText="Repairs Complete"
+                                                              prefHeight="36" prefWidth="140" />
+                                                <Region HBox.hgrow="ALWAYS" />
+                                                <MFXButton onAction="#calculate"
+                                                           prefHeight="36" prefWidth="100"
+                                                           text="Calculate"
+                                                           style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                            </children>
+                                        </HBox>
+
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+
+                    </tabs>
+                </TabPane>
+            </children>
+        </VBox>
+    </center>
 </MFXGenericDialog>

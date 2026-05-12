@@ -3,22 +3,83 @@
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<MFXGenericDialog maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" showAlwaysOnTop="false" showClose="false" showMinimize="false" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ViewVendorController">
+<MFXGenericDialog
+        maxHeight="-Infinity" maxWidth="-Infinity"
+        minHeight="-Infinity" minWidth="-Infinity"
+        prefHeight="280.0" prefWidth="580.0"
+        showAlwaysOnTop="false" showClose="true" showMinimize="false"
+        style="-fx-background-color: white;"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="Controllers.ViewVendorController">
+
    <center>
-      <AnchorPane prefHeight="416.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="280.0" prefWidth="580.0"
+            style="-fx-background-color: white;">
          <children>
-            <MFXTextField fx:id="vendorNameTXF" floatMode="BORDER" floatingText="Name" layoutX="14.0" layoutY="14.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXTextField fx:id="vendorAddressTXF" floatMode="BORDER" floatingText="Address" layoutX="121.0" layoutY="14.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXTextField fx:id="vendorCityTXF" floatMode="BORDER" floatingText="City" layoutX="230.0" layoutY="14.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXTextField fx:id="vendorProvinceTXF" floatMode="BORDER" floatingText="Province" layoutX="340.0" layoutY="14.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXTextField fx:id="vendorPostalTXF" floatMode="BORDER" floatingText="Postal/Zip" layoutX="449.0" layoutY="14.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXTextField fx:id="vendorContactTXF" floatMode="BORDER" floatingText="Contact" layoutX="14.0" layoutY="58.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXTextField fx:id="vendorPhoneTXF" floatMode="BORDER" floatingText="Phone" layoutX="121.0" layoutY="58.0" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" />
-            <MFXButton buttonType="RAISED" depthLevel="LEVEL5" layoutX="496.0" layoutY="336.0" onAction="#updateVendorSQL" prefHeight="26.0" prefWidth="90.0" text="Save" />
+
+            <!-- ─── Top bar ──────────────────────────────────────────── -->
+            <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="580"
+                  spacing="10"
+                  style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
+               <children>
+                  <Text text="Edit Vendor"
+                        style="-fx-fill: white; -fx-font-size: 13; -fx-font-weight: bold;" />
+               </children>
+            </HBox>
+
+            <!-- ─── Row 1: name + address + city + province + postal ── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 16 16 8 16;">
+               <children>
+                  <MFXTextField fx:id="vendorNameTXF"
+                                floatMode="BORDER" floatingText="Name"
+                                prefHeight="36" prefWidth="110" />
+                  <MFXTextField fx:id="vendorAddressTXF"
+                                floatMode="BORDER" floatingText="Address"
+                                prefHeight="36" prefWidth="120" />
+                  <MFXTextField fx:id="vendorCityTXF"
+                                floatMode="BORDER" floatingText="City"
+                                prefHeight="36" prefWidth="100" />
+                  <MFXTextField fx:id="vendorProvinceTXF"
+                                floatMode="BORDER" floatingText="Province"
+                                prefHeight="36" prefWidth="90" />
+                  <MFXTextField fx:id="vendorPostalTXF"
+                                floatMode="BORDER" floatingText="Postal/Zip"
+                                prefHeight="36" prefWidth="90" />
+               </children>
+            </HBox>
+
+            <!-- ─── Row 2: contact + phone ───────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 8 16 16 16;">
+               <children>
+                  <MFXTextField fx:id="vendorContactTXF"
+                                floatMode="BORDER" floatingText="Contact"
+                                prefHeight="36" prefWidth="200" />
+                  <MFXTextField fx:id="vendorPhoneTXF"
+                                floatMode="BORDER" floatingText="Phone"
+                                prefHeight="36" prefWidth="200" />
+               </children>
+            </HBox>
+
+            <!-- ─── Action bar ───────────────────────────────────────── -->
+            <HBox alignment="CENTER_RIGHT" spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 0 16 16 16;">
+               <children>
+                  <MFXButton buttonType="RAISED"
+                             onAction="#updateVendorSQL"
+                             prefHeight="32" prefWidth="100"
+                             text="Save"
+                             style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+               </children>
+            </HBox>
+
          </children>
-      </AnchorPane>
+      </VBox>
    </center>
 </MFXGenericDialog>
