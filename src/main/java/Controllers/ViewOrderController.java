@@ -1,6 +1,7 @@
         package Controllers;
 
         import Controllers.DbRepo.ViewControllerQueries;
+        import DB.DbConfig;
         import DB.Vendors;
         import Skeletons.*;
         import io.github.palexdev.materialfx.controls.*;
@@ -26,6 +27,7 @@
         import java.io.*;
         import java.nio.file.Files;
         import java.nio.file.StandardCopyOption;
+        import java.sql.*;
         import java.time.LocalDate;
         import java.time.LocalDateTime;
         import java.time.format.DateTimeFormatter;
@@ -803,11 +805,13 @@
 
             private double finalDueDb() {
                 int woNumber = currentWorkOrder.getWorkorderNumber();
-                return Math.max(0,
-                        ViewControllerQueries.labourTotalDb(woNumber)
-                                + ViewControllerQueries.partsTotalDb(woNumber)
-                                - ViewControllerQueries.depositFromDb(woNumber)
-                );
+                double labour  = ViewControllerQueries.labourTotalDb(woNumber);
+                double parts   = ViewControllerQueries.partsTotalDb(woNumber);
+                double deposit = ViewControllerQueries.depositFromDb(woNumber);
+                double[] taxes = ViewControllerQueries.taxesFromDb(woNumber);
+                double pst     = taxes[0];
+                double gst     = taxes[1];
+                return Math.max(0, labour + parts + pst + gst - deposit);
             }
 
             /** Marks isDirty only when not loading and the value actually changed. */
@@ -819,4 +823,6 @@
             private void showWarning(String message) {
                 new Alert(Alert.AlertType.WARNING, message, ButtonType.OK).showAndWait();
             }
+
+
         }

@@ -1,4 +1,5 @@
 package Controllers;
+
 import Skeletons.Customer;
 import Skeletons.WorkOrder;
 import io.github.palexdev.materialfx.controls.MFXCheckbox;
@@ -13,47 +14,68 @@ import utils.DocumentOutput;
 import utils.enums.InvoiceType;
 import DB.DbConfig;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-
 public class PaymentController {
+
     private ActualWorkshopController mainController;
 
     public WorkOrder currentWorkOrder;
     public Customer currentCustomer;
 
     private Double suggestedAmount;
+    private Double totalAmount;
+    private InvoiceType invoiceType;
+    private Window ownerWindow;
 
-    public void setMainController(ActualWorkshopController controller){this.mainController = controller;}
+    public void setMainController(ActualWorkshopController controller) {
+        this.mainController = controller;
+    }
+
+    // ─── FXML fields ────────────────────────────────────────────────────────────
 
     @FXML private MFXTextField techIDTXF;
     @FXML private MFXTextField dateTXF;
 
+    // Customer info
+    @FXML private MFXTextField customerNameTXF;
+    @FXML private MFXTextField customerAddressTXF;
+    @FXML private MFXTextField customerCityTXF;
+    @FXML private MFXTextField customerPhoneTXF;
+
+    // PO / Warranty / Contract
+    @FXML private MFXTextField poNumberTXF;
+    @FXML private MFXTextField warrantyAddressTXF;
+    @FXML private MFXTextField contractTXF;
+
+    // Payment checkboxes
     @FXML private MFXCheckbox visaCB;
     @FXML private MFXCheckbox debitCB;
     @FXML private MFXCheckbox masterCardCB;
     @FXML private MFXCheckbox cashCB;
+    @FXML private MFXCheckbox amexCB;
 
+    // Payment amount fields
     @FXML private MFXTextField visaTXF;
     @FXML private MFXTextField debitTXF;
     @FXML private MFXTextField masterCardTXF;
     @FXML private MFXTextField cashTXF;
+    @FXML private MFXTextField amexTXF;
 
+    // Deposit
     @FXML private MFXCheckbox depositCB;
     @FXML private MFXTextField depositTXF;
 
-    private InvoiceType invoiceType;
-    private Window ownerWindow;
 
-    private Double totalAmount;
+    private double grossTotal; // labour + parts + taxes, before deposit
+
+    // ─── INITIALIZE ─────────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
@@ -63,7 +85,50 @@ public class PaymentController {
         debitTXF.setDisable(true);
         masterCardTXF.setDisable(true);
         cashTXF.setDisable(true);
+        amexTXF.setDisable(true);
     }
+
+    // ─── CONTEXT ────────────────────────────────────────────────────────────────
+
+    public void setContext(WorkOrder wo, Customer co, InvoiceType type, Window owner) {
+        this.currentWorkOrder = wo;
+        this.currentCustomer  = co;
+        this.invoiceType      = type;
+        this.ownerWindow      = owner;
+
+        // populate customer fields
+        customerNameTXF.setText(co.getFirstName() + " " + co.getLastName());
+        customerAddressTXF.setText(co.getAddress() != null ? co.getAddress() : "");
+        customerCityTXF.setText(co.getTown() != null ? co.getTown() : "");
+        customerPhoneTXF.setText(co.getPhone() != null ? co.getPhone() : "");
+
+        if (type == InvoiceType.DEPOSIT) {
+            this.totalAmount     = wo.getDepositAmount();
+            this.suggestedAmount = wo.getDepositAmount();
+            depositCB.setSelected(true);
+            depositTXF.setDisable(false);
+            depositTXF.setText(formatCad(wo.getDepositAmount()));
+        } else if (type == InvoiceType.FINAL) {
+            boolean hasDeposit = wo.getDepositAmount() > 0;
+            // totalAmount from setSuggestedAmount = labour+parts+taxes - deposit
+            // gross = totalAmount + deposit
+            double gross = totalAmount + wo.getDepositAmount();
+            depositCB.setSelected(hasDeposit);
+            depositTXF.setDisable(!hasDeposit);
+            depositTXF.setText(formatCad(wo.getDepositAmount()));
+            // store gross so depositSelected can recalculate correctly
+            this.grossTotal = gross;
+        }
+    }
+
+
+    public void setSuggestedAmount(Double amount) {
+        this.suggestedAmount = amount;           // net (after deposit)
+        this.totalAmount     = amount;           // net (after deposit)
+        this.grossTotal      = amount + 0;       // will be corrected in setContext
+    }
+
+    // ─── DEPOSIT ────────────────────────────────────────────────────────────────
 
     @FXML
     public void depositSelected() {
@@ -72,10 +137,10 @@ public class PaymentController {
 
         if (!checked) {
             depositTXF.clear();
-            suggestedAmount = totalAmount;
+            suggestedAmount = grossTotal;
         } else {
             depositTXF.setText(formatCad(currentWorkOrder.getDepositAmount()));
-            suggestedAmount = totalAmount - currentWorkOrder.getDepositAmount();
+            suggestedAmount = grossTotal - currentWorkOrder.getDepositAmount();
         }
 
         refreshActivePaymentField();
@@ -86,76 +151,63 @@ public class PaymentController {
         if (debitCB.isSelected())      { debitTXF.clear();      autofill(debitTXF); }
         if (masterCardCB.isSelected()) { masterCardTXF.clear(); autofill(masterCardTXF); }
         if (cashCB.isSelected())       { cashTXF.clear();       autofill(cashTXF); }
+        if (amexCB.isSelected())       { amexTXF.clear();       autofill(amexTXF); }
     }
 
-
-
-    public void setContext(WorkOrder wo, Customer co, InvoiceType type, Window owner) {
-        this.currentWorkOrder = wo;
-        this.currentCustomer = co;
-        this.invoiceType = type;
-        this.ownerWindow = owner;
-
-        if (type == InvoiceType.DEPOSIT) {
-            this.totalAmount = wo.getDepositAmount();
-            this.suggestedAmount = wo.getDepositAmount();
-            depositCB.setSelected(true);
-            depositTXF.setDisable(false);
-            depositTXF.setText(formatCad(wo.getDepositAmount()));
-        } else if (type == InvoiceType.FINAL) {
-            boolean hasDeposit = wo.getDepositAmount() > 0;
-            depositCB.setSelected(hasDeposit);
-            depositTXF.setDisable(!hasDeposit);
-            depositTXF.setText(formatCad(wo.getDepositAmount()));
-            // suggestedAmount already set by setSuggestedAmount(), just subtract deposit if checked
-            suggestedAmount = hasDeposit ? totalAmount - wo.getDepositAmount() : totalAmount;
-        }
-    }
+    // ─── PAYMENT TYPE SELECTION ─────────────────────────────────────────────────
 
     @FXML
     public void paymentTypeSelection(ActionEvent e) {
         MFXCheckbox cb = (MFXCheckbox) e.getSource();
         boolean selected = cb.isSelected();
 
-        if (cb.isSelected()) {
+        if (selected) {
             selectOnly(cb);
         }
 
         switch (cb.getId()) {
-            case "visaCB":
+            case "visaCB" -> {
                 visaTXF.setDisable(!selected);
-                if (selected) {
-                    autofill(visaTXF);
-                } else {
-                    visaTXF.clear();
-                }
-                break;
-
-            case "debitCB":
+                if (selected) autofill(visaTXF); else visaTXF.clear();
+            }
+            case "debitCB" -> {
                 debitTXF.setDisable(!selected);
-                if (selected){
-                    autofill(debitTXF);
-                }
-                else debitTXF.clear();
-                break;
-
-            case "masterCardCB":
+                if (selected) autofill(debitTXF); else debitTXF.clear();
+            }
+            case "masterCardCB" -> {
                 masterCardTXF.setDisable(!selected);
-                if (selected) {
-                    autofill(masterCardTXF);
-                }
-                else masterCardTXF.clear();
-                break;
-
-            case "cashCB":
+                if (selected) autofill(masterCardTXF); else masterCardTXF.clear();
+            }
+            case "cashCB" -> {
                 cashTXF.setDisable(!selected);
-                if (selected) {
-                    autofill(cashTXF);
-                }
-                else cashTXF.clear();
-                break;
+                if (selected) autofill(cashTXF); else cashTXF.clear();
+            }
+            case "amexCB" -> {
+                amexTXF.setDisable(!selected);
+                if (selected) autofill(amexTXF); else amexTXF.clear();
+            }
         }
     }
+
+    private void selectOnly(MFXCheckbox selected) {
+        for (MFXCheckbox cb : new MFXCheckbox[]{visaCB, debitCB, masterCardCB, cashCB, amexCB}) {
+            if (cb != selected) {
+                cb.setSelected(false);
+            }
+        }
+        visaTXF.setDisable(true);
+        debitTXF.setDisable(true);
+        masterCardTXF.setDisable(true);
+        cashTXF.setDisable(true);
+        amexTXF.setDisable(true);
+        visaTXF.clear();
+        debitTXF.clear();
+        masterCardTXF.clear();
+        cashTXF.clear();
+        amexTXF.clear();
+    }
+
+    // ─── PAY ────────────────────────────────────────────────────────────────────
 
     @FXML
     public void pay() {
@@ -170,16 +222,16 @@ public class PaymentController {
             String title;
 
             if (invoiceType == InvoiceType.DEPOSIT) {
-                fxml = "/main/firstInvoice.fxml";
+                fxml  = "/main/firstInvoice.fxml";
                 title = "DEPOSIT_INVOICE_" + currentWorkOrder.getWorkorderNumber();
             } else if (invoiceType == InvoiceType.FINAL) {
-                fxml = "/main/invoiceSheet.fxml";
+                fxml  = "/main/invoiceSheet.fxml";
                 title = "FINAL_INVOICE_" + currentWorkOrder.getWorkorderNumber();
             } else {
                 throw new IllegalStateException("Invoice type not set.");
             }
 
-// 1) Generate PDF bytes in memory (always)
+            // generate PDF and attach to work order files
             byte[] pdfBytes = DocumentOutput.generatePdfBytes(
                     fxml,
                     loader -> {
@@ -193,13 +245,9 @@ public class PaymentController {
                     }
             );
 
-// 2) Store in DB so it appears in Files tab
             attachPdfToWorkOrder(pdfBytes, title + ".pdf");
 
-// 3) Optional: still print for the customer (if you want)
-// If you still want the Print/PDF choice dialog, keep your old call here.
-// If you ONLY want printing, add a DocumentOutput.printNodeFromFxml(...) helper.
-// For now, simplest: keep your existing DocumentOutput.printOrPdf(...) if you want user output too.
+            // print / save PDF for customer
             DocumentOutput.printOrPdf(
                     title,
                     fxml,
@@ -226,59 +274,26 @@ public class PaymentController {
         }
     }
 
-    private void updateWoStatus(String newStatus) {
-        String sql = "UPDATE work_order SET status = ? WHERE workorder = ?";
-
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, newStatus);
-            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
-            ps.executeUpdate();
-
-            currentWorkOrder.setStatus(newStatus);
-
-            if (mainController != null) {
-                mainController.LoadOrders();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void selectOnly(MFXCheckbox selected) {
-        for (MFXCheckbox cb : new MFXCheckbox[]{visaCB, debitCB, masterCardCB, cashCB}) {
-            if (cb != selected){
-                cb.setSelected(false);
-            }
-        }
-        visaTXF.setDisable(true); debitTXF.setDisable(true); masterCardTXF.setDisable(true); cashTXF.setDisable(true);
-        visaTXF.clear(); debitTXF.clear(); masterCardTXF.clear(); cashTXF.clear();
-    }
+    // ─── HELPERS ────────────────────────────────────────────────────────────────
 
     private String getSelectedMethod() {
-        if (visaCB.isSelected()) return "VISA";
-        if (debitCB.isSelected()) return "DEBIT";
+        if (visaCB.isSelected())       return "VISA";
+        if (debitCB.isSelected())      return "DEBIT";
         if (masterCardCB.isSelected()) return "MASTERCARD";
-        if (cashCB.isSelected()) return "CASH";
+        if (cashCB.isSelected())       return "CASH";
+        if (amexCB.isSelected())       return "AMEX";
         throw new IllegalArgumentException("Select a payment method.");
     }
 
-    public void setSuggestedAmount(Double amount) {
-        this.suggestedAmount = amount;
-        this.totalAmount = amount;
-    }
-
     private double getEnteredAmount(String method) {
-        String raw;
-        switch (method) {
-            case "VISA": raw = visaTXF.getText(); break;
-            case "DEBIT": raw = debitTXF.getText(); break;
-            case "MASTERCARD": raw = masterCardTXF.getText(); break;
-            case "CASH": raw = cashTXF.getText(); break;
-            default: throw new IllegalArgumentException("Unknown method.");
-        }
+        String raw = switch (method) {
+            case "VISA"       -> visaTXF.getText();
+            case "DEBIT"      -> debitTXF.getText();
+            case "MASTERCARD" -> masterCardTXF.getText();
+            case "CASH"       -> cashTXF.getText();
+            case "AMEX"       -> amexTXF.getText();
+            default -> throw new IllegalArgumentException("Unknown method.");
+        };
 
         if (raw == null || raw.isBlank()) throw new IllegalArgumentException("Enter an amount.");
         raw = raw.replace("$", "").replace("CAD", "").trim();
@@ -291,25 +306,32 @@ public class PaymentController {
 
     private String formatCad(double amount) {
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.CANADA);
-        String base = nf.format(amount);
-        return base + " CAD";
+        return nf.format(amount) + " CAD";
     }
 
     private void autofill(MFXTextField field) {
-        if (suggestedAmount == null) {
-            return;
-        }
-
+        if (suggestedAmount == null) return;
         String text = field.getText();
-
-        if (text == null) {
-            text = "";
-        }
-
+        if (text == null) text = "";
         text = text.trim();
-
-        if (text.equals("") || text.equals("$") || text.equalsIgnoreCase("CAD")) {
+        if (text.isEmpty() || text.equals("$") || text.equalsIgnoreCase("CAD")) {
             field.setText(formatCad(suggestedAmount));
+        }
+    }
+
+    private void updateWoStatus(String newStatus) {
+        String sql = "UPDATE work_order SET status = ? WHERE workorder = ?";
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setInt(2, currentWorkOrder.getWorkorderNumber());
+            ps.executeUpdate();
+            currentWorkOrder.setStatus(newStatus);
+            if (mainController != null) {
+                mainController.LoadOrders();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -317,7 +339,6 @@ public class PaymentController {
         String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ps.setString(2, displayName);
             ps.setBytes(3, pdfBytes);

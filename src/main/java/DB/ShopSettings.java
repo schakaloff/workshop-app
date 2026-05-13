@@ -27,11 +27,14 @@ public class ShopSettings   {
     public double calcGst(double subtotal, boolean hasGstNumber) {
         return hasGstNumber ? 0.0 : subtotal * gst;
     }
+
+
     public static double[] calcTaxes(double labour, double parts,
                                      boolean hasWarranty,
                                      boolean hasPstNum, boolean hasGstNum) {
         ShopSettings s = get();
-        double taxBase = hasWarranty ? labour : labour + parts;
+        // always tax both labour and parts regardless of warranty
+        double taxBase = labour + parts;
         double pst = s.calcPst(taxBase, hasPstNum);
         double gst = s.calcGst(taxBase, hasGstNum);
         return new double[]{pst, gst};

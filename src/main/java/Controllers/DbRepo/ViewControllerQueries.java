@@ -475,4 +475,15 @@ public class ViewControllerQueries {
             ps.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
     }
+
+    public static double[] taxesFromDb(int woNumber) {
+        String sql = "SELECT pst, gst FROM work_order WHERE workorder = ?";
+        try (Connection con = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, woNumber);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return new double[]{rs.getDouble("pst"), rs.getDouble("gst")};
+        } catch (SQLException e) { e.printStackTrace(); }
+        return new double[]{0, 0};
+    }
 }
