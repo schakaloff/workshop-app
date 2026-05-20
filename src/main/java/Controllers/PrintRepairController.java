@@ -142,6 +142,9 @@ public class PrintRepairController {
 
         buildLabourRows(repairData);
 
+        buildBillingSummary(wo, co, labour, billParts, pst, gst);
+
+
         Platform.runLater(() -> {
             double partsHeaderY = repositionParts(repairData.size());
             buildPartsRowsWithOverflow(partsData, partsHeaderY);
@@ -391,5 +394,84 @@ public class PrintRepairController {
 
     private String nullSafe(String value) {
         return value != null ? value : "";
+    }
+
+    private void buildBillingSummary(WorkOrder wo, Customer co,
+                                     double labour, double parts,
+                                     double pst, double gst) {
+        String vendorName = wo.getVendorId();
+        boolean hasVendor = vendorName != null && !vendorName.isBlank();
+        Skeletons.Vendor vendor = hasVendor
+                ? Controllers.DbRepo.VendorsQueries.getVendorByName(vendorName)
+                : null;
+
+        String customerName = co.getLastName() + ", " + co.getFirstName();
+
+        // build summary lines
+        List<String> lines = new ArrayList<>();
+        if (vendor != null) {
+            double vLabour = vendor.isPaysLabour() ? labour : 0;
+            double vParts  = vendor.isPaysParts()  ? parts  : 0;
+            double vPst    = vendor.isPaysPst()    ? pst    : 0;
+            double vGst    = vendor.isPaysGst()    ? gst    : 0;
+            double vTotal  = vLabour + vParts + vPst + vGst;
+
+            if (vTotal > 0) {
+                List<String> covers = new ArrayList<>();
+                if (vendor.isPaysLabour()) covers.add("Labour");
+                if (vendor.isPaysParts())  covers.add("Parts");
+                if (vendor.isPaysPst())    covers.add("PST");
+                if (vendor.isPaysGst())    covers.add("GST");
+                lines.add(vendorName + " (Warranty)  |  " +
+                        String.join("+", covers) + "  |  " +
+                        String.format("$%.2f", vTotal));
+            }
+
+            double cLabour = vendor.isPaysLabour() ? 0 : labour;
+            double cParts  = vendor.isPaysParts()  ? 0 : parts;
+            double cPst    = vendor.isPaysPst()    ? 0 : pst;
+            double cGst    = vendor.isPaysGst()    ? 0 : gst;
+            double cTotal  = cLabour + cParts + cPst + cGst;
+
+            if (cTotal > 0) {
+                List<String> covers = new ArrayList<>();
+                if (cLabour > 0) covers.add("Labour");
+                if (cParts  > 0) covers.add("Parts");
+                if (cPst    > 0) covers.add("PST");
+                if (cGst    > 0) covers.add("GST");
+                lines.add(customerName + "  |  " +
+                        String.join("+", covers) + "  |  " +
+                        String.format("$%.2f", cTotal));
+            }
+        } else {
+            double total = labour + parts + pst + gst;
+            lines.add(customerName + "  |  Labour+Parts+Tax  |  " +
+                    String.format("$%.2f", total));
+        }
+
+        // render box in FXML AnchorPane — add nodes dynamically
+        // billing header rect at Y=755 (below totals)
+        double bY = 755.0;
+        AnchorPane root = (AnchorPane) totalsRect.getParent();
+
+        Rectangle hdr = new Rectangle(4, bY, 460, 14);
+        hdr.setFill(Color.LIGHTGRAY);
+        hdr.setStroke(Color.BLACK);
+        hdr.setStrokeWidth(0.5);
+        root.getChildren().add(hdr);
+
+        Text hdrTxt = staticText("BILLING SUMMARY", 6, bY + 11, true);
+        root.getChildren().add(hdrTxt);
+
+        bY += 14;
+        for (String line : lines) {
+            Rectangle row = new Rectangle(4, bY, 460, 14);
+            row.setFill(Color.WHITE);
+            row.setStroke(Color.BLACK);
+            row.setStrokeWidth(0.5);
+            root.getChildren().add(row);
+            root.getChildren().add(staticText(line, 6, bY + 11, false));
+            bY += 14;
+        }
     }
 }

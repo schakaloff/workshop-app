@@ -138,4 +138,26 @@ public class VendorsQueries {
             ps.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
     }
+
+    public static Vendor getVendorByName(String name) {
+        if (name == null || name.isBlank()) return null;
+        String sql = "SELECT id, name, pays_labour, pays_parts, pays_pst, pays_gst, " +
+                "address, city, province, postal, contact, phone FROM vendors WHERE name = ?";
+        try (Connection con = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, name.trim());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new Vendor(
+                        rs.getInt("id"), rs.getString("name"),
+                        rs.getBoolean("pays_labour"), rs.getBoolean("pays_parts"),
+                        rs.getBoolean("pays_pst"), rs.getBoolean("pays_gst"),
+                        rs.getString("address"), rs.getString("city"),
+                        rs.getString("province"), rs.getString("postal"),
+                        rs.getString("contact"), rs.getString("phone")
+                );
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
 }
