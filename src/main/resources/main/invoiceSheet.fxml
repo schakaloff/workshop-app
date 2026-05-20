@@ -32,8 +32,8 @@
       </Text>
 
       <!-- ─── Invoice meta box ─────────────────────────────────────── -->
-      <Rectangle layoutX="380.0" layoutY="44.0" width="200.0" height="70.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" arcWidth="4" arcHeight="4" />
+      <Rectangle arcHeight="4" arcWidth="4" fill="WHITE" height="70.0"
+                 layoutX="380.0" layoutY="44.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
       <Text layoutX="386.0" layoutY="60.0" text="Invoice / WO #:">
          <font><Font size="10.0" /></font>
       </Text>
@@ -60,11 +60,11 @@
       </Text>
 
       <!-- ─── Divider ───────────────────────────────────────────────── -->
-      <Line layoutX="14.0" layoutY="92.0" startX="0" endX="560.0" stroke="BLACK" />
+      <Line layoutX="14.0" layoutY="92.0" startX="0" endX="360.0" stroke="BLACK" />
 
       <!-- ─── Bill To box ───────────────────────────────────────────── -->
-      <Rectangle layoutX="14.0" layoutY="100.0" width="220.0" height="80.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" arcWidth="4" arcHeight="4" />
+      <Rectangle arcHeight="4" arcWidth="4" fill="WHITE" height="80.0"
+                 layoutX="14.0" layoutY="100.0" stroke="BLACK" strokeType="INSIDE" width="220.0" />
       <Text layoutX="20.0" layoutY="115.0" text="BILL TO:">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
@@ -82,18 +82,17 @@
       </Text>
 
       <!-- ─── Column headers ───────────────────────────────────────── -->
-      <Rectangle layoutX="14.0" layoutY="200.0" width="567.0" height="20.0"
-                 fill="BLACK" />
-      <Text layoutX="18.0" layoutY="214.0" text="DESCRIPTION" fill="WHITE">
+      <Rectangle fill="BLACK" height="20.0" layoutX="14.0" layoutY="200.0" width="567.0" />
+      <Text fill="WHITE" layoutX="18.0" layoutY="214.0" text="DESCRIPTION">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
-      <Text layoutX="480.0" layoutY="214.0" text="AMOUNT" fill="WHITE">
+      <Text fill="WHITE" layoutX="480.0" layoutY="214.0" text="AMOUNT">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
 
       <!-- ─── Labour row ────────────────────────────────────────────── -->
-      <Rectangle layoutX="14.0" layoutY="220.0" width="567.0" height="26.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
+      <Rectangle fill="WHITE" height="26.0" layoutX="14.0" layoutY="220.0"
+                 stroke="BLACK" strokeType="INSIDE" width="567.0" />
       <Text layoutX="18.0" layoutY="237.0" text="Labour / Service Charges">
          <font><Font size="11.0" /></font>
       </Text>
@@ -102,8 +101,8 @@
       </Text>
 
       <!-- ─── Parts row ─────────────────────────────────────────────── -->
-      <Rectangle layoutX="14.0" layoutY="246.0" width="567.0" height="26.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
+      <Rectangle fill="WHITE" height="26.0" layoutX="14.0" layoutY="246.0"
+                 stroke="BLACK" strokeType="INSIDE" width="567.0" />
       <Text layoutX="18.0" layoutY="263.0" text="Parts / Materials">
          <font><Font size="11.0" /></font>
       </Text>
@@ -112,67 +111,87 @@
       </Text>
 
       <!-- ─── Empty rows ────────────────────────────────────────────── -->
-      <Rectangle layoutX="14.0" layoutY="272.0" width="567.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Rectangle layoutX="14.0" layoutY="296.0" width="567.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Rectangle layoutX="14.0" layoutY="320.0" width="567.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Rectangle layoutX="14.0" layoutY="344.0" width="567.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
+      <Rectangle fill="WHITE" height="24.0" layoutX="14.0" layoutY="272.0"
+                 stroke="BLACK" strokeType="INSIDE" width="567.0" />
+      <Rectangle fill="WHITE" height="24.0" layoutX="14.0" layoutY="296.0"
+                 stroke="BLACK" strokeType="INSIDE" width="567.0" />
+      <Rectangle fill="WHITE" height="24.0" layoutX="14.0" layoutY="320.0"
+                 stroke="BLACK" strokeType="INSIDE" width="567.0" />
+      <Rectangle fill="WHITE" height="24.0" layoutX="14.0" layoutY="344.0"
+                 stroke="BLACK" strokeType="INSIDE" width="567.0" />
 
       <!-- ─── Totals section ────────────────────────────────────────── -->
-      <!-- PST -->
-      <Rectangle layoutX="380.0" layoutY="378.0" width="201.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Text layoutX="386.0" layoutY="394.0" text="PST (7%):">
+
+      <!-- Labour subtotal -->
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="378.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="394.0" text="Labour:">
          <font><Font size="11.0" /></font>
       </Text>
-      <Text fx:id="pstTXT" layoutX="470.0" layoutY="394.0" text="">
+      <Text fx:id="labourSubTXT" layoutX="470.0" layoutY="394.0" text="">
+         <font><Font size="11.0" /></font>
+      </Text>
+
+      <!-- Parts subtotal -->
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="402.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="418.0" text="Parts:">
+         <font><Font size="11.0" /></font>
+      </Text>
+      <Text fx:id="partsSubTXT" layoutX="470.0" layoutY="418.0" text="">
+         <font><Font size="11.0" /></font>
+      </Text>
+
+      <!-- PST -->
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="426.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="442.0" text="PST (7%):">
+         <font><Font size="11.0" /></font>
+      </Text>
+      <Text fx:id="pstTXT" layoutX="470.0" layoutY="442.0" text="">
          <font><Font size="11.0" /></font>
       </Text>
 
       <!-- GST -->
-      <Rectangle layoutX="380.0" layoutY="402.0" width="201.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Text layoutX="386.0" layoutY="418.0" text="GST (5%):">
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="450.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="466.0" text="GST (5%):">
          <font><Font size="11.0" /></font>
       </Text>
-      <Text fx:id="gstTXT" layoutX="470.0" layoutY="418.0" text="">
-         <font><Font size="11.0" /></font>
-      </Text>
-
-      <!-- Subtotal -->
-      <Rectangle layoutX="380.0" layoutY="426.0" width="201.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Text layoutX="386.0" layoutY="442.0" text="Subtotal:">
-         <font><Font size="11.0" /></font>
-      </Text>
-      <Text fx:id="subtotalTXT" layoutX="470.0" layoutY="442.0" text="">
+      <Text fx:id="gstTXT" layoutX="470.0" layoutY="466.0" text="">
          <font><Font size="11.0" /></font>
       </Text>
 
-      <!-- Deposit deduction -->
-      <Rectangle layoutX="380.0" layoutY="450.0" width="201.0" height="24.0"
-                 fill="WHITE" stroke="BLACK" strokeType="INSIDE" />
-      <Text layoutX="386.0" layoutY="466.0" text="Less Deposit:">
+      <!-- Total before deposit -->
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="474.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="490.0" text="Total:">
+         <font><Font name="Arial Bold" size="11.0" /></font>
+      </Text>
+      <Text fx:id="subtotalTXT" layoutX="470.0" layoutY="490.0" text="">
+         <font><Font name="Arial Bold" size="11.0" /></font>
+      </Text>
+
+      <!-- Less Deposit -->
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="498.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="514.0" text="Less Deposit:">
          <font><Font size="11.0" /></font>
       </Text>
-      <Text fx:id="depositDeductTXT" layoutX="470.0" layoutY="466.0" text="">
+      <Text fx:id="depositDeductTXT" layoutX="470.0" layoutY="514.0" text="">
          <font><Font size="11.0" /></font>
       </Text>
 
-      <!-- Total Due -->
-      <Rectangle layoutX="380.0" layoutY="474.0" width="201.0" height="28.0"
-                 fill="BLACK" />
-      <Text layoutX="386.0" layoutY="492.0" text="TOTAL DUE:" fill="WHITE">
+      <!-- Balance Due -->
+      <Rectangle fill="BLACK" height="28.0" layoutX="380.0" layoutY="522.0" width="201.0" />
+      <Text fill="WHITE" layoutX="386.0" layoutY="540.0" text="BALANCE DUE:">
          <font><Font name="Arial Bold" size="12.0" /></font>
       </Text>
-      <Text fx:id="totalDueTXT" layoutX="470.0" layoutY="492.0" text="" fill="WHITE">
+      <Text fx:id="totalDueTXT" fill="WHITE" layoutX="470.0" layoutY="540.0" text="">
          <font><Font name="Arial Bold" size="12.0" /></font>
       </Text>
 
-      <!-- ─── Payment method ───────────────────────────────────────── -->
+      <!-- ─── Payment method (left side) ──────────────────────────── -->
       <Text layoutX="14.0" layoutY="394.0" text="Payment Method:">
          <font><Font size="11.0" /></font>
       </Text>
@@ -180,26 +199,38 @@
          <font><Font name="Arial Bold" size="11.0" /></font>
       </Text>
 
+      <!-- ─── Billing summary ───────────────────────────────────────── -->
+      <Rectangle fill="BLACK" height="16.0" layoutX="14.0" layoutY="556.0" width="360.0" />
+      <Text fill="WHITE" layoutX="18.0" layoutY="568.0" text="BILLING SUMMARY">
+         <font><Font name="Arial Bold" size="10.0" /></font>
+      </Text>
+      <Rectangle fill="WHITE" height="44.0" layoutX="14.0" layoutY="572.0"
+                 stroke="BLACK" strokeType="INSIDE" width="360.0" />
+      <Text fx:id="billingNotesTXT" layoutX="18.0" layoutY="586.0" wrappingWidth="350.0">
+         <font><Font size="10.0" /></font>
+      </Text>
+
       <!-- ─── Divider before footer ────────────────────────────────── -->
-      <Line layoutX="14.0" layoutY="520.0" startX="0" endX="560.0" stroke="BLACK" />
+      <Line endX="560.0" layoutX="14.0" layoutY="628.0" startX="0" stroke="BLACK" />
 
       <!-- ─── Footer ───────────────────────────────────────────────── -->
-      <Text layoutX="14.0" layoutY="538.0" text="- Dependable Service -   - Professional People -">
+      <Text layoutX="14.0" layoutY="644.0"
+            text="- Dependable Service -   - Professional People -">
          <font><Font name="Arial Bold" size="11.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="556.0"
+      <Text layoutX="14.0" layoutY="660.0"
             text="Any units not picked up after six months will be disposed of."
             wrappingWidth="560.0">
          <font><Font size="10.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="572.0"
+      <Text layoutX="14.0" layoutY="676.0"
             text="Teltronics Service Centre will not be held liable in instances of any internal or external damages sustained during repair time."
             wrappingWidth="560.0">
          <font><Font size="10.0" /></font>
       </Text>
 
       <!-- ─── Bottom reference bar ─────────────────────────────────── -->
-      <Line layoutX="14.0" layoutY="810.0" startX="0" endX="560.0" stroke="BLACK" />
+      <Line endX="560.0" layoutX="14.0" layoutY="810.0" startX="0" stroke="BLACK" />
       <Text layoutX="14.0" layoutY="824.0" text="Work Order Ref: ">
          <font><Font size="9.0" /></font>
       </Text>

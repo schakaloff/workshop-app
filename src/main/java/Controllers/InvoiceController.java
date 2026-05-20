@@ -6,6 +6,9 @@ import Skeletons.WorkOrder;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InvoiceController {
 
     @FXML private Text cxFullNameTXT;
@@ -19,6 +22,11 @@ public class InvoiceController {
     @FXML private Text dateTXT;
     @FXML private Text woRefTXT;
     @FXML private Text dateRefTXT;
+
+    @FXML private Text labourSubTXT;
+    @FXML private Text partsSubTXT;
+
+    @FXML private Text billingNotesTXT;
 
     // line items
     @FXML private Text labourTXT;
@@ -65,6 +73,7 @@ public class InvoiceController {
         // payment
         paymentMethodTXT.setText(method);
 
+
         // line items
         labourTXT.setText(String.format("CDN $%.2f", labour));
         partsTXT.setText(String.format("CDN $%.2f", parts));
@@ -73,5 +82,50 @@ public class InvoiceController {
         subtotalTXT.setText(String.format("CDN $%.2f", subtotal));
         depositDeductTXT.setText(deposit > 0 ? String.format("- CDN $%.2f", deposit) : "—");
         totalDueTXT.setText(String.format("CDN $%.2f", totalDue));
+        labourSubTXT.setText(String.format("CDN $%.2f", labour));
+        partsSubTXT.setText(String.format("CDN $%.2f", parts));
+
+        // billing summary
+        String vendorName = wo.getVendorId();
+        boolean hasVendor = vendorName != null && !vendorName.isBlank();
+        Skeletons.Vendor vendor = hasVendor
+                ? Controllers.DbRepo.VendorsQueries.getVendorByName(vendorName)
+                : null;
+        String customerName = co.getFirstName() + " " + co.getLastName();
+        StringBuilder sb = new StringBuilder();
+        if (vendor != null) {
+            double vL = vendor.isPaysLabour() ? labour : 0;
+            double vP = vendor.isPaysParts()  ? parts  : 0;
+            double vPst2 = vendor.isPaysPst() ? pst    : 0;
+            double vG = vendor.isPaysGst()    ? gst    : 0;
+            if (vL+vP+vPst2+vG > 0) {
+                List<String> c = new ArrayList<>();
+                if (vendor.isPaysLabour()) c.add("Labour");
+                if (vendor.isPaysParts())  c.add("Parts");
+                if (vendor.isPaysPst())    c.add("PST");
+                if (vendor.isPaysGst())    c.add("GST");
+                sb.append(vendorName).append(" (Warranty)  |  ")
+                        .append(String.join("+", c)).append("  |  CDN $")
+                        .append(String.format("%.2f", vL+vP+vPst2+vG)).append("\n");
+            }
+            double cL = vendor.isPaysLabour() ? 0 : labour;
+            double cP = vendor.isPaysParts()  ? 0 : parts;
+            double cPst2 = vendor.isPaysPst() ? 0 : pst;
+            double cG = vendor.isPaysGst()    ? 0 : gst;
+            if (cL+cP+cPst2+cG > 0) {
+                List<String> c = new ArrayList<>();
+                if (cL>0) c.add("Labour");
+                if (cP>0) c.add("Parts");
+                if (cPst2>0) c.add("PST");
+                if (cG>0) c.add("GST");
+                sb.append(customerName).append("  |  ")
+                        .append(String.join("+", c)).append("  |  CDN $")
+                        .append(String.format("%.2f", cL+cP+cPst2+cG)).append("\n");
+            }
+        } else {
+            sb.append(customerName).append("  |  Labour+Parts+Tax  |  CDN $")
+                    .append(String.format("%.2f", labour+parts+pst+gst)).append("\n");
+        }
+        billingNotesTXT.setText(sb.toString());
     }
 }
