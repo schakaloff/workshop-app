@@ -1,11 +1,17 @@
 name: Build Linux AppImage
 
-# Only runs after Build JARs & Config completes successfully
 on:
   workflow_run:
     workflows: ["Build JARs & Config"]
     types:
       - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'build-jars run ID to download artifact from'
+        required: false
 
 jobs:
   build-linux-appimage:
@@ -13,8 +19,9 @@ jobs:
     permissions:
       contents: write
 
-    # Don't run if build-jars failed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - uses: actions/checkout@v4
@@ -26,13 +33,21 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Download the artifact that build-jars uploaded
+      - name: Resolve artifact run ID
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.run_id }}" ]; then
+            echo "run_id=${{ inputs.run_id }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_id=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Download JARs artifact
         uses: actions/download-artifact@v4
         with:
           name: jars
           path: target/
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.resolve.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run jpackage (app-image)
