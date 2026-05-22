@@ -48,7 +48,7 @@ jobs:
       - name: Run jpackage for Windows EXE
         run: |
           $JAVAFX_PATH = (Get-ChildItem -Path "." -Filter "javafx-sdk-21*" -Directory | Select-Object -First 1).FullName
-          $JAVA_HOME = ${{ env.JAVA_HOME }}
+          $JAVA_HOME = $env:JAVA_HOME
           
           jpackage `
             --type exe `
