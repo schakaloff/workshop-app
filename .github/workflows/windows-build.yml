@@ -59,7 +59,6 @@ jobs:
             --main-class main.Main `
             --dest build `
             --module-path "$JAVAFX_PATH\lib" `
-            --add-modules javafx.controls,javafx.fxml,javafx.base,javafx.graphics `
             --java-options "-Djava.library.path=$JAVAFX_PATH\lib" `
             --runtime-image "$JAVA_HOME" `
             --win-menu `
