@@ -41,7 +41,7 @@ jobs:
       - name: Download JavaFX SDK
         run: |
           $ProgressPreference = 'SilentlyContinue'
-          Invoke-WebRequest -Uri "https://gluonhq.com/download/javafx-21_windows-x64_bin.zip" -OutFile "javafx.zip"
+          Invoke-WebRequest -Uri "https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11_windows-x64_bin-sdk.zip" -OutFile "javafx.zip"
           Expand-Archive -Path "javafx.zip" -DestinationPath "."
         shell: powershell
 
