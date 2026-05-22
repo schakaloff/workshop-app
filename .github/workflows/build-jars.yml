@@ -162,7 +162,6 @@ jobs:
             --main-jar workordermanager-bootstrap.jar \
             --main-class main.Launcher \
             --dest build \
-            --linux-shortcut \
             --description "FixelCRM - Work Order Management System"
 
       - name: Install appimagetool
