@@ -1,0 +1,72 @@
+name: Build JARs & Config
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build-jars:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Create DbConfig.java from secrets
+        run: |
+          mkdir -p src/main/java/DB
+          cat > src/main/java/DB/DbConfig.java << 'DBEOF'
+          package DB;
+          public class DbConfig {
+              public static final String url = "${{ secrets.DB_URL }}";
+              public static final String user = "${{ secrets.DB_USER }}";
+              public static final String password = "${{ secrets.DB_PASSWORD }}";
+          }
+          DBEOF
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Generate update4j config.xml
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            BASE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/"
+          else
+            BASE_URL="https://github.com/${{ github.repository }}/releases/latest/download/"
+          fi
+          echo "Base URL: $BASE_URL"
+          java -cp "target/workordermanager-app.jar" main.GenerateConfig \
+            "$BASE_URL" \
+            "target/" \
+            "target/config.xml"
+
+      - name: Upload JARs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jars
+          path: |
+            target/workordermanager-app.jar
+            target/workordermanager-bootstrap.jar
+            target/config.xml
+          retention-days: 1
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/workordermanager-app.jar
+            target/workordermanager-bootstrap.jar
+            target/config.xml
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
