@@ -129,13 +129,10 @@
                             <outputFile>${project.build.directory}/workordermanager-bootstrap.jar</outputFile>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
-                                <excludes>
-                                    <exclude>com.mysql:mysql-connector-j</exclude>
-                                    <exclude>org.apache.pdfbox:pdfbox</exclude>
-                                    <exclude>org.languagetool:language-en</exclude>
-                                    <exclude>com.jfoenix:jfoenix</exclude>
-                                    <exclude>org.junit.jupiter:*</exclude>
-                                </excludes>
+                                <includes>
+                                    <include>org.update4j:update4j</include>
+                                    <!-- your own classes are included automatically -->
+                                </includes>
                             </artifactSet>
                             <filters>
                                 <filter>
@@ -144,19 +141,17 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
-                                        <!-- exclude update4j's own Launcher service so ours wins -->
                                         <exclude>META-INF/services/org.update4j.service.Launcher</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
                             <transformers>
-                                <!-- Our AppLauncher service file — only one, no conflict -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                                     <resource>META-INF/services/org.update4j.service.Launcher</resource>
                                     <file>src/main/resources/META-INF/services/org.update4j.service.Launcher</file>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>main.UpdateScreen</mainClass>
+                                    <mainClass>main.Launcher</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
