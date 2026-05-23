@@ -164,7 +164,7 @@ jobs:
             --dest build \
             --description "FixelCRM - Work Order Management System"
 
-      - name: Install dependencies
+      - name: Install AppImage dependencies
         run: |
           sudo apt-get update -y
           sudo apt-get install -y squashfs-tools
