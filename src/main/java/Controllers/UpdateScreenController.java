@@ -1,4 +1,4 @@
-package main;
+package Controllers;
 
 import DB.ShopSettings;
 import io.github.palexdev.materialfx.controls.MFXProgressBar;
@@ -6,6 +6,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import main.Launcher;
+import main.Main;
 import org.update4j.Configuration;
 import org.update4j.FileMetadata;
 import org.update4j.service.UpdateHandler;
