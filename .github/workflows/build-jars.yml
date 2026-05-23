@@ -75,7 +75,7 @@ jobs:
   # ── 2. Build Windows EXE ───────────────────────────────────────────────
   build-windows:
     runs-on: windows-latest
-    needs: build-jars          # ← waits for build-jars to finish
+    needs: build-jars
     permissions:
       contents: write
     steps:
@@ -167,16 +167,17 @@ jobs:
       - name: Install AppImage dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y squashfs-tools
+          sudo apt-get install -y squashfs-tools fuse
 
-      - name: Download and extract appimagetool
+      - name: Download and setup appimagetool
         run: |
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage \
             -O /tmp/appimagetool.AppImage
           chmod +x /tmp/appimagetool.AppImage
-          cd /tmp
-          ./appimagetool.AppImage --appimage-extract
-          sudo mv squashfs-root/usr/bin/appimagetool /usr/local/bin/appimagetool
+          cd /tmp && ./appimagetool.AppImage --appimage-extract
+          sudo mkdir -p /usr/local/lib/appimagekit
+          sudo cp /usr/bin/mksquashfs /usr/local/lib/appimagekit/mksquashfs
+          sudo cp /tmp/squashfs-root/usr/bin/appimagetool /usr/local/bin/appimagetool
           sudo chmod +x /usr/local/bin/appimagetool
 
       - name: Create AppDir structure
@@ -184,7 +185,7 @@ jobs:
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/lib
           cp -r build/FixelCRM/* AppDir/
-          
+
           cat > AppDir/FixelCRM.desktop << 'EOF'
           [Desktop Entry]
           Name=FixelCRM
@@ -194,7 +195,7 @@ jobs:
           Categories=Office;
           Comment=FixelCRM - Work Order Management System
           EOF
-          
+
           cat > AppDir/AppRun << 'EOF'
           #!/bin/bash
           HERE="$(dirname "$(readlink -f "${0}")")"
