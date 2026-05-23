@@ -164,11 +164,15 @@ jobs:
             --dest build \
             --description "FixelCRM - Work Order Management System"
 
-      - name: Install appimagetool
+      - name: Download and extract appimagetool
         run: |
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage \
-            -O /usr/local/bin/appimagetool
-          chmod +x /usr/local/bin/appimagetool
+            -O /tmp/appimagetool.AppImage
+          chmod +x /tmp/appimagetool.AppImage
+          cd /tmp
+          ./appimagetool.AppImage --appimage-extract
+          sudo mv squashfs-root/usr/bin/appimagetool /usr/local/bin/appimagetool
+          sudo chmod +x /usr/local/bin/appimagetool
 
       - name: Create AppDir structure
         run: |
