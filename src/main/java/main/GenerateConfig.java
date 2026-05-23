@@ -7,21 +7,6 @@ import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
-
-/**
- * Run this in CI after mvn package to generate config.xml.
- *
- * Args:
- *   [0] baseUrl        — remote URL where JARs are uploaded
- *   [1] jarDir         — local directory containing the app JAR
- *   [2] outputPath     — where to write config.xml
- *
- * Example (CI):
- *   java -cp target/workordermanager-app.jar main.GenerateConfig \
- *     "https://github.com/USER/REPO/releases/download/v1.0.0/" \
- *     "target/" \
- *     "target/config.xml"
- */
 public class GenerateConfig {
 
     public static void main(String[] args) throws Exception {
@@ -42,7 +27,7 @@ public class GenerateConfig {
                 .baseUri(baseUrl)
                 // basePath is resolved dynamically at runtime by Launcher.resolveLibDir()
                 // This is just a safe neutral default
-                .basePath("${user.home}/.workordermanager/lib")
+                .basePath("${user.home}/.local/share/workordermanager/lib")
                 .launcher(AppLauncher.class)   // tells update4j which Launcher to use
                 .files(
                         FileMetadata.streamDirectory(jarDir)
