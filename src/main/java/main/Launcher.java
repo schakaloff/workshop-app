@@ -1,6 +1,7 @@
 package main;
 
 import org.update4j.Configuration;
+
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
@@ -22,7 +23,6 @@ public class Launcher {
         Configuration config = null;
         Path localConfig = libDir.resolve("config.xml");
 
-        // ── 1. Try remote config ───────────────────────────────────────────
         try {
             URL url = URI.create(CONFIG_URL).toURL();
             try (var reader = new InputStreamReader(url.openStream())) {
@@ -33,7 +33,6 @@ public class Launcher {
             System.out.println("Offline or unreachable: " + e.getMessage());
         }
 
-        // ── 2. Fall back to cached local config ────────────────────────────
         if (config == null && Files.exists(localConfig)) {
             try (var reader = Files.newBufferedReader(localConfig)) {
                 config = Configuration.read(reader);
@@ -41,23 +40,18 @@ public class Launcher {
             }
         }
 
-        // ── 3. No config at all ────────────────────────────────────────────
         if (config == null) {
             System.err.println("No configuration found. Check your internet connection.");
             System.exit(1);
         }
 
-// ── 4. Update only changed files ───────────────────────────────────────
         if (config.requiresUpdate()) {
             System.out.println("Downloading updates to: " + libDir);
-
-            boolean success = config.update();  // ← boolean, not UpdateResult
-
+            boolean success = config.update();
             if (!success) {
                 System.err.println("Update failed. Launching with cached version.");
             } else {
                 System.out.println("Update complete.");
-                // Cache new config for offline fallback
                 try (var writer = Files.newBufferedWriter(localConfig)) {
                     config.write(writer);
                 }
@@ -66,11 +60,8 @@ public class Launcher {
             System.out.println("Already up to date.");
         }
 
-        // ── 5. Launch — update4j finds AppLauncher via ServiceLoader ───────
         config.launch();
     }
-
-    // ── Path resolution ────────────────────────────────────────────────────
 
     public static Path resolveLibDir() {
         try {
