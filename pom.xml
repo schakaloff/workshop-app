@@ -136,11 +136,15 @@
                         <configuration>
                             <outputFile>${project.build.directory}/workordermanager-bootstrap.jar</outputFile>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <!-- Only bundle update4j + your Launcher class, nothing else -->
+                            <!-- Exclude heavy app dependencies — keep only update4j + JavaFX + MaterialFX + your classes -->
                             <artifactSet>
-                                <includes>
-                                    <include>org.update4j:update4j</include>
-                                </includes>
+                                <excludes>
+                                    <exclude>com.mysql:mysql-connector-j</exclude>
+                                    <exclude>org.apache.pdfbox:pdfbox</exclude>
+                                    <exclude>org.languagetool:language-en</exclude>
+                                    <exclude>com.jfoenix:jfoenix</exclude>
+                                    <exclude>org.junit.jupiter:*</exclude>
+                                </excludes>
                             </artifactSet>
                             <filters>
                                 <filter>
