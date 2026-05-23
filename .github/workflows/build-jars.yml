@@ -133,7 +133,7 @@ jobs:
   # ── 3. Build Linux AppImage ────────────────────────────────────────────
   build-linux:
     runs-on: ubuntu-latest
-    needs: build-jars          # ← waits for build-jars to finish
+    needs: build-jars
     permissions:
       contents: write
     steps:
@@ -164,6 +164,11 @@ jobs:
             --dest build \
             --description "FixelCRM - Work Order Management System"
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y squashfs-tools
+
       - name: Download and extract appimagetool
         run: |
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage \
@@ -179,7 +184,7 @@ jobs:
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/lib
           cp -r build/FixelCRM/* AppDir/
-
+          
           cat > AppDir/FixelCRM.desktop << 'EOF'
           [Desktop Entry]
           Name=FixelCRM
@@ -189,7 +194,7 @@ jobs:
           Categories=Office;
           Comment=FixelCRM - Work Order Management System
           EOF
-
+          
           cat > AppDir/AppRun << 'EOF'
           #!/bin/bash
           HERE="$(dirname "$(readlink -f "${0}")")"
