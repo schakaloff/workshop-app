@@ -1,10 +1,12 @@
 package DB;
 
-public class ShopSettings   {
+public class ShopSettings {
     private static ShopSettings instance;
-
     private double pst = 0.07;
     private double gst = 0.05;
+
+    // ─── Single source of truth for app version ──────────────────────────────────
+    public static final String VERSION = "0.0.9";
 
     private ShopSettings() {}
 
@@ -23,17 +25,13 @@ public class ShopSettings   {
     public double calcPst(double subtotal, boolean hasPstNumber) {
         return hasPstNumber ? 0.0 : subtotal * pst;
     }
-
     public double calcGst(double subtotal, boolean hasGstNumber) {
         return hasGstNumber ? 0.0 : subtotal * gst;
     }
-
-
     public static double[] calcTaxes(double labour, double parts,
                                      boolean hasWarranty,
                                      boolean hasPstNum, boolean hasGstNum) {
         ShopSettings s = get();
-        // always tax both labour and parts regardless of warranty
         double taxBase = labour + parts;
         double pst = s.calcPst(taxBase, hasPstNum);
         double gst = s.calcGst(taxBase, hasGstNum);

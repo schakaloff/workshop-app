@@ -2,6 +2,7 @@ package Controllers;
 
 import Controllers.DbRepo.WorkshopQueries;
 import DB.DbConfig;
+import DB.ShopSettings;
 import Skeletons.Customer;
 import Skeletons.TechWorkRow;
 import Skeletons.WorkOrder;
@@ -100,6 +101,7 @@ public class ActualWorkshopController {
     private static final int ROWS_PER_PAGE   = 15;
     private static final int DASHBOARD_LIMIT = 75;
 
+    @FXML private Label versionLabel;
 
     // ─── Button style constants ──────────────────────────────────────────────────
     private static final String STYLE_BTN_DEFAULT  = "-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;";
@@ -170,6 +172,8 @@ public class ActualWorkshopController {
         techTXF.setText(LoginController.tech);
         techTable.setFooterVisible(false);
         table.setRowsPerPage(ROWS_PER_PAGE);
+
+        versionLabel.setText("v" + ShopSettings.VERSION);
 
         searchCondition.setItems(FXCollections.observableArrayList(
                 "WO Number", "Phone Number", "First Name", "Last Name", "Full Name"
