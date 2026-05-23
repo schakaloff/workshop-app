@@ -167,7 +167,7 @@ jobs:
       - name: Install AppImage dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y squashfs-tools fuse
+          sudo apt-get install -y squashfs-tools fuse desktop-file-utils
 
       - name: Download and setup appimagetool
         run: |
