@@ -205,7 +205,7 @@ jobs:
 
       - name: Build AppImage
         run: |
-          ARCH=x86_64 appimagetool AppDir build/FixelCRM-x86_64.AppImage
+          ARCH=x86_64 appimagetool --no-appstream AppDir build/FixelCRM-x86_64.AppImage
 
       - name: Upload AppImage to GitHub Release
         uses: softprops/action-gh-release@v1
