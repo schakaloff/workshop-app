@@ -105,14 +105,15 @@ jobs:
         run: |
           $JAVAFX_PATH = (Get-ChildItem -Path "." -Filter "javafx-sdk-21*" -Directory | Select-Object -First 1).FullName
           $JAVA_HOME = $env:JAVA_HOME
+          $VERSION = "${{ github.ref_name }}".TrimStart("v")
 
           jpackage `
             --type exe `
             --name FixelCRM `
-            --app-version 0.0.8 `
+            --app-version $VERSION `
             --input target `
             --main-jar workordermanager-bootstrap.jar `
-            --main-class main.Launcher `
+            --main-class main.UpdateScreen `
             --dest build `
             --module-path "$JAVAFX_PATH\lib" `
             --java-options "-Djava.library.path=$JAVAFX_PATH\lib" `
@@ -154,13 +155,15 @@ jobs:
 
       - name: Run jpackage (app-image)
         run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
           jpackage \
             --type app-image \
             --name FixelCRM \
-            --app-version 0.0.8 \
+            --app-version "$VERSION" \
             --input target \
             --main-jar workordermanager-bootstrap.jar \
-            --main-class main.Launcher \
+            --main-class main.UpdateScreen \
             --dest build \
             --description "FixelCRM - Work Order Management System"
 

@@ -1,0 +1,180 @@
+package main;
+
+import DB.ShopSettings;
+import io.github.palexdev.materialfx.controls.MFXProgressBar;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+import org.update4j.Configuration;
+import org.update4j.FileMetadata;
+import org.update4j.service.UpdateHandler;
+
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class UpdateScreenController {
+
+    @FXML private Label versionLabel;
+    @FXML private Label statusLabel;
+    @FXML private MFXProgressBar progressBar;
+
+    private static final String CONFIG_URL =
+            "https://github.com/schakaloff/workshop-app/releases/latest/download/config.xml";
+
+    public void startUpdate(Stage stage) {
+        Thread thread = new Thread(() -> runUpdateCheck(stage));
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void runUpdateCheck(Stage stage) {
+        Path libDir = Launcher.resolveLibDir();
+
+        try {
+            Files.createDirectories(libDir);
+        } catch (Exception e) {
+            launchApp(stage, null);
+            return;
+        }
+
+        Configuration config = null;
+        Path localConfig = libDir.resolve("config.xml");
+
+        // ── 1. Try remote config ──────────────────────────────────────────
+        try {
+            URL url = URI.create(CONFIG_URL).toURL();
+            try (var reader = new InputStreamReader(url.openStream())) {
+                config = Configuration.read(reader);
+            }
+        } catch (Exception e) {
+            setStatus("Offline — launching cached version");
+        }
+
+        // ── 2. Fallback to local config ───────────────────────────────────
+        if (config == null && Files.exists(localConfig)) {
+            try (var reader = Files.newBufferedReader(localConfig)) {
+                config = Configuration.read(reader);
+            } catch (Exception ignored) {}
+        }
+
+        // ── 3. No config at all ───────────────────────────────────────────
+        if (config == null) {
+            setVersion("v" + ShopSettings.VERSION);
+            setStatus("No config found. Check your connection.");
+            return;
+        }
+
+        final Configuration finalConfig = config;
+
+        // ── 4. Already up to date ─────────────────────────────────────────
+        try {
+            if (!config.requiresUpdate()) {
+                setVersion("v" + ShopSettings.VERSION + " — Up to date");
+                setProgress(1.0);
+                setStatus("Launching...");
+                Thread.sleep(600);
+                launchApp(stage, finalConfig);
+                return;
+            }
+        } catch (Exception e) {
+            launchApp(stage, finalConfig);
+            return;
+        }
+
+        // ── 5. Update available ───────────────────────────────────────────
+        setVersion("v" + ShopSettings.VERSION + " → New update available!");
+        setStatus("Preparing...");
+        setProgress(0);
+
+        try {
+            boolean success = config.update(new UpdateHandler() {
+
+                @Override
+                public void startDownloads() {
+                    setStatus("Starting download...");
+                }
+
+                @Override
+                public void startDownloadFile(FileMetadata file) {
+                    setStatus("Downloading: " + file.getPath().getFileName());
+                }
+
+                @Override
+                public void updateDownloadFileProgress(FileMetadata file, float progress) {
+                    // per-file progress
+                    setProgress(progress);
+                }
+
+                @Override
+                public void updateDownloadProgress(float progress) {
+                    // overall progress across all files
+                    setProgress(progress);
+                }
+
+                @Override
+                public void doneDownloadFile(FileMetadata file, Path path) {
+                    setProgress(1.0);
+                }
+
+                @Override
+                public void doneDownloads() {
+                    setStatus("Update complete!");
+                    setProgress(1.0);
+                }
+
+                @Override
+                public void failed(Throwable t) {
+                    setStatus("Update failed: " + t.getMessage());
+                }
+            });
+
+            // Cache new config for offline fallback
+            if (success) {
+                try (var writer = Files.newBufferedWriter(localConfig)) {
+                    config.write(writer);
+                }
+            }
+
+            Thread.sleep(800);
+            launchApp(stage, finalConfig);
+
+        } catch (Exception e) {
+            setStatus("Error: " + e.getMessage());
+            try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+            launchApp(stage, finalConfig);
+        }
+    }
+
+    private void launchApp(Stage stage, Configuration config) {
+        Platform.runLater(() -> {
+            stage.close();
+            try {
+                if (config != null) {
+                    config.launch();
+                } else {
+                    new Main().start(new Stage());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    // ── Thread-safe UI helpers ────────────────────────────────────────────
+
+    private void setVersion(String text) {
+        Platform.runLater(() -> versionLabel.setText(text));
+    }
+
+    private void setStatus(String text) {
+        Platform.runLater(() -> statusLabel.setText(text));
+    }
+
+    private void setProgress(double value) {
+        Platform.runLater(() -> progressBar.setProgress(value));
+    }
+}

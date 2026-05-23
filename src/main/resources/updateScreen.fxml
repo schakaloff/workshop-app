@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXProgressBar?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controllers.UpdateScreenController"
+           style="-fx-background-color: rgba(0, 151, 167, 0.10);"
+           prefWidth="500" prefHeight="320">
+
+    <VBox alignment="CENTER"
+          spacing="16"
+          maxWidth="400" maxHeight="260"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 16;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.20), 24, 0, 0, 4);
+                 -fx-padding: 40 50 40 50;">
+
+        <!-- App name -->
+        <Label text="FixelCRM"
+               style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #0097A7;">
+            <font><Font size="24.0"/></font>
+        </Label>
+
+        <!-- e.g. "New update available!" or "Already up to date" -->
+        <Label fx:id="versionLabel"
+               text="Checking for updates..."
+               style="-fx-font-size: 12; -fx-text-fill: #555;">
+            <font><Font size="12.0"/></font>
+        </Label>
+
+        <!-- MFX progress bar -->
+        <MFXProgressBar fx:id="progressBar"
+                        progress="0"
+                        prefWidth="300" prefHeight="10"/>
+
+        <!-- e.g. "Downloading: workordermanager-app.jar" -->
+        <Label fx:id="statusLabel"
+               text=""
+               style="-fx-font-size: 11; -fx-text-fill: #aaa;">
+            <font><Font size="11.0"/></font>
+            <VBox.margin><Insets top="-6"/></VBox.margin>
+        </Label>
+
+    </VBox>
+
+</StackPane>

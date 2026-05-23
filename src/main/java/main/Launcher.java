@@ -1,8 +1,6 @@
 package main;
 
 import org.update4j.Configuration;
-import org.update4j.UpdateResult;
-
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
@@ -74,7 +72,7 @@ public class Launcher {
 
     // ── Path resolution ────────────────────────────────────────────────────
 
-    private static Path resolveLibDir() {
+    public static Path resolveLibDir() {
         try {
             Path jarLocation = Path.of(
                     Launcher.class
