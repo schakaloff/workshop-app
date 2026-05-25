@@ -3,9 +3,6 @@ package main;
 import org.update4j.LaunchContext;
 import org.update4j.service.Launcher;
 
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 
 public class AppLauncher implements Launcher {
@@ -14,25 +11,30 @@ public class AppLauncher implements Launcher {
     public void run(LaunchContext context) {
         try {
             Path appJar = resolveAppJar();
+            System.out.println("Launching app JAR: " + appJar);
 
-            URLClassLoader classLoader = new URLClassLoader(
-                    new URL[]{appJar.toUri().toURL()},
-                    Thread.currentThread().getContextClassLoader()
+            if (!appJar.toFile().exists()) {
+                System.err.println("App JAR not found: " + appJar);
+                return;
+            }
+
+            // Spawn a new JVM process with the downloaded app JAR
+            ProcessBuilder pb = new ProcessBuilder(
+                    ProcessHandle.current().info().command().orElse("java"),
+                    "-jar", appJar.toString()
             );
-
-            Thread.currentThread().setContextClassLoader(classLoader);
-
-            Class<?> mainClass = classLoader.loadClass("main.Main");
-            Method mainMethod = mainClass.getMethod("main", String[].class);
-            mainMethod.invoke(null, (Object) new String[]{});
+            pb.inheritIO();
+            Process process = pb.start();
+            process.waitFor();
+            System.exit(0);
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
     private static Path resolveAppJar() {
-        // Try next to the bootstrap JAR first (portable install)
         try {
             Path jarLocation = Path.of(
                     AppLauncher.class
@@ -47,7 +49,6 @@ public class AppLauncher implements Launcher {
             if (appJar.toFile().exists()) return appJar;
         } catch (Exception ignored) {}
 
-        // Fallback to OS user data dir
         return getFallbackDir().resolve("workordermanager-app.jar");
     }
 
