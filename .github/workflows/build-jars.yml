@@ -155,8 +155,9 @@ jobs:
 
       - name: Download JavaFX SDK
         run: |
-          wget -q https://download2.gluonhq.com/openjfx/21.0.6/openjfx-21.0.6_linux-x64_bin-sdk.tar.gz -O javafx.tar.gz
-          tar -xzf javafx.tar.gz
+          sudo apt-get install -y unzip
+          wget -q https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11_linux-x64_bin-sdk.zip -O javafx.zip
+          unzip -q javafx.zip
           echo "JAVAFX_PATH=$(find . -maxdepth 1 -name 'javafx-sdk-*' -type d | head -1)" >> $GITHUB_ENV
 
       - name: Create jpackage input with only bootstrap
@@ -169,7 +170,7 @@ jobs:
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"
           JAVA_HOME_PATH=$(dirname $(dirname $(readlink -f $(which java))))
-
+          
           jpackage \
             --type app-image \
             --name FixelCRM \
@@ -206,7 +207,7 @@ jobs:
           mkdir -p AppDir/usr/lib
           cp -r build/FixelCRM/* AppDir/
           cp src/main/resources/icon.png AppDir/FixelCRM.png
-
+          
           cat > AppDir/FixelCRM.desktop << 'EOF'
           [Desktop Entry]
           Name=FixelCRM
@@ -216,7 +217,7 @@ jobs:
           Categories=Office;
           Comment=FixelCRM - Work Order Management System
           EOF
-
+          
           cat > AppDir/AppRun << 'EOF'
           #!/bin/bash
           HERE="$(dirname "$(readlink -f "${0}")")"
