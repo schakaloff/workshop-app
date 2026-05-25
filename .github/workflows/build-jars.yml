@@ -131,7 +131,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ── 3. Build Linux AppImage ────────────────────────────────────────────
+    # ── 3. Build Linux AppImage ────────────────────────────────────────────
   build-linux:
     runs-on: ubuntu-latest
     needs: build-jars
@@ -153,18 +153,23 @@ jobs:
           name: jars
           path: target/
 
+      - name: Download JavaFX SDK
+        run: |
+          wget -q https://download2.gluonhq.com/openjfx/21.0.6/openjfx-21.0.6_linux-x64_bin-sdk.tar.gz -O javafx.tar.gz
+          tar -xzf javafx.tar.gz
+          echo "JAVAFX_PATH=$(find . -maxdepth 1 -name 'javafx-sdk-*' -type d | head -1)" >> $GITHUB_ENV
+
+      - name: Create jpackage input with only bootstrap
+        run: |
+          mkdir -p jpackage-input
+          cp target/workordermanager-bootstrap.jar jpackage-input/
+
       - name: Run jpackage (app-image)
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"
-          
-          wget -q https://download2.gluonhq.com/openjfx/21.0.6/openjfx-21.0.6_linux-x64_bin-sdk.tar.gz -O javafx.tar.gz
-          tar -xzf javafx.tar.gz
-          JAVAFX_PATH=$(find . -maxdepth 1 -name "javafx-sdk-*" -type d | head -1)
+          JAVA_HOME_PATH=$(dirname $(dirname $(readlink -f $(which java))))
 
-          mkdir -p jpackage-input
-          cp target/workordermanager-bootstrap.jar jpackage-input/
-          
           jpackage \
             --type app-image \
             --name FixelCRM \
@@ -173,9 +178,10 @@ jobs:
             --main-jar workordermanager-bootstrap.jar \
             --main-class main.Launcher \
             --dest build \
-            --module-path "$JAVAFX_PATH/lib" \
+            --runtime-image "$JAVA_HOME_PATH" \
+            --module-path "${{ env.JAVAFX_PATH }}/lib" \
             --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base \
-            --java-options "-Djava.library.path=$JAVAFX_PATH/lib" \
+            --java-options "-Djava.library.path=${{ env.JAVAFX_PATH }}/lib" \
             --description "FixelCRM - Work Order Management System"
 
       - name: Install AppImage dependencies
@@ -199,8 +205,6 @@ jobs:
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/lib
           cp -r build/FixelCRM/* AppDir/
-
-          # Use existing icon from repo
           cp src/main/resources/icon.png AppDir/FixelCRM.png
 
           cat > AppDir/FixelCRM.desktop << 'EOF'
