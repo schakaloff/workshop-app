@@ -158,7 +158,6 @@ jobs:
           sudo apt-get install -y unzip
           wget -q https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11_linux-x64_bin-sdk.zip -O javafx.zip
           unzip -q javafx.zip
-          echo "JAVAFX_PATH=$(find . -maxdepth 1 -name 'javafx-sdk-*' -type d | head -1)" >> $GITHUB_ENV
 
       - name: Create jpackage input with only bootstrap
         run: |
@@ -169,8 +168,8 @@ jobs:
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"
-          JAVA_HOME_PATH=$(dirname $(dirname $(readlink -f $(which java))))
-          
+          JAVAFX_PATH=$(find . -maxdepth 1 -name "javafx-sdk-21*" -type d | head -1)
+
           jpackage \
             --type app-image \
             --name FixelCRM \
@@ -179,10 +178,9 @@ jobs:
             --main-jar workordermanager-bootstrap.jar \
             --main-class main.Launcher \
             --dest build \
-            --runtime-image "$JAVA_HOME_PATH" \
-            --module-path "${{ env.JAVAFX_PATH }}/lib" \
-            --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base \
-            --java-options "-Djava.library.path=${{ env.JAVAFX_PATH }}/lib" \
+            --module-path "$JAVAFX_PATH/lib" \
+            --java-options "-Djava.library.path=$JAVAFX_PATH/lib" \
+            --runtime-image "$JAVA_HOME" \
             --description "FixelCRM - Work Order Management System"
 
       - name: Install AppImage dependencies
