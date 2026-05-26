@@ -21,9 +21,11 @@ public class AppLauncher implements Launcher {
             String bundledJava = ProcessHandle.current().info().command()
                     .orElse(System.getProperty("java.home") + "/bin/java");
 
+            // Use -cp instead of -jar to avoid SIGBUS with large JARs
             ProcessBuilder pb = new ProcessBuilder(
                     bundledJava,
-                    "-jar", appJar.toString()
+                    "-cp", appJar.toString(),
+                    "main.Main"
             );
             pb.inheritIO();
             Process process = pb.start();
@@ -36,7 +38,6 @@ public class AppLauncher implements Launcher {
         }
     }
 
-    // public so UpdateScreenController can use it
     public static Path resolveAppJar() {
         try {
             Path jarLocation = Path.of(

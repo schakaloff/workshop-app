@@ -152,14 +152,14 @@ public class UpdateScreenController {
             try {
                 Path appJar = AppLauncher.resolveAppJar();
 
-                // Use the BUNDLED java from the AppImage/jpackage runtime
-                // not the system java
                 String bundledJava = ProcessHandle.current().info().command()
                         .orElse(System.getProperty("java.home") + "/bin/java");
 
+                // Use -cp instead of -jar
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
-                        "-jar", appJar.toString()
+                        "-cp", appJar.toString(),
+                        "main.Main"
                 );
                 pb.inheritIO();
                 pb.start();
