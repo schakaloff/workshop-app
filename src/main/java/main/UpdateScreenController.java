@@ -13,6 +13,7 @@ import org.update4j.service.UpdateHandler;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -44,7 +45,6 @@ public class UpdateScreenController {
         Configuration config = null;
         Path localConfig = libDir.resolve("config.xml");
 
-        // ── 1. Try remote config ──────────────────────────────────────────
         try {
             URL url = URI.create(CONFIG_URL).toURL();
             try (var reader = new InputStreamReader(url.openStream())) {
@@ -54,23 +54,18 @@ public class UpdateScreenController {
             setStatus("Offline — launching cached version");
         }
 
-        // ── 2. Fallback to local config ───────────────────────────────────
         if (config == null && Files.exists(localConfig)) {
             try (var reader = Files.newBufferedReader(localConfig)) {
                 config = Configuration.read(reader);
             } catch (Exception ignored) {}
         }
 
-        // ── 3. No config ──────────────────────────────────────────────────
         if (config == null) {
             setVersion("No config found.");
             setStatus("Check your internet connection.");
             return;
         }
 
-        final Configuration finalConfig = config;
-
-        // ── 4. Already up to date ─────────────────────────────────────────
         try {
             if (!config.requiresUpdate()) {
                 setVersion("v" + ShopSettings.VERSION + " — Up to date");
@@ -85,7 +80,6 @@ public class UpdateScreenController {
             return;
         }
 
-        // ── 5. Update available ───────────────────────────────────────────
         setVersion("v" + ShopSettings.VERSION + " → New update available!");
         setStatus("Preparing...");
         setProgress(0);
@@ -148,23 +142,30 @@ public class UpdateScreenController {
 
     private void launchApp(Stage stage) {
         Platform.runLater(() -> {
+            // Close update screen
             stage.close();
+
             try {
+                // Load the app JAR into a URLClassLoader
                 Path appJar = AppLauncher.resolveAppJar();
-
-                String bundledJava = System.getProperty("java.home") + "/bin/java";
-
-                ProcessBuilder pb = new ProcessBuilder(
-                        bundledJava,
-                        "-cp", appJar.toString(),
-                        "main.Main"
+                URLClassLoader loader = new URLClassLoader(
+                        new URL[]{appJar.toUri().toURL()},
+                        ClassLoader.getSystemClassLoader()
                 );
-                pb.inheritIO();
-                pb.start();
-                System.exit(0);
+                Thread.currentThread().setContextClassLoader(loader);
+
+                // Load Main.start() from the downloaded JAR and run it on this stage
+                Class<?> mainClass = loader.loadClass("main.Main");
+                Object mainInstance = mainClass.getDeclaredConstructor().newInstance();
+
+                // Create a new stage for the app
+                Stage appStage = new Stage();
+
+                // Call start(Stage) directly — reuse the existing JavaFX runtime
+                mainClass.getMethod("start", Stage.class).invoke(mainInstance, appStage);
+
             } catch (Exception e) {
                 e.printStackTrace();
-                System.exit(1);
             }
         });
     }
