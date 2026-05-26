@@ -146,11 +146,13 @@ public class UpdateScreenController {
                 Path appJar = AppLauncher.resolveAppJar();
                 String bundledJava = System.getProperty("java.home") + "/bin/java";
 
+                // Copy JAR to /tmp to avoid filesystem mapping issues
+                Path tmpJar = Path.of(System.getProperty("java.io.tmpdir"), "workordermanager-app.jar");
+                java.nio.file.Files.copy(appJar, tmpJar, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
-                        "-XX:-UseCompressedOops",
-                        "-XX:-UseCompressedClassPointers",
-                        "-cp", appJar.toString(),
+                        "-cp", tmpJar.toString(),
                         "main.Main"
                 );
                 pb.inheritIO();
