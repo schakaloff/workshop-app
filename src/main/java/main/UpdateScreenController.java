@@ -1,13 +1,11 @@
-package Controllers;
+package main;
 
 import DB.ShopSettings;
-import io.github.palexdev.materialfx.controls.MFXProgressBar;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.stage.Stage;
-import main.Launcher;
-import main.Main;
 import org.update4j.Configuration;
 import org.update4j.FileMetadata;
 import org.update4j.service.UpdateHandler;
@@ -22,7 +20,7 @@ public class UpdateScreenController {
 
     @FXML private Label versionLabel;
     @FXML private Label statusLabel;
-    @FXML private MFXProgressBar progressBar;
+    @FXML private ProgressBar progressBar;
 
     private static final String CONFIG_URL =
             "https://github.com/schakaloff/workshop-app/releases/latest/download/config.xml";
@@ -39,7 +37,7 @@ public class UpdateScreenController {
         try {
             Files.createDirectories(libDir);
         } catch (Exception e) {
-            launchApp(stage, null);
+            launchApp(stage);
             return;
         }
 
@@ -63,10 +61,10 @@ public class UpdateScreenController {
             } catch (Exception ignored) {}
         }
 
-        // ── 3. No config at all ───────────────────────────────────────────
+        // ── 3. No config ──────────────────────────────────────────────────
         if (config == null) {
-            setVersion("v" + ShopSettings.VERSION);
-            setStatus("No config found. Check your connection.");
+            setVersion("No config found.");
+            setStatus("Check your internet connection.");
             return;
         }
 
@@ -79,11 +77,11 @@ public class UpdateScreenController {
                 setProgress(1.0);
                 setStatus("Launching...");
                 Thread.sleep(600);
-                launchApp(stage, finalConfig);
+                launchApp(stage);
                 return;
             }
         } catch (Exception e) {
-            launchApp(stage, finalConfig);
+            launchApp(stage);
             return;
         }
 
@@ -107,13 +105,11 @@ public class UpdateScreenController {
 
                 @Override
                 public void updateDownloadFileProgress(FileMetadata file, float progress) {
-                    // per-file progress
                     setProgress(progress);
                 }
 
                 @Override
                 public void updateDownloadProgress(float progress) {
-                    // overall progress across all files
                     setProgress(progress);
                 }
 
@@ -134,7 +130,6 @@ public class UpdateScreenController {
                 }
             });
 
-            // Cache new config for offline fallback
             if (success) {
                 try (var writer = Files.newBufferedWriter(localConfig)) {
                     config.write(writer);
@@ -142,31 +137,34 @@ public class UpdateScreenController {
             }
 
             Thread.sleep(800);
-            launchApp(stage, finalConfig);
+            launchApp(stage);
 
         } catch (Exception e) {
             setStatus("Error: " + e.getMessage());
             try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
-            launchApp(stage, finalConfig);
+            launchApp(stage);
         }
     }
 
-    private void launchApp(Stage stage, Configuration config) {
+    private void launchApp(Stage stage) {
         Platform.runLater(() -> {
             stage.close();
             try {
-                if (config != null) {
-                    config.launch();
-                } else {
-                    new Main().start(new Stage());
-                }
+                // Spawn new JVM with the app JAR
+                Path appJar = AppLauncher.resolveAppJar();
+                ProcessBuilder pb = new ProcessBuilder(
+                        ProcessHandle.current().info().command().orElse("java"),
+                        "-jar", appJar.toString()
+                );
+                pb.inheritIO();
+                pb.start();
+                System.exit(0);
             } catch (Exception e) {
                 e.printStackTrace();
+                System.exit(1);
             }
         });
     }
-
-    // ── Thread-safe UI helpers ────────────────────────────────────────────
 
     private void setVersion(String text) {
         Platform.runLater(() -> versionLabel.setText(text));
