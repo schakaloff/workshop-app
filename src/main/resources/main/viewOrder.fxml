@@ -164,14 +164,9 @@
                                                text="Pay"
                                                style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
                                     <MFXButton buttonType="RAISED"
-                                               onAction="#printOrder"
+                                               onAction="#openPrintOptions"
                                                prefHeight="32" prefWidth="80"
                                                text="Print"
-                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
-                                    <MFXButton buttonType="RAISED"
-                                               onAction="#printRepaired"
-                                               prefHeight="32" prefWidth="110"
-                                               text="Print Repaired"
                                                style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
                                     <MFXButton buttonType="RAISED"
                                                onAction="#updateOrder"

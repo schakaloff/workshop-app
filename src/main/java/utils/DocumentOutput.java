@@ -132,7 +132,7 @@ public class DocumentOutput {
     // ─── Choice dialog ───────────────────────────────────────────────────────────
 
     private static OutputChoice showChoiceDialog(Window owner) throws Exception {
-        FXMLLoader loader = new FXMLLoader(DocumentOutput.class.getResource("/main/printOption.fxml"));
+        FXMLLoader loader = new FXMLLoader(DocumentOutput.class.getResource("/main/printerOutput.fxml"));
         Parent root = loader.load();
         PrinterOutputController controller = loader.getController();
         Stage stage = new Stage();

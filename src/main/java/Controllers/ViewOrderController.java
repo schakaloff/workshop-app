@@ -1,7 +1,6 @@
 package Controllers;
 
 import Controllers.DbRepo.ViewControllerQueries;
-import DB.DbConfig;
 import DB.Vendors;
 import Skeletons.*;
 import io.github.palexdev.materialfx.controls.*;
@@ -27,7 +26,6 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -789,6 +787,49 @@ public class ViewOrderController {
                 loader -> {
                     PrintRepairController pc = loader.getController();
                     pc.initData(currentWorkOrder, currentCustomer, repairData, partsData);
+                },
+                owner
+        );
+    }
+
+    @FXML
+    public void openPrintOptions() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/printMenu.fxml"));
+            Parent root = loader.load();
+
+            PrintOptionsController poc = loader.getController();
+            poc.setViewOrderController(this);
+            poc.setWoNumber(currentWorkOrder.getWorkorderNumber());
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initOwner(dialogInstance.getScene().getWindow());
+            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            stage.setScene(new Scene(root));
+            poc.setStage(stage);
+
+            // centre over the dialog
+            javafx.geometry.Bounds b = dialogInstance.localToScreen(dialogInstance.getBoundsInLocal());
+            if (b != null) {
+                stage.setX(b.getMinX() + (b.getWidth()  - 260) / 2);
+                stage.setY(b.getMinY() + (b.getHeight() - 185) / 2);
+            }
+
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printEstimate() throws Exception {
+        Window owner = dialogInstance.getScene().getWindow();
+        DocumentOutput.printOrPdf(
+                "WO_ESTIMATE_" + currentWorkOrder.getWorkorderNumber(),
+                "/main/estimate.fxml",          // ← swap in your estimate fxml when ready
+                loader -> {
+                    // EstimateController ec = loader.getController();
+                    // ec.initData(currentWorkOrder, currentCustomer, partsData, repairData);
                 },
                 owner
         );
