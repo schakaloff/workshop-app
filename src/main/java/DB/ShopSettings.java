@@ -6,7 +6,7 @@ public class ShopSettings {
     private double gst = 0.05;
 
     // ─── Single source of truth for app version ──────────────────────────────────
-    public static final String VERSION = "0.8.0";
+    public static final String VERSION = "0.8.1";
 
     private ShopSettings() {}
 
