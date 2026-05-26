@@ -18,8 +18,11 @@ public class AppLauncher implements Launcher {
                 return;
             }
 
+            String bundledJava = ProcessHandle.current().info().command()
+                    .orElse(System.getProperty("java.home") + "/bin/java");
+
             ProcessBuilder pb = new ProcessBuilder(
-                    ProcessHandle.current().info().command().orElse("java"),
+                    bundledJava,
                     "-jar", appJar.toString()
             );
             pb.inheritIO();
