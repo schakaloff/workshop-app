@@ -18,14 +18,12 @@ public class AppLauncher implements Launcher {
                 return;
             }
 
-            String bundledJava = ProcessHandle.current().info().command()
-                    .orElse(System.getProperty("java.home") + "/bin/java");
+            // Use the same JRE that's currently running
+            String bundledJava = System.getProperty("java.home") + "/bin/java";
+            System.out.println("Using java: " + bundledJava);
 
-            // Use -cp instead of -jar to avoid SIGBUS with large JARs
             ProcessBuilder pb = new ProcessBuilder(
                     bundledJava,
-                    "-Xshare:off",
-                    "-XX:+UseSerialGC",
                     "-cp", appJar.toString(),
                     "main.Main"
             );

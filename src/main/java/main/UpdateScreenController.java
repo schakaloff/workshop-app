@@ -152,14 +152,10 @@ public class UpdateScreenController {
             try {
                 Path appJar = AppLauncher.resolveAppJar();
 
-                String bundledJava = ProcessHandle.current().info().command()
-                        .orElse(System.getProperty("java.home") + "/bin/java");
+                String bundledJava = System.getProperty("java.home") + "/bin/java";
 
-                // Use -cp instead of -jar
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
-                        "-Xshare:off",
-                        "-XX:+UseSerialGC",
                         "-cp", appJar.toString(),
                         "main.Main"
                 );
