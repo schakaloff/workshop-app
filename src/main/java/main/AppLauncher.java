@@ -24,6 +24,8 @@ public class AppLauncher implements Launcher {
             // Use -cp instead of -jar to avoid SIGBUS with large JARs
             ProcessBuilder pb = new ProcessBuilder(
                     bundledJava,
+                    "-Xshare:off",
+                    "-XX:+UseSerialGC",
                     "-cp", appJar.toString(),
                     "main.Main"
             );

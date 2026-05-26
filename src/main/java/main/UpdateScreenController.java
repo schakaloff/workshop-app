@@ -158,6 +158,8 @@ public class UpdateScreenController {
                 // Use -cp instead of -jar
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
+                        "-Xshare:off",
+                        "-XX:+UseSerialGC",
                         "-cp", appJar.toString(),
                         "main.Main"
                 );
