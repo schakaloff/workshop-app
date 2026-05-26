@@ -18,7 +18,6 @@ public class AppLauncher implements Launcher {
                 return;
             }
 
-            // Spawn a new JVM process with the downloaded app JAR
             ProcessBuilder pb = new ProcessBuilder(
                     ProcessHandle.current().info().command().orElse("java"),
                     "-jar", appJar.toString()
@@ -34,7 +33,8 @@ public class AppLauncher implements Launcher {
         }
     }
 
-    private static Path resolveAppJar() {
+    // public so UpdateScreenController can use it
+    public static Path resolveAppJar() {
         try {
             Path jarLocation = Path.of(
                     AppLauncher.class
