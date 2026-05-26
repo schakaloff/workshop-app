@@ -148,7 +148,6 @@ public class UpdateScreenController {
 
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
-                        "-Xshare:off",
                         "-XX:-UseCompressedOops",
                         "-XX:-UseCompressedClassPointers",
                         "-cp", appJar.toString(),
