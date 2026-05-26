@@ -142,31 +142,23 @@ public class UpdateScreenController {
 
     private void launchApp(Stage stage) {
         Platform.runLater(() -> {
-            // Close update screen
-            stage.close();
-
             try {
-                // Load the app JAR into a URLClassLoader
                 Path appJar = AppLauncher.resolveAppJar();
-                URLClassLoader loader = new URLClassLoader(
-                        new URL[]{appJar.toUri().toURL()},
-                        ClassLoader.getSystemClassLoader()
+                String bundledJava = System.getProperty("java.home") + "/bin/java";
+
+                ProcessBuilder pb = new ProcessBuilder(
+                        bundledJava,
+                        "-cp", appJar.toString(),
+                        "main.Main"
                 );
-                Thread.currentThread().setContextClassLoader(loader);
-
-                // Load Main.start() from the downloaded JAR and run it on this stage
-                Class<?> mainClass = loader.loadClass("main.Main");
-                Object mainInstance = mainClass.getDeclaredConstructor().newInstance();
-
-                // Create a new stage for the app
-                Stage appStage = new Stage();
-
-                // Call start(Stage) directly — reuse the existing JavaFX runtime
-                mainClass.getMethod("start", Stage.class).invoke(mainInstance, appStage);
-
+                pb.inheritIO();
+                pb.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            // Properly shut down JavaFX before exiting
+            Platform.exit();
         });
     }
 
