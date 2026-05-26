@@ -12,6 +12,22 @@ import java.util.List;
 
 public class WorkshopQueries {
 
+    // ─── INTERNAL HELPER ────────────────────────────────────────────────────────
+
+    /** Returns the username for a given tech_id, or empty string if none/unassigned. */
+    private String fetchTechUsername(Connection conn, int techId) throws SQLException {
+        if (techId <= 0) return "";
+        String sql = "SELECT username FROM technician WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, techId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString("username");
+        }
+        return "";
+    }
+
+    // ─── TECH WORK ───────────────────────────────────────────────────────────────
+
     public List<TechWorkRow> loadTechWorkByDateRange(String techUsername, LocalDate fromDate, LocalDate toDate) {
         List<TechWorkRow> list = new ArrayList<>();
 
@@ -52,6 +68,8 @@ public class WorkshopQueries {
         return list;
     }
 
+    // ─── CUSTOMER ────────────────────────────────────────────────────────────────
+
     public Customer getCustomerById(int customerId) {
         String sql = "SELECT * FROM customer WHERE id = ?";
         try {
@@ -74,7 +92,6 @@ public class WorkshopQueries {
                 rs.close();
                 stmt.close();
                 conn.close();
-
                 return c;
             }
             rs.close();
@@ -87,6 +104,8 @@ public class WorkshopQueries {
 
         return null;
     }
+
+    // ─── LOAD ALL ORDERS ─────────────────────────────────────────────────────────
 
     public List<WorkOrder> loadOrdersIntoTable() {
         List<WorkOrder> list = new ArrayList<>();
@@ -124,7 +143,7 @@ public class WorkshopQueries {
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
                 wo.setTechId(techId);
-
+                wo.setTechUsername(fetchTechUsername(conn, techId));
                 wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
 
                 list.add(wo);
@@ -141,8 +160,13 @@ public class WorkshopQueries {
         return list;
     }
 
-    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber, String problemDesc, int customerId, String vendorId, String warrantyNumber, double deposit) {
-        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, createdAt) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    // ─── INSERT ORDER ────────────────────────────────────────────────────────────
+
+    public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
+                                       String problemDesc, int customerId, String vendorId,
+                                       String warrantyNumber, double deposit) {
+        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, createdAt) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         try {
             Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -162,11 +186,9 @@ public class WorkshopQueries {
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 int id = rs.getInt(1);
-
                 rs.close();
                 stmt.close();
                 conn.close();
-
                 return id;
             }
 
@@ -180,6 +202,9 @@ public class WorkshopQueries {
 
         return -1;
     }
+
+    // ─── SEARCH ──────────────────────────────────────────────────────────────────
+
     public List<Integer> getCustomerIdsByPhone(String phone) {
         List<Integer> ids = new ArrayList<>();
         String sql = "SELECT id FROM customer WHERE phone LIKE ?";
@@ -193,9 +218,9 @@ public class WorkshopQueries {
         }
         return ids;
     }
+
     public List<Integer> getCustomerIdsByField(String column, String value) {
         List<Integer> ids = new ArrayList<>();
-        // column is hardcoded from our own switch, safe to interpolate
         String sql = "SELECT id FROM customer WHERE " + column + " LIKE ?";
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -222,6 +247,8 @@ public class WorkshopQueries {
         }
         return ids;
     }
+
+    // ─── GET SINGLE ORDER ────────────────────────────────────────────────────────
 
     public WorkOrder getWorkOrderById(int woNumber) {
         String sql = "SELECT wo.workorder, wo.status, wo.type, " +
@@ -257,6 +284,7 @@ public class WorkshopQueries {
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
                 wo.setTechId(techId);
+                wo.setTechUsername(fetchTechUsername(conn, techId));
                 wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
 
                 rs.close(); stmt.close(); conn.close();
@@ -270,6 +298,8 @@ public class WorkshopQueries {
         }
         return null;
     }
+
+    // ─── SHOP STATS ──────────────────────────────────────────────────────────────
 
     public static double[] loadShopStats(LocalDate fromDate, LocalDate toDate) {
         String sql = """

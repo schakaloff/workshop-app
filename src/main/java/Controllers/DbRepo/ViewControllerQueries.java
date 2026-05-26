@@ -114,7 +114,7 @@ public class ViewControllerQueries {
     }
 
     public static void refreshWorkOrderFromDb(WorkOrder currentWorkOrder) {
-        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id FROM work_order WHERE workorder = ?";
+        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number FROM work_order WHERE workorder = ?";
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -130,6 +130,8 @@ public class ViewControllerQueries {
                 currentWorkOrder.setProblemDesc(rs.getString("problemDesc"));
                 currentWorkOrder.setVendorId(rs.getString("vendorId"));
                 currentWorkOrder.setWarrantyNumber(rs.getString("warrantyNumber"));
+                currentWorkOrder.setLocation(rs.getString("location"));
+                currentWorkOrder.setPoNumber(rs.getString("po_number"));
 
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
@@ -285,20 +287,23 @@ public class ViewControllerQueries {
 
     public static void updateOrderInDb(int workorderNumber, String type, String model, String serialNumber,
                                        String problemDesc, String vendorId, String warrantyNumber,
-                                       String serviceNotes, int techId, String status) {
+                                       String serviceNotes, int techId, String status,
+                                       String location, String poNumber) {
         String sql = """
-            UPDATE work_order 
-            SET type = ?, 
-                model = ?, 
-                serialNumber = ?, 
-                problemDesc = ?, 
-                vendorId = ?, 
-                warrantyNumber = ?, 
-                service_notes = ?, 
-                tech_id = ?, 
-                status = ?
-            WHERE workorder = ?
-        """;
+        UPDATE work_order
+        SET type = ?,
+            model = ?,
+            serialNumber = ?,
+            problemDesc = ?,
+            vendorId = ?,
+            warrantyNumber = ?,
+            service_notes = ?,
+            tech_id = ?,
+            status = ?,
+            location = ?,
+            po_number = ?
+        WHERE workorder = ?
+    """;
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -310,9 +315,15 @@ public class ViewControllerQueries {
             ps.setString(5, vendorId);
             ps.setString(6, warrantyNumber);
             ps.setString(7, serviceNotes);
-            ps.setInt(8, techId);
+            if (techId > 0) {           // ← NULL when no tech assigned
+                ps.setInt(8, techId);
+            } else {
+                ps.setNull(8, java.sql.Types.INTEGER);
+            }
             ps.setString(9, status);
-            ps.setInt(10, workorderNumber);
+            ps.setString(10, location);
+            ps.setString(11, poNumber);
+            ps.setInt(12, workorderNumber);
 
             ps.executeUpdate();
 

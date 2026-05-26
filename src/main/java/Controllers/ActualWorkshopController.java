@@ -56,7 +56,7 @@ public class ActualWorkshopController {
     @FXML public BorderPane contentPane;
     @FXML public MFXButton signOutBtn;
 
-    // ─── filter / search buttons — now MFXButton ────────────────────────────────
+    // ─── filter / search buttons ─────────────────────────────────────────────────
     @FXML private MFXButton newOrderBTN;
     @FXML private MFXButton btnAllWO;
     @FXML private MFXButton btnOldNew;
@@ -83,20 +83,20 @@ public class ActualWorkshopController {
     @FXML private StackPane loadingOverlay;
     @FXML private MFXProgressSpinner loadingSpinner;
 
-    private boolean oldNewFilterEnabled = false;
+    private boolean oldNewFilterEnabled            = false;
     private boolean repairedNotBilledFilterEnabled = false;
-    private boolean myWoFilterEnabled = false;
-    private boolean allOpenFilterEnabled = false;
-    private boolean isDashboardLoaded = false;
+    private boolean myWoFilterEnabled              = false;
+    private boolean allOpenFilterEnabled           = false;
+    private boolean isDashboardLoaded              = false;
 
     private final ObservableList<TechWorkRow> techWorkData = FXCollections.observableArrayList();
     private final WorkshopQueries workshopQueries = new WorkshopQueries();
-    private static final DateTimeFormatter DB_DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DB_DT  = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final ObservableList<WorkOrder> data    = FXCollections.observableArrayList();
     private final ObservableList<WorkOrder> allData = FXCollections.observableArrayList();
 
-    private MFXGenericDialog viewOrderDialog;
-    private ViewOrderController viewOrderController;
+    private MFXGenericDialog       viewOrderDialog;
+    private ViewOrderController    viewOrderController;
 
     private static final int ROWS_PER_PAGE   = 15;
     private static final int DASHBOARD_LIMIT = 75;
@@ -112,8 +112,8 @@ public class ActualWorkshopController {
     private static final String STYLE_BTN_BLUE_HI  = "-fx-background-color: rgba(0,120,255,0.30); -fx-background-radius: 6; -fx-border-color: #1a6fcc; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #1a6fcc; -fx-font-size: 10;";
     private static final String STYLE_BTN_PURP_LO  = "-fx-background-color: rgba(160,70,255,0.10); -fx-background-radius: 6; -fx-border-color: rgba(160,70,255,0.35); -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #7b2fbe; -fx-font-size: 10;";
     private static final String STYLE_BTN_PURP_HI  = "-fx-background-color: rgba(160,70,255,0.30); -fx-background-radius: 6; -fx-border-color: #7b2fbe; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #7b2fbe; -fx-font-size: 10;";
-    private static final String SIDEBAR_ACTIVE   = "-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: white; -fx-background-radius: 8;";
-    private static final String SIDEBAR_INACTIVE = "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.75); -fx-background-radius: 8;";
+    private static final String SIDEBAR_ACTIVE     = "-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: white; -fx-background-radius: 8;";
+    private static final String SIDEBAR_INACTIVE   = "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.75); -fx-background-radius: 8;";
 
     // ─── LOADING OVERLAY HELPERS ────────────────────────────────────────────────
 
@@ -143,12 +143,16 @@ public class ActualWorkshopController {
         Platform.runLater(() -> {
             try {
                 table.setItems(items);
-                table.setCurrentPage(1);
+                if (items != null && !items.isEmpty()) {
+                    table.setCurrentPage(1);
+                }
             } catch (Exception ignored) {}
             Platform.runLater(() -> {
                 try {
-                    table.goToPage(1);
-                    table.setCurrentPage(1);
+                    if (table.getItems() != null && !table.getItems().isEmpty()) {
+                        table.goToPage(1);
+                        table.setCurrentPage(1);
+                    }
                 } catch (Exception ignored) {}
             });
         });
@@ -205,7 +209,7 @@ public class ActualWorkshopController {
 
                 @Override
                 protected void succeeded() {
-                    viewOrderDialog = dialog;
+                    viewOrderDialog    = dialog;
                     viewOrderController = controller;
                     viewOrderController.setMainController(ActualWorkshopController.this);
                     viewOrderController.setDialogInstance(viewOrderDialog);
@@ -665,24 +669,31 @@ public class ActualWorkshopController {
         table.getFilters().clear();
 
         MFXTableColumn<WorkOrder> workOrder   = new MFXTableColumn<>("Workorder", false);
+        MFXTableColumn<WorkOrder> techCol     = new MFXTableColumn<>("Tech", false);
         MFXTableColumn<WorkOrder> status      = new MFXTableColumn<>("Status", false);
         MFXTableColumn<WorkOrder> type        = new MFXTableColumn<>("Type", false);
         MFXTableColumn<WorkOrder> customerCol = new MFXTableColumn<>("Customer", false);
         MFXTableColumn<WorkOrder> date        = new MFXTableColumn<>("Date", false);
 
         workOrder.setColumnResizable(true);
+        techCol.setColumnResizable(true);
         status.setColumnResizable(true);
         type.setColumnResizable(true);
         customerCol.setColumnResizable(true);
         date.setColumnResizable(true);
 
         workOrder.setMinWidth(110);
+        techCol.setMinWidth(100);
         status.setMinWidth(160);
-        type.setMinWidth(200);
+        type.setMinWidth(160);
         customerCol.setMinWidth(150);
         date.setMinWidth(170);
 
         workOrder.setRowCellFactory(order   -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
+        techCol.setRowCellFactory(order     -> new MFXTableRowCell<>(wo -> {
+            String t = wo.getTechUsername();
+            return (t != null && !t.isBlank()) ? t : "";
+        }));
         status.setRowCellFactory(order      -> new MFXTableRowCell<>(WorkOrder::getStatus));
         type.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getType));
         customerCol.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCustomerName));
@@ -691,9 +702,10 @@ public class ActualWorkshopController {
         }});
 
         date.setAlignment(Pos.CENTER_RIGHT);
-        table.getTableColumns().addAll(workOrder, status, type, customerCol, date);
+        table.getTableColumns().addAll(workOrder, techCol, status, type, customerCol, date);
 
         table.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
+        table.getFilters().addAll(new StringFilter<>("Tech", WorkOrder::getTechUsername));
         table.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
         table.getFilters().addAll(new StringFilter<>("Customer", WorkOrder::getCustomerName));
         table.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
@@ -758,7 +770,6 @@ public class ActualWorkshopController {
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
 
-        // show dialog immediately with empty state — animation runs smooth
         if (!rootStack.getChildren().contains(viewOrderDialog)) {
             viewOrderDialog.setOpacity(0);
             viewOrderDialog.setScaleX(0.8);
@@ -768,7 +779,6 @@ public class ActualWorkshopController {
             viewOrderDialog.toFront();
         }
 
-        // play animation first
         FadeTransition fade = new FadeTransition(Duration.millis(200), viewOrderDialog);
         fade.setFromValue(0);
         fade.setToValue(1);
@@ -778,7 +788,6 @@ public class ActualWorkshopController {
 
         ParallelTransition anim = new ParallelTransition(fade, scale);
 
-        // load data AFTER animation completes
         anim.setOnFinished(e -> {
             Task<Void> task = new Task<>() {
                 @Override
@@ -812,8 +821,6 @@ public class ActualWorkshopController {
         }
         if (isMyWO(wo)) row.setStyle("-fx-background-color: rgba(160,70,255,0.15);");
     }
-
-
 
     private void UILoader(WorkOrder wo) {
         Task<Customer> task = new Task<>() {
@@ -973,4 +980,3 @@ public class ActualWorkshopController {
         active.setStyle(SIDEBAR_ACTIVE);
     }
 }
-

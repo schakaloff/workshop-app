@@ -44,11 +44,9 @@
                                 allowEdit="false"
                                 floatMode="BORDER" floatingText="W/O"
                                 prefHeight="28" prefWidth="80" />
-
                   <MFXComboBox fx:id="statusCombo"
                                floatMode="BORDER" floatingText="Status"
                                prefHeight="28" prefWidth="160" />
-
                   <MFXComboBox fx:id="techIdCombo"
                                floatMode="BORDER" floatingText="Tech"
                                prefHeight="28" prefWidth="120" />
@@ -64,8 +62,7 @@
                   <!-- ═══ MAIN TAB ═══════════════════════════════════ -->
                   <Tab closable="false" text="Main">
                      <content>
-                        <VBox spacing="0"
-                              style="-fx-background-color: #f5f7fa;">
+                        <VBox spacing="0" style="-fx-background-color: #f5f7fa;">
                            <children>
 
                               <!-- Device + Warranty row -->
@@ -90,6 +87,20 @@
                                     <MFXTextField fx:id="warrantyNumber"
                                                   floatMode="BORDER" floatingText="Warranty Ref#"
                                                   prefHeight="36" prefWidth="130" />
+                                 </children>
+                              </HBox>
+
+                              <!-- ── Location + PO Number row ──────────────────────────── -->
+                              <HBox spacing="12" alignment="CENTER_LEFT"
+                                    style="-fx-background-color: #fafbfc; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                                 <children>
+                                    <MFXTextField fx:id="locationTXF"
+                                                  floatMode="BORDER" floatingText="Location  (required for Repair Complete)"
+                                                  prefHeight="34" prefWidth="340"
+                                                  style="-fx-border-color: #0097A7; -fx-border-radius: 4; -fx-background-radius: 4;" />
+                                    <MFXTextField fx:id="poNumber"
+                                                  floatMode="BORDER" floatingText="PO Number"
+                                                  prefHeight="34" prefWidth="180" />
                                  </children>
                               </HBox>
 
@@ -129,7 +140,7 @@
                               <VBox style="-fx-background-color: white; -fx-padding: 12 16 12 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                                  <children>
                                     <TextArea fx:id="problemDesc"
-                                              prefHeight="110" prefWidth="748"
+                                              prefHeight="80" prefWidth="748"
                                               promptText="Problem / Complaint"
                                               wrapText="true"
                                               style="-fx-background-color: #f9f9f9; -fx-border-color: #e0e0e0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 12;" />
