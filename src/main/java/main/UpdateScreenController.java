@@ -142,26 +142,33 @@ public class UpdateScreenController {
 
     private void launchApp(Stage stage) {
         Platform.runLater(() -> {
+            // Hide the window but DON'T exit — keep the AppImage mount alive
+            stage.hide();
+
             try {
                 Path appJar = AppLauncher.resolveAppJar();
                 String bundledJava = System.getProperty("java.home") + "/bin/java";
 
-                // Copy JAR to /tmp to avoid filesystem mapping issues
-                Path tmpJar = Path.of(System.getProperty("java.io.tmpdir"), "workordermanager-app.jar");
-                java.nio.file.Files.copy(appJar, tmpJar, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
-                        "-cp", tmpJar.toString(),
+                        "-cp", appJar.toString(),
                         "main.Main"
                 );
                 pb.inheritIO();
-                pb.start();
+                Process process = pb.start();
+
+                // Wait for app to finish in background thread, then exit
+                new Thread(() -> {
+                    try {
+                        process.waitFor();
+                    } catch (InterruptedException ignored) {}
+                    Platform.exit();
+                }).start();
+
             } catch (Exception e) {
                 e.printStackTrace();
+                Platform.exit();
             }
-
-            Platform.exit();
         });
     }
 
