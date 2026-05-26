@@ -150,10 +150,15 @@ public class UpdateScreenController {
         Platform.runLater(() -> {
             stage.close();
             try {
-                // Spawn new JVM with the app JAR
                 Path appJar = AppLauncher.resolveAppJar();
+
+                // Use the BUNDLED java from the AppImage/jpackage runtime
+                // not the system java
+                String bundledJava = ProcessHandle.current().info().command()
+                        .orElse(System.getProperty("java.home") + "/bin/java");
+
                 ProcessBuilder pb = new ProcessBuilder(
-                        ProcessHandle.current().info().command().orElse("java"),
+                        bundledJava,
                         "-jar", appJar.toString()
                 );
                 pb.inheritIO();
