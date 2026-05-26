@@ -1,142 +1,92 @@
 package Skeletons;
 
-import javafx.beans.property.*;
-
 public class WorkOrder {
-    /*
-    We use StringProperty because they will let watch and update UI automatically (but its an abstract class)
-    there for we use SimpleStringProperty (like a build in array);
-     */
-    private final IntegerProperty workorderNumber;
-    private final StringProperty status;
-    private final StringProperty createdAt; //
-    private final IntegerProperty techId = new SimpleIntegerProperty(0);
 
-    private final StringProperty vendorId;
-    private final StringProperty warrantyNumber;
+    // ─── FIELDS ─────────────────────────────────────────────────────────────────
 
-    private final StringProperty type;
-    private final StringProperty model;
-    private final StringProperty serialNumber;
-    private final StringProperty problemDesc;
-    private final IntegerProperty customerId;
-    private final DoubleProperty depositAmount;
+    private final int    workorderNumber;
+    private String       status;
+    private String       type;
+    private final String createdAt;
+    private String       vendorId;
+    private String       warrantyNumber;
+    private String       model;
+    private String       serialNumber;
+    private String       problemDesc;
+    private final int    customerId;
+    private final double depositAmount;
 
-    public WorkOrder(int workorderNumber, String status, String type, String createdAt, String vendorId, String warrantyNumber, String model, String serialNumber, String problemDesc, int customerId, double depositAmount){
-        this.workorderNumber = new SimpleIntegerProperty(workorderNumber);
-        this.status = new SimpleStringProperty(status);
-        this.type = new SimpleStringProperty(type);
-        this.createdAt = new SimpleStringProperty(createdAt);
+    // set after construction
+    private int    techId;
+    private String techUsername;
+    private String customerName;
+    private String location;
+    private String poNumber;
 
-        this.vendorId = new SimpleStringProperty(vendorId);
-        this.warrantyNumber = new SimpleStringProperty(warrantyNumber);
+    // ─── CONSTRUCTOR ────────────────────────────────────────────────────────────
 
-        this.model = new SimpleStringProperty(model);
-        this.serialNumber = new SimpleStringProperty(serialNumber);
-        this.problemDesc = new SimpleStringProperty(problemDesc);
-        this.customerId = new SimpleIntegerProperty(customerId);
-        this.depositAmount = new SimpleDoubleProperty(depositAmount);
+    public WorkOrder(int    workorderNumber,
+                     String status,
+                     String type,
+                     String createdAt,
+                     String vendorId,
+                     String warrantyNumber,
+                     String model,
+                     String serialNumber,
+                     String problemDesc,
+                     int    customerId,
+                     double depositAmount) {
 
+        this.workorderNumber = workorderNumber;
+        this.status          = status;
+        this.type            = type;
+        this.createdAt       = createdAt;
+        this.vendorId        = vendorId;
+        this.warrantyNumber  = warrantyNumber;
+        this.model           = model;
+        this.serialNumber    = serialNumber;
+        this.problemDesc     = problemDesc;
+        this.customerId      = customerId;
+        this.depositAmount   = depositAmount;
 
-    }
-    //1)
-    public IntegerProperty workorderNumberProperty(){ //accessor
-        return workorderNumber;
-    }
-    //2)
-    public int getWorkorderNumber(){ //get
-        return workorderNumber.get();
-    }
-    //3
-    public void setWorkorderNumber(int value){ //set
-        workorderNumber.set(value);
-    }
-
-
-
-    public IntegerProperty techIdProperty() { return techId; }
-    public int getTechId() { return techId.get(); }
-    public void setTechId(int value) { techId.set(value); }
-
-    public DoubleProperty depositAmountProperty(){return depositAmount;}
-    public double getDepositAmount(){return depositAmount.get();}
-    public void setDepositAmount(double value){depositAmount.set(value);}
-
-    public IntegerProperty customerIdProperty() {
-        return customerId;
-    }
-    public int getCustomerId() {
-        return customerId.get();
-    }
-    public void setCustomerId(int value) {
-        customerId.set(value);
+        this.techId       = 0;
+        this.techUsername = "";
+        this.customerName = "";
+        this.location     = "";
+        this.poNumber     = "";
     }
 
-    public StringProperty vendorIdProperty(){return vendorId;}
-    public String getVendorId(){return vendorId.get();}
-    public void setVendorId(String value){vendorId.set(value);}
+    // ─── GETTERS ────────────────────────────────────────────────────────────────
 
-    public StringProperty  warrantyNumberProperty(){return warrantyNumber;}
-    public String getWarrantyNumber(){return warrantyNumber.get();}
-    public void setWarrantyNumber(String value){warrantyNumber.set(value);}
+    public int    getWorkorderNumber() { return workorderNumber; }
+    public String getStatus()          { return status; }
+    public String getType()            { return type; }
+    public String getCreatedAt()       { return createdAt; }
+    public String getVendorId()        { return vendorId; }
+    public String getWarrantyNumber()  { return warrantyNumber; }
+    public String getModel()           { return model; }
+    public String getSerialNumber()    { return serialNumber; }
+    public String getProblemDesc()     { return problemDesc; }
+    public int    getCustomerId()      { return customerId; }
+    public double getDepositAmount()   { return depositAmount; }
+    public int    getTechId()          { return techId; }
+    public String getTechUsername()    { return techUsername != null ? techUsername : ""; }
+    public String getCustomerName()    { return customerName; }
+    public String getLocation()        { return location; }
+    public String getPoNumber()        { return poNumber; }
 
-    /*
-    for javafx there are 3 steps -> 1)get accessor, 2)getters, and 3)setters
-    */
-    //1)
-//    public StringProperty workorderNumberProperty(){ //accessor
-//        return workorderNumber;
-//    }
-//    //2)
-//    public String getWorkorderNumber(){ //get
-//        return workorderNumber.get();
-//    }
-//    //3
-//    public void setWorkorderNumber(String value){ //set
-//        workorderNumber.set(value);
-//    }
+    // ─── SETTERS ────────────────────────────────────────────────────────────────
 
-
-    public StringProperty typeProperty(){return type;}
-    public String getType(){return type.get();}
-    public void setType(String value){type.set(value);}
-
-    public StringProperty modelProperty(){return model; }
-    public String getModel(){return model.get();}
-    public void setModel(String value){model.set(value);}
-
-    public StringProperty serialNumberProperty(){return serialNumber;}
-    public String getSerialNumber(){return serialNumber.get();}
-    public void  setSerialNumber(String value){serialNumber.set(value);}
-
-    public StringProperty problemDescProperty(){return problemDesc;}
-    public String getProblemDesc(){return problemDesc.get();}
-    public void setProblemDesc(String value){problemDesc.set(value);}
-
-    public StringProperty statusProperty(){
-        return status;
-    }
-    public String getStatus(){
-        return status.get();
-    }
-    public void setStatus(String value){
-        status.set(value);
-    }
-
-    public StringProperty createdAtProperty() {return createdAt;}
-    public String getCreatedAt() {
-        return createdAt.get();
-    }
-    public void setCreatedAt(String value) {
-        createdAt.set(value);
-    }
-
-    private final StringProperty customerName = new SimpleStringProperty("");
-    public StringProperty customerNameProperty() { return customerName; }
-    public String getCustomerName() { return customerName.get(); }
-    public void setCustomerName(String value) { customerName.set(value); }
-
-
-
-
+    public void setStatus(String status)                { this.status = status; }
+    public void setType(String type)                    { this.type = type; }
+    public void setVendorId(String vendorId)            { this.vendorId = vendorId; }
+    public void setWarrantyNumber(String warrantyNumber){ this.warrantyNumber = warrantyNumber; }
+    public void setModel(String model)                  { this.model = model; }
+    public void setSerialNumber(String serialNumber)    { this.serialNumber = serialNumber; }
+    public void setProblemDesc(String problemDesc)      { this.problemDesc = problemDesc; }
+    public void setTechId(int techId)                   { this.techId = techId; }
+    public void setTechUsername(String name)            { this.techUsername = name != null ? name : ""; }
+    public void setCustomerName(String customerName)    { this.customerName = customerName; }
+    public void setLocation(String location)            { this.location = location != null ? location : ""; }
+    public void setPoNumber(String poNumber)            { this.poNumber = poNumber != null ? poNumber : ""; }
 }
