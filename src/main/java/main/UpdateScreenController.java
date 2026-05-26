@@ -148,6 +148,9 @@ public class UpdateScreenController {
 
                 ProcessBuilder pb = new ProcessBuilder(
                         bundledJava,
+                        "-Xshare:off",
+                        "-XX:-UseCompressedOops",
+                        "-XX:-UseCompressedClassPointers",
                         "-cp", appJar.toString(),
                         "main.Main"
                 );
@@ -157,7 +160,6 @@ public class UpdateScreenController {
                 e.printStackTrace();
             }
 
-            // Properly shut down JavaFX before exiting
             Platform.exit();
         });
     }
