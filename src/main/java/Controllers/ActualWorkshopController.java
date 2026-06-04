@@ -287,10 +287,22 @@ public class ActualWorkshopController {
         Task<List<WorkOrder>> task = new Task<>() {
             @Override
             protected List<WorkOrder> call() {
-                return workshopQueries.loadOrdersIntoTable();
+                System.out.println("1. Starting to load orders from DB...");
+                long startTime = System.currentTimeMillis();
+
+                List<WorkOrder> result = workshopQueries.loadOrdersIntoTable();
+
+                long endTime = System.currentTimeMillis();
+                System.out.println("2. DB query took: " + (endTime - startTime) + " ms");
+                System.out.println("3. Loaded " + result.size() + " orders");
+
+                return result;
             }
         };
         task.setOnSucceeded(ev -> {
+            System.out.println("4. Starting to populate UI...");
+            long startTime = System.currentTimeMillis();
+
             List<WorkOrder> result = task.getValue();
             data.setAll(result);
             allData.setAll(result);
@@ -300,6 +312,10 @@ public class ActualWorkshopController {
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("5. UI population took: " + (endTime - startTime) + " ms");
+
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         });
         task.setOnFailed(ev -> {
