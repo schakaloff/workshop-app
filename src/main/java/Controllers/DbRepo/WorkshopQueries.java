@@ -1,6 +1,6 @@
 package Controllers.DbRepo;
 
-import DB.DbConfig;
+import DB.DataSourceProvider;
 import Skeletons.Customer;
 import Skeletons.TechWorkRow;
 import Skeletons.WorkOrder;
@@ -11,20 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WorkshopQueries {
-
-    // ─── INTERNAL HELPER ────────────────────────────────────────────────────────
-
-    /** Returns the username for a given tech_id, or empty string if none/unassigned. */
-    private String fetchTechUsername(Connection conn, int techId) throws SQLException {
-        if (techId <= 0) return "";
-        String sql = "SELECT username FROM technician WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, techId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getString("username");
-        }
-        return "";
-    }
 
     // ─── TECH WORK ───────────────────────────────────────────────────────────────
 
@@ -41,26 +27,23 @@ public class WorkshopQueries {
                 "GROUP BY w.workorder, w.type, w.status, w.finished_at " +
                 "ORDER BY COALESCE(w.finished_at, MAX(TIMESTAMP(r.repair_date, '00:00:00'))) DESC";
 
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, techUsername);
             stmt.setDate(2, Date.valueOf(fromDate));
             stmt.setDate(3, Date.valueOf(toDate));
 
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                list.add(new TechWorkRow(
-                        rs.getInt("workorder"),
-                        rs.getString("type"),
-                        rs.getString("status"),
-                        rs.getDouble("labour_total"),
-                        rs.getString("finished_date")
-                ));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new TechWorkRow(
+                            rs.getInt("workorder"),
+                            rs.getString("type"),
+                            rs.getString("status"),
+                            rs.getDouble("labour_total"),
+                            rs.getString("finished_date")
+                    ));
+                }
             }
-            rs.close();
-            stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,36 +55,27 @@ public class WorkshopQueries {
 
     public Customer getCustomerById(int customerId) {
         String sql = "SELECT * FROM customer WHERE id = ?";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, customerId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                Customer c = new Customer(
-                        rs.getString("id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        "",
-                        rs.getString("phone"),
-                        "",
-                        rs.getString("address"),
-                        rs.getString("postal_code"),
-                        rs.getString("town")
-                );
-                rs.close();
-                stmt.close();
-                conn.close();
-                return c;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getString("id"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            "",
+                            rs.getString("phone"),
+                            "",
+                            rs.getString("address"),
+                            rs.getString("postal_code"),
+                            rs.getString("town")
+                    );
+                }
             }
-            rs.close();
-            stmt.close();
-            conn.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
@@ -115,15 +89,17 @@ public class WorkshopQueries {
                 "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
                 "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
                 "COALESCE(c.first_name, '') AS first_name, " +
-                "COALESCE(c.last_name, '')  AS last_name " +
+                "COALESCE(c.last_name,  '') AS last_name, " +
+                "COALESCE(t.username,   '') AS tech_username " +
                 "FROM work_order wo " +
-                "LEFT JOIN customer c ON wo.customer_id = c.id " +
-                "ORDER BY wo.createdAt DESC";
+                "LEFT JOIN customer    c ON wo.customer_id = c.id " +
+                "LEFT JOIN technician  t ON wo.tech_id     = t.id " +
+                "ORDER BY wo.createdAt DESC " +
+                "LIMIT 75";
 
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 WorkOrder wo = new WorkOrder(
@@ -143,15 +119,11 @@ public class WorkshopQueries {
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
                 wo.setTechId(techId);
-                wo.setTechUsername(fetchTechUsername(conn, techId));
+                wo.setTechUsername(rs.getString("tech_username"));
                 wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
 
                 list.add(wo);
             }
-
-            rs.close();
-            stmt.close();
-            conn.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -167,9 +139,8 @@ public class WorkshopQueries {
                                        String warrantyNumber, double deposit) {
         String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, createdAt) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, status);
             stmt.setString(2, type);
@@ -183,18 +154,9 @@ public class WorkshopQueries {
 
             stmt.executeUpdate();
 
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                int id = rs.getInt(1);
-                rs.close();
-                stmt.close();
-                conn.close();
-                return id;
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) return rs.getInt(1);
             }
-
-            rs.close();
-            stmt.close();
-            conn.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -208,11 +170,12 @@ public class WorkshopQueries {
     public List<Integer> getCustomerIdsByPhone(String phone) {
         List<Integer> ids = new ArrayList<>();
         String sql = "SELECT id FROM customer WHERE phone LIKE ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + phone + "%");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) ids.add(rs.getInt("id"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) ids.add(rs.getInt("id"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -222,11 +185,12 @@ public class WorkshopQueries {
     public List<Integer> getCustomerIdsByField(String column, String value) {
         List<Integer> ids = new ArrayList<>();
         String sql = "SELECT id FROM customer WHERE " + column + " LIKE ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + value + "%");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) ids.add(rs.getInt("id"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) ids.add(rs.getInt("id"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -236,12 +200,13 @@ public class WorkshopQueries {
     public List<Integer> getCustomerIdsByFullName(String firstName, String lastName) {
         List<Integer> ids = new ArrayList<>();
         String sql = "SELECT id FROM customer WHERE first_name LIKE ? AND last_name LIKE ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + firstName + "%");
             ps.setString(2, "%" + lastName + "%");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) ids.add(rs.getInt("id"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) ids.add(rs.getInt("id"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -256,43 +221,39 @@ public class WorkshopQueries {
                 "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
                 "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
                 "COALESCE(c.first_name, '') AS first_name, " +
-                "COALESCE(c.last_name, '')  AS last_name " +
+                "COALESCE(c.last_name,  '') AS last_name, " +
+                "COALESCE(t.username,   '') AS tech_username " +
                 "FROM work_order wo " +
-                "LEFT JOIN customer c ON wo.customer_id = c.id " +
+                "LEFT JOIN customer   c ON wo.customer_id = c.id " +
+                "LEFT JOIN technician t ON wo.tech_id     = t.id " +
                 "WHERE wo.workorder = ?";
 
-        try {
-            Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, woNumber);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                WorkOrder wo = new WorkOrder(
-                        rs.getInt("workorder"),
-                        rs.getString("status"),
-                        rs.getString("type"),
-                        rs.getString("createdAt"),
-                        rs.getString("vendorId"),
-                        rs.getString("warrantyNumber"),
-                        rs.getString("model"),
-                        rs.getString("serialNumber"),
-                        rs.getString("problemDesc"),
-                        rs.getInt("customer_id"),
-                        rs.getDouble("deposit_amount")
-                );
-                int techId = rs.getInt("tech_id");
-                if (rs.wasNull()) techId = 0;
-                wo.setTechId(techId);
-                wo.setTechUsername(fetchTechUsername(conn, techId));
-                wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
-
-                rs.close(); stmt.close(); conn.close();
-                return wo;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    WorkOrder wo = new WorkOrder(
+                            rs.getInt("workorder"),
+                            rs.getString("status"),
+                            rs.getString("type"),
+                            rs.getString("createdAt"),
+                            rs.getString("vendorId"),
+                            rs.getString("warrantyNumber"),
+                            rs.getString("model"),
+                            rs.getString("serialNumber"),
+                            rs.getString("problemDesc"),
+                            rs.getInt("customer_id"),
+                            rs.getDouble("deposit_amount")
+                    );
+                    int techId = rs.getInt("tech_id");
+                    if (rs.wasNull()) techId = 0;
+                    wo.setTechId(techId);
+                    wo.setTechUsername(rs.getString("tech_username"));
+                    wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+                    return wo;
+                }
             }
-
-            rs.close(); stmt.close(); conn.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -312,18 +273,19 @@ public class WorkshopQueries {
         WHERE w.status IN ('Repair Complete', 'Billing Complete')
         AND r.repair_date BETWEEN ? AND ?
     """;
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDate(1, java.sql.Date.valueOf(fromDate));
             ps.setDate(2, java.sql.Date.valueOf(toDate));
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new double[]{
-                        rs.getDouble("total_labour"),
-                        rs.getDouble("total_repairs"),
-                        rs.getDouble("total_pst"),
-                        rs.getDouble("total_gst")
-                };
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new double[]{
+                            rs.getDouble("total_labour"),
+                            rs.getDouble("total_repairs"),
+                            rs.getDouble("total_pst"),
+                            rs.getDouble("total_gst")
+                    };
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
