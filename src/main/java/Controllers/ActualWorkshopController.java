@@ -1,7 +1,7 @@
 package Controllers;
 
 import Controllers.DbRepo.WorkshopQueries;
-import DB.DbConfig;
+import DB.DataSourceProvider;
 import DB.ShopSettings;
 import Skeletons.Customer;
 import Skeletons.TechWorkRow;
@@ -37,7 +37,6 @@ import javafx.util.Duration;
 import main.Main;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -143,27 +142,16 @@ public class ActualWorkshopController {
         Platform.runLater(() -> {
             try {
                 table.setItems(items);
-                if (items != null && !items.isEmpty()) {
-                    table.setCurrentPage(1);
-                }
+                table.setCurrentPage(1);
+                table.goToPage(1);
             } catch (Exception ignored) {}
-            Platform.runLater(() -> {
-                try {
-                    if (table.getItems() != null && !table.getItems().isEmpty()) {
-                        table.goToPage(1);
-                        table.setCurrentPage(1);
-                    }
-                } catch (Exception ignored) {}
-            });
         });
     }
 
     private void showDashboardItems() {
-        ObservableList<WorkOrder> recent = FXCollections.observableArrayList(
+        setTableItems(FXCollections.observableArrayList(
                 allData.stream().limit(DASHBOARD_LIMIT).toList()
-        );
-        try { table.setItems(FXCollections.observableArrayList()); } catch (Exception ignored) {}
-        setTableItems(recent);
+        ));
     }
 
     // ─── INITIALIZE ─────────────────────────────────────────────────────────────
@@ -590,7 +578,7 @@ public class ActualWorkshopController {
         String username = LoginController.tech;
         if (username == null || username.isBlank()) return 0;
         String sql = "SELECT id FROM technician WHERE username = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
@@ -605,7 +593,7 @@ public class ActualWorkshopController {
         String username = LoginController.tech;
         if (username == null || username.isBlank()) return "";
         String sql = "SELECT role FROM technician WHERE username = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
