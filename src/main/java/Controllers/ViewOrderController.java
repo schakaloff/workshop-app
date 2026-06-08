@@ -730,6 +730,30 @@ public class ViewOrderController {
         openPaymentDialog(currentWorkOrder, currentCustomer, InvoiceType.FINAL);
     }
 
+    @FXML
+    public void collectDeposit() throws Exception {
+        ViewControllerQueries.refreshWorkOrderFromDb(currentWorkOrder);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/additionalDeposit.fxml"));
+        Parent root = loader.load();
+
+        AdditionalDepositController adc = loader.getController();
+        adc.setMainController(mainController);
+        adc.setContext(currentWorkOrder, currentCustomer, dialogInstance.getScene().getWindow());
+
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(dialogInstance.getScene().getWindow());
+        stage.setTitle("Additional Deposit");
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
+
+        double updatedDeposit = ViewControllerQueries.depositFromDb(currentWorkOrder.getWorkorderNumber());
+        depositTXF.setText("$" + updatedDeposit);
+
+        loadFilesFromDb();
+    }
+
     private void openPaymentDialog(WorkOrder wo, Customer co, InvoiceType invoiceType) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/pay.fxml"));
         Parent root = loader.load();

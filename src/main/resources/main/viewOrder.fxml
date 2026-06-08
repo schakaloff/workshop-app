@@ -157,6 +157,11 @@
                                                   allowEdit="false"
                                                   floatMode="BORDER" floatingText="Deposit"
                                                   prefHeight="32" prefWidth="100" />
+                                    <MFXButton buttonType="RAISED"
+                                               onAction="#collectDeposit"
+                                               prefHeight="32" prefWidth="140"
+                                               text="Additional Deposit"
+                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <MFXButton buttonType="RAISED"
                                                onAction="#Pay"

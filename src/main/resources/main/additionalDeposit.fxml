@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXCheckbox?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<MFXGenericDialog
+        maxHeight="-Infinity" maxWidth="-Infinity"
+        minHeight="-Infinity" minWidth="-Infinity"
+        prefHeight="500.0" prefWidth="680.0"
+        showAlwaysOnTop="false" showClose="false" showMinimize="false"
+        style="-fx-background-color: white;"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="Controllers.AdditionalDepositController">
+
+   <center>
+      <VBox prefHeight="500.0" prefWidth="680.0"
+            style="-fx-background-color: white;">
+         <children>
+
+            <!-- ─── Top bar ──────────────────────────────────────────── -->
+            <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="680"
+                  spacing="10"
+                  style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
+               <children>
+                  <Text text="Additional Deposit"
+                        style="-fx-fill: white; -fx-font-size: 13; -fx-font-weight: bold;" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Text text="Tech:"
+                        style="-fx-fill: rgba(255,255,255,0.8); -fx-font-size: 11;" />
+                  <MFXTextField fx:id="techIDTXF"
+                                allowEdit="false"
+                                prefHeight="28" prefWidth="100" />
+                  <Text text="Date:"
+                        style="-fx-fill: rgba(255,255,255,0.8); -fx-font-size: 11;" />
+                  <MFXTextField fx:id="dateTXF"
+                                allowEdit="false"
+                                prefHeight="28" prefWidth="140" />
+               </children>
+            </HBox>
+
+            <!-- ─── Customer info row ────────────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 12 16 8 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <MFXTextField fx:id="customerNameTXF"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="Customer Name"
+                                prefHeight="32" prefWidth="180" />
+                  <MFXTextField fx:id="customerAddressTXF"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="Address"
+                                prefHeight="32" prefWidth="160" />
+                  <MFXTextField fx:id="customerCityTXF"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="City"
+                                prefHeight="32" prefWidth="120" />
+                  <MFXTextField fx:id="customerPhoneTXF"
+                                allowEdit="false"
+                                floatMode="BORDER" floatingText="Phone"
+                                prefHeight="32" prefWidth="120" />
+               </children>
+            </HBox>
+
+            <!-- ─── PO / Warranty / Contract row ────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 8 16 8 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <MFXTextField fx:id="poNumberTXF"
+                                floatMode="BORDER" floatingText="PO Number"
+                                prefHeight="32" prefWidth="140" />
+                  <MFXTextField fx:id="warrantyAddressTXF"
+                                floatMode="BORDER" floatingText="Warranty / Bill To Address"
+                                prefHeight="32" prefWidth="240" />
+                  <MFXTextField fx:id="contractTXF"
+                                floatMode="BORDER" floatingText="Contract #"
+                                prefHeight="32" prefWidth="140" />
+               </children>
+            </HBox>
+
+            <!-- ─── Payment methods ──────────────────────────────────── -->
+            <VBox style="-fx-background-color: white; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <Text text="Payment Method"
+                        style="-fx-font-size: 11; -fx-fill: #888; -fx-padding: 0 0 8 0;" />
+
+                  <!-- Cash -->
+                  <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 4 0 4 0;">
+                     <children>
+                        <MFXCheckbox fx:id="cashCB" onAction="#paymentTypeSelection" text="Cash" prefWidth="110" />
+                        <MFXTextField fx:id="cashTXF"
+                                      floatMode="BORDER" floatingText="Amount"
+                                      prefHeight="32" prefWidth="160" />
+                     </children>
+                  </HBox>
+
+                  <!-- Debit -->
+                  <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 4 0 4 0;">
+                     <children>
+                        <MFXCheckbox fx:id="debitCB" onAction="#paymentTypeSelection" text="Debit Card" prefWidth="110" />
+                        <MFXTextField fx:id="debitTXF"
+                                      floatMode="BORDER" floatingText="Amount"
+                                      prefHeight="32" prefWidth="160" />
+                     </children>
+                  </HBox>
+
+                  <!-- Visa -->
+                  <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 4 0 4 0;">
+                     <children>
+                        <MFXCheckbox fx:id="visaCB" onAction="#paymentTypeSelection" text="Visa" prefWidth="110" />
+                        <MFXTextField fx:id="visaTXF"
+                                      floatMode="BORDER" floatingText="Amount"
+                                      prefHeight="32" prefWidth="160" />
+                     </children>
+                  </HBox>
+
+                  <!-- Mastercard -->
+                  <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 4 0 4 0;">
+                     <children>
+                        <MFXCheckbox fx:id="masterCardCB" onAction="#paymentTypeSelection" text="Mastercard" prefWidth="110" />
+                        <MFXTextField fx:id="masterCardTXF"
+                                      floatMode="BORDER" floatingText="Amount"
+                                      prefHeight="32" prefWidth="160" />
+                     </children>
+                  </HBox>
+
+                  <!-- Amex -->
+                  <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 4 0 4 0;">
+                     <children>
+                        <MFXCheckbox fx:id="amexCB" onAction="#paymentTypeSelection" text="Amex" prefWidth="110" />
+                        <MFXTextField fx:id="amexTXF"
+                                      floatMode="BORDER" floatingText="Amount"
+                                      prefHeight="32" prefWidth="160" />
+                     </children>
+                  </HBox>
+
+               </children>
+            </VBox>
+
+            <!-- ─── Action bar ───────────────────────────────────────── -->
+            <HBox alignment="CENTER_RIGHT" spacing="10"
+                  style="-fx-background-color: white; -fx-padding: 10 16 10 16;">
+               <children>
+                  <MFXButton buttonType="RAISED"
+                             onAction="#pay"
+                             prefHeight="32" prefWidth="120"
+                             text="Save / Print"
+                             style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+               </children>
+            </HBox>
+
+         </children>
+      </VBox>
+   </center>
+</MFXGenericDialog>
