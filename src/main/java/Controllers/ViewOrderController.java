@@ -826,10 +826,10 @@ public class ViewOrderController {
         Window owner = dialogInstance.getScene().getWindow();
         DocumentOutput.printOrPdf(
                 "WO_ESTIMATE_" + currentWorkOrder.getWorkorderNumber(),
-                "/main/estimate.fxml",          // ← swap in your estimate fxml when ready
+                "/main/estimate.fxml",
                 loader -> {
-                    // EstimateController ec = loader.getController();
-                    // ec.initData(currentWorkOrder, currentCustomer, partsData, repairData);
+                    PrintEstimateController ec = loader.getController();
+                    ec.initData(currentWorkOrder, currentCustomer, repairData, partsData);
                 },
                 owner
         );
