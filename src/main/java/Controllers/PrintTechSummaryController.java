@@ -64,11 +64,6 @@ public class PrintTechSummaryController {
             }
         }
 
-        // Always at least one page (even if empty)
-        if (pages.isEmpty()) {
-            pages.add(buildPage1(techName, from, to, new ArrayList<>(), true, 0.0));
-        }
-
         return pages;
     }
 
@@ -234,8 +229,8 @@ public class PrintTechSummaryController {
         page.getChildren().add(sep);
         y += 6;
 
-        String total = "TOTAL LABOUR:   " + String.format(CURRENCY_FMT, totalLabour);
-        page.getChildren().add(placed(boldText(total, 11), COL_DATE, y + 12));
+        page.getChildren().add(placed(boldText("TOTAL LABOUR:", 11), COL_DATE, y + 12));
+        page.getChildren().add(placed(boldText(String.format(CURRENCY_FMT, totalLabour), 11), COL_LABOUR, y + 12));
     }
 
     private Text placed(Text t, double x, double y) {
