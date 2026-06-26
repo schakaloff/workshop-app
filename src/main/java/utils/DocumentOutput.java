@@ -15,6 +15,7 @@ import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Window;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -117,51 +118,52 @@ public class DocumentOutput {
         }
     }
 
-    public static void printPages(String title, List<javafx.scene.layout.AnchorPane> pages, Window owner) throws Exception {
+    public static void printPages(String title, List<AnchorPane> pages, Window owner) throws Exception {
         OutputChoice choice = showChoiceDialog(owner);
         if (choice == OutputChoice.CANCEL) return;
 
-        // Render each page in a hidden stage so CSS/layout is applied
         List<Stage> hiddenStages = new ArrayList<>();
-        for (javafx.scene.layout.AnchorPane page : pages) {
-            hiddenStages.add(showHiddenStage(page));
-        }
-
-        Platform.runLater(() -> {
-            try {
-                if (choice == OutputChoice.PRINTER) {
-                    printAnchorPages(owner, pages);
-                } else if (choice == OutputChoice.PDF) {
-                    exportAnchorPagesToPdf(title, pages, owner);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                hiddenStages.forEach(Stage::close);
+        try {
+            for (AnchorPane page : pages) {
+                hiddenStages.add(showHiddenStage(page));
             }
-        });
+
+            if (choice == OutputChoice.PRINTER) {
+                printAnchorPages(owner, pages);
+            } else if (choice == OutputChoice.PDF) {
+                exportAnchorPagesToPdf(title, pages, owner);
+            }
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "Output failed: " + e.getMessage()).showAndWait();
+        } finally {
+            hiddenStages.forEach(Stage::close);
+        }
     }
 
-    private static void printAnchorPages(Window owner, List<javafx.scene.layout.AnchorPane> pages) {
+    private static void printAnchorPages(Window owner, List<AnchorPane> pages) {
         Printer printer = Printer.getDefaultPrinter();
         if (printer == null) {
             new Alert(Alert.AlertType.ERROR, "No default printer found.").showAndWait();
             return;
         }
         PrinterJob job = PrinterJob.createPrinterJob(printer);
-        if (job == null || !job.showPrintDialog(owner)) return;
+        if (job == null) return;
+        if (!job.showPrintDialog(owner)) {
+            job.cancelJob();
+            return;
+        }
 
         PageLayout layout = printer.createPageLayout(
                 Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
 
-        for (javafx.scene.layout.AnchorPane page : pages) {
+        for (AnchorPane page : pages) {
             printScaled(job, layout, page);
         }
         job.endJob();
     }
 
     private static void exportAnchorPagesToPdf(String title,
-                                                List<javafx.scene.layout.AnchorPane> pages,
+                                                List<AnchorPane> pages,
                                                 Window owner) throws Exception {
         FileChooser fc = new FileChooser();
         fc.setTitle("Save PDF");
@@ -175,7 +177,7 @@ public class DocumentOutput {
         if (file == null) return;
 
         try (PDDocument doc = new PDDocument()) {
-            for (javafx.scene.layout.AnchorPane page : pages) {
+            for (AnchorPane page : pages) {
                 appendPageToPdf(doc, page);
             }
             doc.save(file);
