@@ -26,6 +26,8 @@ import utils.enums.OutputChoice;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DocumentOutput {
 
@@ -112,6 +114,71 @@ public class DocumentOutput {
             return nodeToPdfBytes(node);
         } finally {
             hidden.close();
+        }
+    }
+
+    public static void printPages(String title, List<javafx.scene.layout.AnchorPane> pages, Window owner) throws Exception {
+        OutputChoice choice = showChoiceDialog(owner);
+        if (choice == OutputChoice.CANCEL) return;
+
+        // Render each page in a hidden stage so CSS/layout is applied
+        List<Stage> hiddenStages = new ArrayList<>();
+        for (javafx.scene.layout.AnchorPane page : pages) {
+            hiddenStages.add(showHiddenStage(page));
+        }
+
+        Platform.runLater(() -> {
+            try {
+                if (choice == OutputChoice.PRINTER) {
+                    printAnchorPages(owner, pages);
+                } else if (choice == OutputChoice.PDF) {
+                    exportAnchorPagesToPdf(title, pages, owner);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                hiddenStages.forEach(Stage::close);
+            }
+        });
+    }
+
+    private static void printAnchorPages(Window owner, List<javafx.scene.layout.AnchorPane> pages) {
+        Printer printer = Printer.getDefaultPrinter();
+        if (printer == null) {
+            new Alert(Alert.AlertType.ERROR, "No default printer found.").showAndWait();
+            return;
+        }
+        PrinterJob job = PrinterJob.createPrinterJob(printer);
+        if (job == null || !job.showPrintDialog(owner)) return;
+
+        PageLayout layout = printer.createPageLayout(
+                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+
+        for (javafx.scene.layout.AnchorPane page : pages) {
+            printScaled(job, layout, page);
+        }
+        job.endJob();
+    }
+
+    private static void exportAnchorPagesToPdf(String title,
+                                                List<javafx.scene.layout.AnchorPane> pages,
+                                                Window owner) throws Exception {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Save PDF");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        String safeName = (title == null ? "summary" : title)
+                .replaceAll("[^a-zA-Z0-9-_ ]", "").trim();
+        if (safeName.isBlank()) safeName = "summary";
+        fc.setInitialFileName(safeName + ".pdf");
+
+        File file = fc.showSaveDialog(owner);
+        if (file == null) return;
+
+        try (PDDocument doc = new PDDocument()) {
+            for (javafx.scene.layout.AnchorPane page : pages) {
+                appendPageToPdf(doc, page);
+            }
+            doc.save(file);
         }
     }
 
