@@ -200,6 +200,10 @@
                                                            prefHeight="36" prefWidth="100"
                                                            text="Calculate"
                                                            style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                                <MFXButton onAction="#printTechSummary"
+                                                           prefHeight="36" prefWidth="130"
+                                                           text="Print Summary"
+                                                           style="-fx-background-color: #37474F; -fx-text-fill: white; -fx-background-radius: 6;" />
                                             </children>
                                         </HBox>
 
