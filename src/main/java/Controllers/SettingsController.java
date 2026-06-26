@@ -2,6 +2,9 @@
 
     import Controllers.DbRepo.VendorsQueries;
     import Controllers.DbRepo.WorkshopQueries;
+    import Controllers.PrintTechSummaryController;
+    import utils.DocumentOutput;
+    import javafx.scene.layout.AnchorPane;
     import Skeletons.TechWorkRow;
     import Skeletons.Technicians;
     import Skeletons.Vendor;
@@ -238,6 +241,40 @@
 
             totalEarnedTXF.setText(String.format("$%.2f", totalEarned));
             totalRepairsTXF.setText(String.valueOf(totalRepairs));
+        }
+
+        @FXML
+        public void printTechSummary() {
+            String techName    = techCombo.getValue();
+            LocalDate fromDate = fromDP.getValue();
+            LocalDate toDate   = toDP.getValue();
+
+            if (techName == null || techName.isBlank() || fromDate == null || toDate == null) {
+                new Alert(Alert.AlertType.WARNING,
+                        "Select a technician and date range first.", ButtonType.OK).showAndWait();
+                return;
+            }
+            if (fromDate.isAfter(toDate)) {
+                new Alert(Alert.AlertType.WARNING,
+                        "\"From\" date must be before \"To\" date.", ButtonType.OK).showAndWait();
+                return;
+            }
+
+            try {
+                WorkshopQueries workshopQueries = new WorkshopQueries();
+                List<TechWorkRow> rows = workshopQueries.loadTechWorkByDateRange(techName, fromDate, toDate);
+
+                PrintTechSummaryController builder = new PrintTechSummaryController();
+                List<AnchorPane> pages = builder.buildPages(techName, fromDate, toDate, rows);
+
+                String title = "Tech Summary - " + techName;
+                DocumentOutput.printPages(title, pages,
+                        dialogInstance.getScene().getWindow());
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR,
+                        "Failed to generate report: " + e.getMessage(), ButtonType.OK).showAndWait();
+            }
         }
 
         // ─── SHOP STATS ──────────────────────────────────────────────────────────────
