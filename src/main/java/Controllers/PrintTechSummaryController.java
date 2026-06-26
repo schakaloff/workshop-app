@@ -78,7 +78,7 @@ public class PrintTechSummaryController {
 
         // Page 1: rows start at Y=120 (after header block + column headers)
         // Page N: rows start at Y=60 (after "continued" header + column headers)
-        double page1Start  = 120.0;
+        double page1Start  = 92.0;
         double pageNStart  = 60.0;
 
         List<TechWorkRow> current = new ArrayList<>();
