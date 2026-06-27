@@ -20,14 +20,19 @@ public class AppLauncher implements Launcher {
 
             // Use the same JRE that's currently running
             String bundledJava = System.getProperty("java.home") + "/bin/java";
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                bundledJava += ".exe";
+            }
             System.out.println("Using java: " + bundledJava);
 
+            Path logFile = appJar.getParent().resolve("app.log");
             ProcessBuilder pb = new ProcessBuilder(
                     bundledJava,
                     "-cp", appJar.toString(),
                     "main.Main"
             );
-            pb.inheritIO();
+            pb.redirectErrorStream(true);
+            pb.redirectOutput(logFile.toFile());
             Process process = pb.start();
             process.waitFor();
             System.exit(0);
