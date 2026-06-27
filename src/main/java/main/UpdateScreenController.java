@@ -147,14 +147,20 @@ public class UpdateScreenController {
 
             try {
                 Path appJar = AppLauncher.resolveAppJar();
-                String bundledJava = System.getProperty("java.home") + "/bin/java";
+                String javaExe = System.getProperty("java.home") + "/bin/java";
+                if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                    javaExe += ".exe";
+                }
+
+                Path logFile = appJar.getParent().resolve("app.log");
 
                 ProcessBuilder pb = new ProcessBuilder(
-                        bundledJava,
+                        javaExe,
                         "-cp", appJar.toString(),
                         "main.Main"
                 );
-                pb.inheritIO();
+                pb.redirectErrorStream(true);
+                pb.redirectOutput(logFile.toFile());
                 Process process = pb.start();
 
                 // Wait for app to finish in background thread, then exit
