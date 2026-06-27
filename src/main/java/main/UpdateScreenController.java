@@ -11,11 +11,13 @@ import org.update4j.FileMetadata;
 import org.update4j.service.UpdateHandler;
 
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 public class UpdateScreenController {
 
@@ -140,39 +142,69 @@ public class UpdateScreenController {
         }
     }
 
+    private static Path resolveLogFile() {
+        String os = System.getProperty("os.name").toLowerCase();
+        Path base;
+        if (os.contains("win")) {
+            String appData = System.getenv("APPDATA");
+            base = appData != null ? Path.of(appData, "workordermanager") : Path.of(System.getProperty("user.home"));
+        } else {
+            base = Path.of(System.getProperty("user.home"), ".workordermanager");
+        }
+        try { Files.createDirectories(base); } catch (Exception ignored) {}
+        return base.resolve("launcher.log");
+    }
+
+    private static void writeLog(Path logFile, String message, Throwable t) {
+        try (PrintWriter pw = new PrintWriter(Files.newBufferedWriter(logFile,
+                java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND))) {
+            pw.println("[" + LocalDateTime.now() + "] " + message);
+            if (t != null) t.printStackTrace(pw);
+            pw.flush();
+        } catch (Exception ignored) {}
+    }
+
     private void launchApp(Stage stage) {
         Platform.runLater(() -> {
             // Hide the window but DON'T exit — keep the AppImage mount alive
             stage.hide();
 
+            Path logFile = resolveLogFile();
+            writeLog(logFile, "launchApp() called", null);
+
             try {
                 Path appJar = AppLauncher.resolveAppJar();
+                writeLog(logFile, "appJar resolved: " + appJar + " exists=" + appJar.toFile().exists(), null);
+
                 String javaExe = System.getProperty("java.home") + "/bin/java";
                 if (System.getProperty("os.name").toLowerCase().contains("win")) {
                     javaExe += ".exe";
                 }
-
-                Path logFile = appJar.getParent().resolve("app.log");
+                writeLog(logFile, "java exe: " + javaExe, null);
 
                 ProcessBuilder pb = new ProcessBuilder(
                         javaExe,
+                        "--add-modules", "javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.swing",
                         "-cp", appJar.toString(),
                         "main.Main"
                 );
                 pb.redirectErrorStream(true);
                 pb.redirectOutput(logFile.toFile());
+                writeLog(logFile, "Starting process: " + pb.command(), null);
                 Process process = pb.start();
+                writeLog(logFile, "Process started PID=" + process.pid(), null);
 
                 // Wait for app to finish in background thread, then exit
                 new Thread(() -> {
                     try {
-                        process.waitFor();
+                        int exit = process.waitFor();
+                        writeLog(logFile, "Process exited with code " + exit, null);
                     } catch (InterruptedException ignored) {}
                     Platform.exit();
                 }).start();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                writeLog(logFile, "FAILED to launch app", e);
                 Platform.exit();
             }
         });
