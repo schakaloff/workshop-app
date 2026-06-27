@@ -2,6 +2,7 @@ package utils;
 
 import Controllers.PrinterOutputController;
 import Controllers.PrintRepairController;
+import Controllers.PrintTechSummaryController;
 import io.github.palexdev.materialfx.utils.SwingFXUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -10,12 +11,15 @@ import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.image.WritableImage;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Region;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Window;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -54,17 +58,37 @@ public class DocumentOutput {
 
         Platform.runLater(() -> {
             try {
-                // Check if controller has overflow parts for page 2
-                Parent page2 = null;
                 Object controller = loader.getController();
-                if (controller instanceof PrintRepairController) {
-                    page2 = ((PrintRepairController) controller).buildPage2();
-                }
 
-                if (choice == OutputChoice.PRINTER) {
-                    printNodes(owner, node, page2);
-                } else if (choice == OutputChoice.PDF) {
-                    exportNodesToPdf(node, page2, owner, title);
+                if (controller instanceof PrintTechSummaryController) {
+                    PrintTechSummaryController ctrl = (PrintTechSummaryController) controller;
+                    List<Parent> morePages = ctrl.buildAdditionalPages();
+                    List<Stage> moreStages = new ArrayList<>();
+                    for (Parent p : morePages) {
+                        moreStages.add(showHiddenStage(p));
+                    }
+                    List<Parent> allPages = new ArrayList<>();
+                    allPages.add(node);
+                    allPages.addAll(morePages);
+                    try {
+                        if (choice == OutputChoice.PRINTER) {
+                            printAllPages(owner, allPages);
+                        } else {
+                            exportNodeListToPdf(allPages, owner, title);
+                        }
+                    } finally {
+                        moreStages.forEach(Stage::close);
+                    }
+                } else {
+                    Parent page2 = null;
+                    if (controller instanceof PrintRepairController) {
+                        page2 = ((PrintRepairController) controller).buildPage2();
+                    }
+                    if (choice == OutputChoice.PRINTER) {
+                        printNodes(owner, node, page2);
+                    } else {
+                        exportNodesToPdf(node, page2, owner, title);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -79,8 +103,7 @@ public class DocumentOutput {
             String fxmlPath,
             InitFn initFn,
             Window owner,
-            PdfSavedFn pdfSavedFn
-    ) throws Exception {
+            PdfSavedFn pdfSavedFn) throws Exception {
         OutputChoice choice = showChoiceDialog(owner);
         if (choice == OutputChoice.CANCEL) return;
 
@@ -123,65 +146,23 @@ public class DocumentOutput {
         if (choice == OutputChoice.CANCEL) return;
 
         List<Stage> hiddenStages = new ArrayList<>();
-        try {
-            for (AnchorPane page : pages) {
-                hiddenStages.add(showHiddenStage(page));
-            }
-
-            if (choice == OutputChoice.PRINTER) {
-                printAnchorPages(owner, pages);
-            } else if (choice == OutputChoice.PDF) {
-                exportAnchorPagesToPdf(title, pages, owner);
-            }
-        } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Output failed: " + e.getMessage()).showAndWait();
-        } finally {
-            hiddenStages.forEach(Stage::close);
-        }
-    }
-
-    private static void printAnchorPages(Window owner, List<AnchorPane> pages) {
-        Printer printer = Printer.getDefaultPrinter();
-        if (printer == null) {
-            new Alert(Alert.AlertType.ERROR, "No default printer found.").showAndWait();
-            return;
-        }
-        PrinterJob job = PrinterJob.createPrinterJob(printer);
-        if (job == null) return;
-        if (!job.showPrintDialog(owner)) {
-            job.cancelJob();
-            return;
-        }
-
-        PageLayout layout = printer.createPageLayout(
-                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
-
         for (AnchorPane page : pages) {
-            printScaled(job, layout, page);
+            hiddenStages.add(showHiddenStage(page));
         }
-        job.endJob();
-    }
 
-    private static void exportAnchorPagesToPdf(String title,
-                                                List<AnchorPane> pages,
-                                                Window owner) throws Exception {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Save PDF");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-        String safeName = (title == null ? "summary" : title)
-                .replaceAll("[^a-zA-Z0-9-_ ]", "").trim();
-        if (safeName.isBlank()) safeName = "summary";
-        fc.setInitialFileName(safeName + ".pdf");
-
-        File file = fc.showSaveDialog(owner);
-        if (file == null) return;
-
-        try (PDDocument doc = new PDDocument()) {
-            for (AnchorPane page : pages) {
-                appendPageToPdf(doc, page);
+        Platform.runLater(() -> {
+            try {
+                if (choice == OutputChoice.PRINTER) {
+                    printAnchorPages(owner, pages);
+                } else if (choice == OutputChoice.PDF) {
+                    exportAnchorPagesToPdf(title, pages, owner);
+                }
+            } catch (Exception e) {
+                new Alert(Alert.AlertType.ERROR, "Output failed: " + e.getMessage()).showAndWait();
+            } finally {
+                hiddenStages.forEach(Stage::close);
             }
-            doc.save(file);
-        }
+        });
     }
 
     // ─── Hidden stage ────────────────────────────────────────────────────────────
@@ -193,6 +174,9 @@ public class DocumentOutput {
         hidden.setHeight(842);
         hidden.setScene(new Scene(node, 595, 842));
         hidden.show();
+        if (node instanceof Region) {
+            ((Region) node).resize(595, 842);
+        }
         node.applyCss();
         node.layout();
         return hidden;
@@ -215,6 +199,36 @@ public class DocumentOutput {
     }
 
     // ─── Print ───────────────────────────────────────────────────────────────────
+
+    private static void printAllPages(Window owner, List<Parent> pages) {
+        Printer printer = Printer.getDefaultPrinter();
+        if (printer == null) {
+            new Alert(Alert.AlertType.ERROR, "No default printer found.").showAndWait();
+            return;
+        }
+        PrinterJob job = PrinterJob.createPrinterJob(printer);
+        if (job == null || !job.showPrintDialog(owner)) return;
+        PageLayout layout = printer.createPageLayout(
+                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+        for (Parent page : pages)
+            printScaled(job, layout, page);
+        job.endJob();
+    }
+
+    private static void printAnchorPages(Window owner, List<AnchorPane> pages) {
+        Printer printer = Printer.getDefaultPrinter();
+        if (printer == null) {
+            new Alert(Alert.AlertType.ERROR, "No default printer found.").showAndWait();
+            return;
+        }
+        PrinterJob job = PrinterJob.createPrinterJob(printer);
+        if (job == null || !job.showPrintDialog(owner)) return;
+        PageLayout layout = printer.createPageLayout(
+                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+        for (AnchorPane page : pages)
+            printScaled(job, layout, page);
+        job.endJob();
+    }
 
     private static void printNodes(Window owner, Parent page1, Parent page2) {
         Printer printer = Printer.getDefaultPrinter();
@@ -241,10 +255,15 @@ public class DocumentOutput {
     }
 
     private static void printScaled(PrinterJob job, PageLayout layout, Parent node) {
+        if (node instanceof Region) {
+            ((Region) node).resize(595, 842);
+            node.applyCss();
+            node.layout();
+        }
         Group scaled = new Group(node);
         double scale = Math.min(
-                layout.getPrintableWidth()  / node.getBoundsInParent().getWidth(),
-                layout.getPrintableHeight() / node.getBoundsInParent().getHeight()
+                layout.getPrintableWidth()  / 595.0,
+                layout.getPrintableHeight() / 842.0
         );
         scaled.getTransforms().add(new Scale(scale, scale));
         job.printPage(layout, scaled);
@@ -280,8 +299,55 @@ public class DocumentOutput {
         return file;
     }
 
+    private static File exportNodeListToPdf(List<Parent> pages, Window owner,
+                                             String suggestedName) throws Exception {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Save PDF");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        String safeName = (suggestedName == null ? "document" : suggestedName)
+                .replaceAll("[^a-zA-Z0-9-_ ]", "").trim();
+        if (safeName.isBlank()) safeName = "document";
+        fc.setInitialFileName(safeName + ".pdf");
+        File file = fc.showSaveDialog(owner);
+        if (file == null) return null;
+        try (PDDocument doc = new PDDocument()) {
+            for (Parent page : pages)
+                appendPageToPdf(doc, page);
+            doc.save(file);
+        }
+        return file;
+    }
+
+    private static void exportAnchorPagesToPdf(String title,
+                                                List<AnchorPane> pages,
+                                                Window owner) throws Exception {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Save PDF");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        String safeName = (title == null ? "summary" : title)
+                .replaceAll("[^a-zA-Z0-9-_ ]", "").trim();
+        if (safeName.isBlank()) safeName = "summary";
+        fc.setInitialFileName(safeName + ".pdf");
+
+        File file = fc.showSaveDialog(owner);
+        if (file == null) return;
+
+        try (PDDocument doc = new PDDocument()) {
+            for (AnchorPane page : pages)
+                appendPageToPdf(doc, page);
+            doc.save(file);
+        }
+    }
+
     private static void appendPageToPdf(PDDocument doc, Parent node) throws Exception {
-        WritableImage fxImage = node.snapshot(null, null);
+        if (node instanceof Region) {
+            ((Region) node).resize(595, 842);
+            node.applyCss();
+            node.layout();
+        }
+        SnapshotParameters params = new SnapshotParameters();
+        params.setViewport(new Rectangle2D(0, 0, 595, 842));
+        WritableImage fxImage = node.snapshot(params, null);
         BufferedImage bimg = SwingFXUtils.fromFXImage(fxImage, null);
 
         PDPage page = new PDPage(PDRectangle.A4);

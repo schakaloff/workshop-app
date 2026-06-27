@@ -4,7 +4,6 @@
     import Controllers.DbRepo.WorkshopQueries;
     import Controllers.PrintTechSummaryController;
     import utils.DocumentOutput;
-    import javafx.scene.layout.AnchorPane;
     import Skeletons.TechWorkRow;
     import Skeletons.Technicians;
     import Skeletons.Vendor;
@@ -264,12 +263,19 @@
                 WorkshopQueries workshopQueries = new WorkshopQueries();
                 List<TechWorkRow> rows = workshopQueries.loadTechWorkByDateRange(techName, fromDate, toDate);
 
-                PrintTechSummaryController builder = new PrintTechSummaryController();
-                List<AnchorPane> pages = builder.buildPages(techName, fromDate, toDate, rows);
+                final String    fn = techName;
+                final LocalDate fd = fromDate;
+                final LocalDate td = toDate;
 
-                String title = "Tech Summary - " + techName;
-                DocumentOutput.printPages(title, pages,
-                        dialogInstance.getScene().getWindow());
+                DocumentOutput.printOrPdf(
+                        "Tech Summary - " + techName,
+                        "/main/techSummary.fxml",
+                        loader -> {
+                            PrintTechSummaryController ctrl = loader.getController();
+                            ctrl.initData(fn, fd, td, rows);
+                        },
+                        dialogInstance.getScene().getWindow()
+                );
             } catch (Exception e) {
                 e.printStackTrace();
                 new Alert(Alert.AlertType.ERROR,

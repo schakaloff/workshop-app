@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;"
+            xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.PrintTechSummaryController">
+   <children>
+      <Text layoutX="20.0" layoutY="28.0" text="TELTRONICS SERVICE CENTRE">
+         <font><Font name="System Bold" size="14.0" /></font>
+      </Text>
+      <Text layoutX="20.0" layoutY="44.0" text="Technician Time Evaluation Summary Report">
+         <font><Font name="System Bold" size="11.0" /></font>
+      </Text>
+      <Text fx:id="techInfoTXT" layoutX="20.0" layoutY="58.0" text="">
+         <font><Font size="10.0" /></font>
+      </Text>
+
+      <Rectangle layoutX="20.0" layoutY="66.0" width="555.0" height="1.0" fill="DARKGRAY" />
+
+      <Rectangle layoutX="20.0" layoutY="68.0" width="555.0" height="16.0" fill="LIGHTGRAY" stroke="BLACK" strokeWidth="0.5" />
+      <Text layoutX="20.0" layoutY="80.0" text="WO#">
+         <font><Font name="System Bold" size="9.0" /></font>
+      </Text>
+      <Text layoutX="120.0" layoutY="80.0" text="Completed Date">
+         <font><Font name="System Bold" size="9.0" /></font>
+      </Text>
+      <Text layoutX="450.0" layoutY="80.0" text="Labour">
+         <font><Font name="System Bold" size="9.0" /></font>
+      </Text>
+
+      <VBox fx:id="rowsVBox" layoutX="20.0" layoutY="84.0" prefWidth="555.0" />
+   </children>
+</AnchorPane>

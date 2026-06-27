@@ -1,9 +1,12 @@
 package Controllers;
 
 import Skeletons.TechWorkRow;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -16,238 +19,156 @@ import java.util.List;
 
 public class PrintTechSummaryController {
 
-    private static final double PAGE_W      = 595.0;
-    private static final double PAGE_H      = 842.0;
-    private static final double PAGE_CUTOFF = 720.0;
-    private static final double ROW_H       = 18.0;
-    private static final double HEADER_H    = 16.0;
-    private static final double MARGIN      = 20.0;
+    @FXML private Text techInfoTXT;
+    @FXML private VBox rowsVBox;
 
-    // Column X positions
-    private static final double COL_WO     = MARGIN;
-    private static final double COL_DATE   = 100.0;
-    private static final double COL_LABOUR = 450.0;
+    // VBox starts at Y=84, page cutoff ~Y=792 → available height=708px
+    // Reserve 30px for totals (sep 10px + total row 20px), leaving 678px for rows
+    // 678 / 18 = 37 rows max
+    private static final double ROW_H           = 18.0;
+    private static final int    MAX_ROWS         = 37;
 
-    private static final DateTimeFormatter DATE_FMT =
-            DateTimeFormatter.ofPattern("MMM dd, yyyy");
-    private static final String CURRENCY_FMT = "$%.2f";
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+    private static final String            CURRENCY  = "$%.2f";
 
-    public List<AnchorPane> buildPages(String techName,
-                                       LocalDate from,
-                                       LocalDate to,
-                                       List<TechWorkRow> rows) {
-        List<AnchorPane> pages = new ArrayList<>();
-
-        // Filter to completed only
-        List<TechWorkRow> completed = new ArrayList<>();
-        for (TechWorkRow r : rows) {
-            String s = r.getStatus();
-            if (s != null && (s.equalsIgnoreCase("Repair Complete")
-                    || s.equalsIgnoreCase("Billing Complete"))) {
-                completed.add(r);
-            }
-        }
-
-        double totalLabour = completed.stream().mapToDouble(TechWorkRow::getLabourAmount).sum();
-
-        // Partition rows into pages
-        List<List<TechWorkRow>> partitions = partitionRows(completed);
-
-        for (int i = 0; i < partitions.size(); i++) {
-            boolean isLast = (i == partitions.size() - 1);
-            List<TechWorkRow> pageRows = partitions.get(i);
-
-            if (i == 0) {
-                pages.add(buildPage1(techName, from, to, pageRows, isLast, totalLabour));
-            } else {
-                pages.add(buildPageN(pageRows, isLast, totalLabour, i + 1));
-            }
-        }
-
-        return pages;
-    }
-
-    // ─── Partition ───────────────────────────────────────────────────────────────
-
-    private List<List<TechWorkRow>> partitionRows(List<TechWorkRow> rows) {
-        List<List<TechWorkRow>> partitions = new ArrayList<>();
-        if (rows.isEmpty()) {
-            partitions.add(new ArrayList<>());
-            return partitions;
-        }
-
-        // Page 1: rows start at Y=120 (after header block + column headers)
-        // Page N: rows start at Y=60 (after "continued" header + column headers)
-        double page1Start  = 92.0;
-        double pageNStart  = 60.0;
-
-        List<TechWorkRow> current = new ArrayList<>();
-        double y = page1Start;
-
-        for (TechWorkRow r : rows) {
-            if (y + ROW_H > PAGE_CUTOFF) {
-                partitions.add(current);
-                current = new ArrayList<>();
-                y = pageNStart;
-            }
-            current.add(r);
-            y += ROW_H;
-        }
-        partitions.add(current);
-        return partitions;
-    }
+    // Overflow state — set by initData, consumed by buildAdditionalPages
+    private final List<List<TechWorkRow>> overflowBatches = new ArrayList<>();
+    private double    totalLabour;
+    private String    techName;
+    private LocalDate from;
+    private LocalDate to;
 
     // ─── Page 1 ──────────────────────────────────────────────────────────────────
 
-    private AnchorPane buildPage1(String techName,
-                                  LocalDate from, LocalDate to,
-                                  List<TechWorkRow> pageRows,
-                                  boolean showTotals,
-                                  double totalLabour) {
-        AnchorPane page = blankPage();
+    public void initData(String techName, LocalDate from, LocalDate to, List<TechWorkRow> rows) {
+        this.techName = techName;
+        this.from     = from;
+        this.to       = to;
 
-        double y = MARGIN;
+        techInfoTXT.setText(infoLine(null));
 
-        // Shop name
-        page.getChildren().add(placed(boldText("TELTRONICS SERVICE CENTRE", 14), MARGIN, y + 12));
-        y += 18;
+        List<TechWorkRow> completed = filterCompleted(rows);
+        totalLabour = completed.stream().mapToDouble(TechWorkRow::getLabourAmount).sum();
 
-        // Report title
-        page.getChildren().add(placed(boldText("Technician Time Evaluation Summary Report", 11), MARGIN, y + 11));
-        y += 16;
+        boolean hasOverflow = completed.size() > MAX_ROWS;
+        int     page1Count  = hasOverflow ? MAX_ROWS : completed.size();
 
-        // Tech + date range
-        String fromStr = from != null ? from.format(DATE_FMT) : "";
-        String toStr   = to   != null ? to.format(DATE_FMT)   : "";
-        String info = "Tech: " + techName + "    From: " + fromStr + "    To: " + toStr;
-        page.getChildren().add(placed(normalText(info, 10), MARGIN, y + 11));
-        y += 16;
-
-        // Separator
-        Line sep = new Line(MARGIN, y, PAGE_W - MARGIN, y);
-        sep.setStroke(Color.DARKGRAY);
-        page.getChildren().add(sep);
-        y += 6;
-
-        // Column headers
-        y = addColumnHeaders(page, y);
-
-        // Data rows
-        for (TechWorkRow r : pageRows) {
-            y = addDataRow(page, y, r);
+        for (int i = 0; i < page1Count; i++) {
+            rowsVBox.getChildren().add(buildRow(completed.get(i)));
         }
 
-        if (showTotals) {
-            addTotals(page, y, totalLabour);
+        if (hasOverflow) {
+            partitionIntoBatches(new ArrayList<>(completed.subList(page1Count, completed.size())));
+        } else {
+            addTotals();
         }
-
-        return page;
     }
 
-    // ─── Page N ──────────────────────────────────────────────────────────────────
+    // ─── Continuation page init (called on a fresh FXML instance) ────────────────
 
-    private AnchorPane buildPageN(List<TechWorkRow> pageRows,
-                                  boolean showTotals,
-                                  double totalLabour,
-                                  int pageNum) {
-        AnchorPane page = blankPage();
+    public void initContinuation(List<TechWorkRow> rows, int pageNum,
+                                 boolean isLast, double total) {
+        totalLabour = total;
+        techInfoTXT.setText(infoLine(pageNum));
 
-        double y = MARGIN;
-
-        // Continued header
-        page.getChildren().add(placed(
-                boldText("Technician Time Evaluation Summary Report (continued) — page " + pageNum, 10),
-                MARGIN, y + 11));
-        y += 18;
-
-        // Column headers
-        y = addColumnHeaders(page, y);
-
-        // Data rows
-        for (TechWorkRow r : pageRows) {
-            y = addDataRow(page, y, r);
+        int count = isLast ? Math.min(MAX_ROWS, rows.size()) : Math.min(MAX_ROWS, rows.size());
+        for (int i = 0; i < count; i++) {
+            rowsVBox.getChildren().add(buildRow(rows.get(i)));
         }
+        if (isLast) addTotals();
+    }
 
-        if (showTotals) {
-            addTotals(page, y, totalLabour);
+    // ─── Build overflow FXML pages ────────────────────────────────────────────────
+
+    public List<Parent> buildAdditionalPages() throws Exception {
+        List<Parent> result = new ArrayList<>();
+        for (int i = 0; i < overflowBatches.size(); i++) {
+            boolean isLast = (i == overflowBatches.size() - 1);
+            FXMLLoader loader = new FXMLLoader(
+                    PrintTechSummaryController.class.getResource("/main/techSummary.fxml"));
+            Parent p = loader.load();
+            PrintTechSummaryController ctrl = loader.getController();
+            ctrl.techName = this.techName;
+            ctrl.from     = this.from;
+            ctrl.to       = this.to;
+            ctrl.initContinuation(overflowBatches.get(i), i + 2, isLast, totalLabour);
+            result.add(p);
         }
-
-        return page;
+        return result;
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-    private AnchorPane blankPage() {
-        AnchorPane p = new AnchorPane();
-        p.setPrefWidth(PAGE_W);
-        p.setPrefHeight(PAGE_H);
-        p.setStyle("-fx-background-color: white;");
-        return p;
+    private String infoLine(Integer pageNum) {
+        String fromStr = from != null ? from.format(DATE_FMT) : "";
+        String toStr   = to   != null ? to.format(DATE_FMT)   : "";
+        String base = "Tech: " + techName + "    From: " + fromStr + "    To: " + toStr;
+        return pageNum != null ? base + "    (page " + pageNum + ")" : base;
     }
 
-    private double addColumnHeaders(AnchorPane page, double y) {
-        Rectangle hdr = new Rectangle(MARGIN, y, PAGE_W - MARGIN * 2, HEADER_H);
-        hdr.setFill(Color.LIGHTGRAY);
-        hdr.setStroke(Color.BLACK);
-        hdr.setStrokeWidth(0.5);
-        page.getChildren().add(hdr);
-
-        page.getChildren().addAll(
-                placed(boldText("WO#",            9), COL_WO,     y + 12),
-                placed(boldText("Completed Date", 9), COL_DATE,   y + 12),
-                placed(boldText("Labour",         9), COL_LABOUR, y + 12)
-        );
-
-        return y + HEADER_H;
+    private List<TechWorkRow> filterCompleted(List<TechWorkRow> rows) {
+        List<TechWorkRow> result = new ArrayList<>();
+        for (TechWorkRow r : rows) {
+            String s = r.getStatus();
+            if (s != null && (s.equalsIgnoreCase("Repair Complete")
+                    || s.equalsIgnoreCase("Billing Complete"))) {
+                result.add(r);
+            }
+        }
+        return result;
     }
 
-    private double addDataRow(AnchorPane page, double y, TechWorkRow r) {
-        Rectangle bg = new Rectangle(MARGIN, y, PAGE_W - MARGIN * 2, ROW_H);
-        bg.setFill(Color.WHITE);
-        bg.setStroke(Color.web("#eeeeee"));
-        bg.setStrokeWidth(0.5);
-        page.getChildren().add(bg);
+    private void partitionIntoBatches(List<TechWorkRow> rows) {
+        for (int i = 0; i < rows.size(); i += MAX_ROWS) {
+            overflowBatches.add(new ArrayList<>(
+                    rows.subList(i, Math.min(i + MAX_ROWS, rows.size()))));
+        }
+    }
+
+    private AnchorPane buildRow(TechWorkRow r) {
+        AnchorPane row = new AnchorPane();
+        row.setPrefWidth(555);
+        row.setPrefHeight(ROW_H);
+        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 0.5 0;");
 
         String wo     = String.valueOf(r.getWorkOrderNumber());
         String date   = r.getFinishedDate() != null ? r.getFinishedDate() : "";
-        String labour = String.format(CURRENCY_FMT, r.getLabourAmount());
+        String labour = String.format(CURRENCY, r.getLabourAmount());
 
-        page.getChildren().addAll(
-                placed(normalText(wo,     9), COL_WO,     y + 12),
-                placed(normalText(date,   9), COL_DATE,   y + 12),
-                placed(normalText(labour, 9), COL_LABOUR, y + 12)
+        row.getChildren().addAll(
+                pinText(wo,     0.0,   9, false),
+                pinText(date,   100.0, 9, false),
+                pinText(labour, 430.0, 9, false)
         );
-
-        return y + ROW_H;
+        return row;
     }
 
-    private void addTotals(AnchorPane page, double y, double totalLabour) {
-        y += 8;
+    private void addTotals() {
+        AnchorPane sepRow = new AnchorPane();
+        sepRow.setPrefHeight(10);
+        sepRow.setPrefWidth(555);
+        Rectangle sep = new Rectangle(0, 5, 555, 1);
+        sep.setFill(Color.DARKGRAY);
+        sepRow.getChildren().add(sep);
+        rowsVBox.getChildren().add(sepRow);
 
-        Line sep = new Line(MARGIN, y, PAGE_W - MARGIN, y);
-        sep.setStroke(Color.DARKGRAY);
-        page.getChildren().add(sep);
-        y += 6;
-
-        page.getChildren().add(placed(boldText("TOTAL LABOUR:", 11), COL_DATE, y + 12));
-        page.getChildren().add(placed(boldText(String.format(CURRENCY_FMT, totalLabour), 11), COL_LABOUR, y + 12));
+        AnchorPane totalRow = new AnchorPane();
+        totalRow.setPrefWidth(555);
+        totalRow.setPrefHeight(20);
+        totalRow.getChildren().addAll(
+                pinText("TOTAL LABOUR:", 200.0, 11, true),
+                pinText(String.format(CURRENCY, totalLabour), 430.0, 11, true)
+        );
+        rowsVBox.getChildren().add(totalRow);
     }
 
-    private Text placed(Text t, double x, double y) {
-        t.setLayoutX(x);
-        t.setLayoutY(y);
-        return t;
-    }
-
-    private Text boldText(String value, double size) {
+    private Text pinText(String value, double x, double size, boolean bold) {
         Text t = new Text(value);
-        t.setFont(Font.font("System", FontWeight.BOLD, size));
-        return t;
-    }
-
-    private Text normalText(String value, double size) {
-        Text t = new Text(value);
-        t.setFont(Font.font(size));
+        t.setFont(bold
+                ? Font.font("System", FontWeight.BOLD, size)
+                : Font.font(size));
+        AnchorPane.setLeftAnchor(t, x);
+        AnchorPane.setTopAnchor(t, 3.0);
         return t;
     }
 }
