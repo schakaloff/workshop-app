@@ -81,11 +81,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 21 with JavaFX
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'liberica'
+          java-package: jdk-full
           cache: maven
 
       - name: Download JARs artifact
@@ -94,20 +95,12 @@ jobs:
           name: jars
           path: target/
 
-      - name: Download JavaFX SDK
-        run: |
-          $ProgressPreference = 'SilentlyContinue'
-          Invoke-WebRequest -Uri "https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11_windows-x64_bin-sdk.zip" -OutFile "javafx.zip"
-          Expand-Archive -Path "javafx.zip" -DestinationPath "."
-        shell: powershell
-
       - name: Create jpackage input with only bootstrap
         run: New-Item -ItemType Directory -Force -Path jpackage-input; Copy-Item target\workordermanager-bootstrap.jar jpackage-input\
         shell: powershell
 
       - name: Run jpackage for Windows EXE
         run: |
-          $JAVAFX_PATH = (Get-ChildItem -Path "." -Filter "javafx-sdk-21*" -Directory | Select-Object -First 1).FullName
           $JAVA_HOME = $env:JAVA_HOME
           $VERSION = "${{ github.ref_name }}".TrimStart("v")
 
@@ -119,8 +112,6 @@ jobs:
             --main-jar workordermanager-bootstrap.jar `
             --main-class main.Launcher `
             --dest build `
-            --module-path "$JAVAFX_PATH\lib" `
-            --java-options "-Djava.library.path=$JAVAFX_PATH\lib" `
             --runtime-image "$JAVA_HOME" `
             --win-menu `
             --win-menu-group FixelCRM `
