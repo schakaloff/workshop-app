@@ -11,6 +11,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import utils.DocumentOutput;
+import utils.SftpClient;
 import DB.DbConfig;
 
 import java.sql.Connection;
@@ -196,12 +197,23 @@ public class AdditionalDepositController {
     }
 
     private void attachPdfToWorkOrder(byte[] pdfBytes, String displayName) throws Exception {
-        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
+        java.io.File tmp = java.io.File.createTempFile("pdf_", ".pdf");
+        tmp.deleteOnExit();
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tmp)) {
+            fos.write(pdfBytes);
+        }
+
+        String remotePath;
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(tmp)) {
+            remotePath = SftpClient.upload(currentWorkOrder.getWorkorderNumber(), displayName, fis);
+        }
+
+        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_path) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
             ps.setString(2, displayName);
-            ps.setBytes(3, pdfBytes);
+            ps.setString(3, remotePath);
             ps.executeUpdate();
         }
     }

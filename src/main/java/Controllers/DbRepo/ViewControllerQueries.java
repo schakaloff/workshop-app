@@ -3,8 +3,8 @@ package Controllers.DbRepo;
 import DB.DbConfig;
 import Skeletons.*;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
+import utils.SftpClient;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -350,15 +350,17 @@ public class ViewControllerQueries {
     }
 
     public static void addFileToDb(int workorderNumber, java.io.File file) throws Exception {
-        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_data) VALUES (?, ?, ?)";
+        String remotePath;
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+            remotePath = SftpClient.upload(workorderNumber, file.getName(), fis);
+        }
 
+        String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_path) VALUES (?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql);
-             FileInputStream fis = new FileInputStream(file)) {
-
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, workorderNumber);
             ps.setString(2, file.getName());
-            ps.setBinaryStream(3, fis, (long) file.length());
+            ps.setString(3, remotePath);
             ps.executeUpdate();
         }
     }
@@ -384,7 +386,7 @@ public class ViewControllerQueries {
     }
 
     public static Object[] openFileFromDb(int fileId) throws Exception {
-        String sql = "SELECT file_name, file_data FROM work_order_files WHERE id = ?";
+        String sql = "SELECT file_name, file_path FROM work_order_files WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -393,8 +395,10 @@ public class ViewControllerQueries {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 String name = rs.getString("file_name");
-                InputStream in = rs.getBinaryStream("file_data");
-                return new Object[]{name, in};
+                String path = rs.getString("file_path");
+                String ext  = name.contains(".") ? name.substring(name.lastIndexOf('.')) : "";
+                java.io.File tmp = SftpClient.downloadToTemp(path, ext);
+                return new Object[]{name, new java.io.FileInputStream(tmp)};
             }
         }
 

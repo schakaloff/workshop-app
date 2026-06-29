@@ -790,20 +790,17 @@ public class ActualWorkshopController {
         scale.setFromX(0.8); scale.setToX(1);
         scale.setFromY(0.8); scale.setToY(1);
 
+        Task<Void> initTask = new Task<>() {
+            @Override
+            protected Void call() {
+                viewOrderController.initData(order, co);
+                return null;
+            }
+        };
+        initTask.setOnFailed(ev -> initTask.getException().printStackTrace());
+        new Thread(initTask).start();
+
         ParallelTransition anim = new ParallelTransition(fade, scale);
-
-        anim.setOnFinished(e -> {
-            Task<Void> task = new Task<>() {
-                @Override
-                protected Void call() {
-                    viewOrderController.initData(order, co);
-                    return null;
-                }
-            };
-            task.setOnFailed(ev -> task.getException().printStackTrace());
-            new Thread(task).start();
-        });
-
         anim.play();
     }
 
