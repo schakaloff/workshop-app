@@ -44,6 +44,9 @@ public class UpdateScreenController {
             return;
         }
 
+        // Let update4j resolve ${workordermanager.lib} to the correct platform path
+        System.setProperty("workordermanager.lib", libDir.toString());
+
         Configuration config = null;
         Path localConfig = libDir.resolve("config.xml");
 
@@ -62,10 +65,6 @@ public class UpdateScreenController {
             } catch (Exception ignored) {}
         }
 
-        // Override basePath so update4j downloads to the same dir AppLauncher looks in
-        if (config != null) {
-            config = config.toBuilder().basePath(libDir).build();
-        }
 
         if (config == null) {
             setVersion("No config found.");
