@@ -27,7 +27,7 @@ public class GenerateConfig {
                 .baseUri(baseUrl)
                 // basePath is resolved dynamically at runtime by Launcher.resolveLibDir()
                 // This is just a safe neutral default
-                .basePath("${user.home}/.local/share/workordermanager/lib")
+                .basePath("${workordermanager.lib}")
                 .launcher(AppLauncher.class)   // tells update4j which Launcher to use
                 .files(
                         FileMetadata.streamDirectory(jarDir)
