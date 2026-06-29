@@ -62,6 +62,11 @@ public class UpdateScreenController {
             } catch (Exception ignored) {}
         }
 
+        // Override basePath so update4j downloads to the same dir AppLauncher looks in
+        if (config != null) {
+            config = config.toBuilder().basePath(libDir).build();
+        }
+
         if (config == null) {
             setVersion("No config found.");
             setStatus("Check your internet connection.");
