@@ -3,6 +3,7 @@ package utils;
 import DB.DbConfig;
 import Skeletons.FilesHandler;
 import io.github.palexdev.materialfx.controls.MFXContextMenu;
+import utils.SftpClient;
 import io.github.palexdev.materialfx.controls.MFXContextMenuItem;
 import io.github.palexdev.materialfx.controls.MFXListView;
 import javafx.event.ActionEvent;
@@ -15,6 +16,7 @@ import javafx.scene.input.MouseEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
@@ -73,16 +75,28 @@ public class DeletingFilesMethods {
     }
 
     private void deleteFileFromDb(int fileId, int workorderNumber) {
-        String sql = "DELETE FROM work_order_files WHERE id = ? AND workorder_id = ?";
+        String select = "SELECT file_path FROM work_order_files WHERE id = ? AND workorder_id = ?";
+        String delete = "DELETE FROM work_order_files WHERE id = ? AND workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password)) {
+            String filePath = null;
+            try (PreparedStatement sel = conn.prepareStatement(select)) {
+                sel.setInt(1, fileId);
+                sel.setInt(2, workorderNumber);
+                ResultSet rs = sel.executeQuery();
+                if (rs.next()) filePath = rs.getString("file_path");
+            }
 
-            ps.setInt(1, fileId);
-            ps.setInt(2, workorderNumber);
-            ps.executeUpdate();
+            if (filePath != null) {
+                SftpClient.delete(filePath);
+            }
 
-        } catch (SQLException ex) {
+            try (PreparedStatement del = conn.prepareStatement(delete)) {
+                del.setInt(1, fileId);
+                del.setInt(2, workorderNumber);
+                del.executeUpdate();
+            }
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
