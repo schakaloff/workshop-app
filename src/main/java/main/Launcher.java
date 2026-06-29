@@ -40,24 +40,6 @@ public class Launcher {
     }
 
     private static Path getFallbackDir() {
-        String os = System.getProperty("os.name").toLowerCase();
-
-        if (os.contains("win")) {
-            String appData = System.getenv("APPDATA");
-            if (appData != null) {
-                return Path.of(appData, "workordermanager", "lib");
-            }
-        } else if (os.contains("mac")) {
-            return Path.of(System.getProperty("user.home"),
-                    "Library", "Application Support", "workordermanager", "lib");
-        }
-
-        String xdg = System.getenv("XDG_DATA_HOME");
-        if (xdg != null && !xdg.isBlank()) {
-            return Path.of(xdg, "workordermanager", "lib");
-        }
-
-        return Path.of(System.getProperty("user.home"),
-                ".local", "share", "workordermanager", "lib");
+        return Path.of(System.getProperty("user.home"), "workordermanager", "lib");
     }
 }

@@ -44,8 +44,6 @@ public class UpdateScreenController {
             return;
         }
 
-        // Let update4j resolve ${workordermanager.lib} to the correct platform path
-        System.setProperty("workordermanager.lib", libDir.toString());
 
         Configuration config = null;
         Path localConfig = libDir.resolve("config.xml");
