@@ -223,7 +223,7 @@
                               </HBox>
 
                               <!-- Labour table -->
-                              <AnchorPane prefHeight="360" prefWidth="780"
+                              <AnchorPane fx:id="labourTablePane" prefHeight="360" prefWidth="780"
                                           style="-fx-background-color: #f5f7fa; -fx-padding: 10 12 0 12;">
                                  <children>
                                     <MFXTableView fx:id="repairTable"

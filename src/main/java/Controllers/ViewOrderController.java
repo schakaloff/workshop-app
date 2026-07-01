@@ -22,6 +22,12 @@ import javafx.stage.Window;
 import utils.*;
 import utils.enums.InvoiceType;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.util.Duration;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -84,6 +90,7 @@ public class ViewOrderController {
     @FXML private MFXTableView<WorkTable>   repairTable;
     @FXML private MFXTableView<PartTable>   partsTable;
     @FXML private MFXListView<FilesHandler> filesList;
+    @FXML private javafx.scene.layout.AnchorPane labourTablePane;
 
     // ─── OBSERVABLE DATA ────────────────────────────────────────────────────────
 
@@ -135,6 +142,26 @@ public class ViewOrderController {
             if (newTab.intValue() == 3 && currentWorkOrder != null) {
                 loadFilesFromDb();
             }
+        });
+
+        serviceNotesTXT.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) insertNotes(serviceNotesTXT);
+        });
+
+        setupServiceNotesExpansion();
+    }
+
+    private void setupServiceNotesExpansion() {
+        serviceNotesTXT.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            double tableTarget = isFocused ? 180 : 360;
+            double notesTarget = isFocused ? 200 :  70;
+            Timeline tl = new Timeline(
+                new KeyFrame(Duration.millis(200),
+                    new KeyValue(labourTablePane.prefHeightProperty(), tableTarget),
+                    new KeyValue(serviceNotesTXT.prefHeightProperty(), notesTarget)
+                )
+            );
+            tl.play();
         });
     }
 
@@ -445,14 +472,15 @@ public class ViewOrderController {
     }
 
     public void insertNotes(TextArea area) {
-        String stamp = "[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "]: ";
+        String tech  = LoginController.tech != null ? LoginController.tech : "?";
+        String stamp = "[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "] " + tech + ": ";
         String text  = area.getText();
-        int caret    = area.getCaretPosition();
 
-        if (caret > 0 && text.charAt(caret - 1) != '\n') stamp = "\n" + stamp;
+        String toAppend = text.isEmpty() ? stamp : (text.endsWith("\n") ? stamp : "\n" + stamp);
 
-        area.insertText(caret, stamp);
-        area.positionCaret(caret + stamp.length());
+        area.appendText(toAppend);
+        area.positionCaret(area.getText().length());
+        area.requestFocus();
     }
 
     // ─── REPAIRS ────────────────────────────────────────────────────────────────
