@@ -114,7 +114,7 @@ public class ViewControllerQueries {
     }
 
     public static void refreshWorkOrderFromDb(WorkOrder currentWorkOrder) {
-        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number FROM work_order WHERE workorder = ?";
+        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number, repair_type FROM work_order WHERE workorder = ?";
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -132,6 +132,7 @@ public class ViewControllerQueries {
                 currentWorkOrder.setWarrantyNumber(rs.getString("warrantyNumber"));
                 currentWorkOrder.setLocation(rs.getString("location"));
                 currentWorkOrder.setPoNumber(rs.getString("po_number"));
+                currentWorkOrder.setRepairType(rs.getString("repair_type"));
 
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
@@ -288,7 +289,7 @@ public class ViewControllerQueries {
     public static void updateOrderInDb(int workorderNumber, String type, String model, String serialNumber,
                                        String problemDesc, String vendorId, String warrantyNumber,
                                        String serviceNotes, int techId, String status,
-                                       String location, String poNumber) {
+                                       String location, String poNumber, String repairType) {
         String sql = """
         UPDATE work_order
         SET type = ?,
@@ -301,7 +302,8 @@ public class ViewControllerQueries {
             tech_id = ?,
             status = ?,
             location = ?,
-            po_number = ?
+            po_number = ?,
+            repair_type = ?
         WHERE workorder = ?
     """;
 
@@ -323,7 +325,8 @@ public class ViewControllerQueries {
             ps.setString(9, status);
             ps.setString(10, location);
             ps.setString(11, poNumber);
-            ps.setInt(12, workorderNumber);
+            ps.setString(12, repairType);
+            ps.setInt(13, workorderNumber);
 
             ps.executeUpdate();
 
