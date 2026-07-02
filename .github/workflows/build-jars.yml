@@ -35,6 +35,20 @@ jobs:
           }
           DBEOF
 
+      - name: Create SftpConfig.java from secrets
+        run: |
+          mkdir -p src/main/java/DB
+          cat > src/main/java/DB/SftpConfig.java << 'SFTPEOF'
+          package DB;
+          public class SftpConfig {
+              public static final String HOST = "${{ secrets.SFTP_HOST }}";
+              public static final int    PORT = ${{ secrets.SFTP_PORT }};
+              public static final String USER = "${{ secrets.SFTP_USER }}";
+              public static final String PASSWORD = "${{ secrets.SFTP_PASSWORD }}";
+              public static final String REMOTE_BASE = "${{ secrets.SFTP_REMOTE_BASE }}";
+          }
+          SFTPEOF
+
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
