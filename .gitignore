@@ -1,5 +1,6 @@
 # hidden files
 src/main/java/DB/DbConfig.java
+src/main/java/DB/SftpConfig.java
 src/main/resources/lock.png
 src/main/resources/logo.png
 src/main/resources/VendorsList.txt
