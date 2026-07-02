@@ -90,7 +90,7 @@
                                  </children>
                               </HBox>
 
-                              <!-- ── Location + PO Number row ──────────────────────────── -->
+                              <!-- ── Location + PO Number + Repair Type row ─────────────── -->
                               <HBox spacing="12" alignment="CENTER_LEFT"
                                     style="-fx-background-color: #fafbfc; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                                  <children>
@@ -101,6 +101,9 @@
                                     <MFXTextField fx:id="poNumber"
                                                   floatMode="BORDER" floatingText="PO Number"
                                                   prefHeight="34" prefWidth="180" />
+                                    <MFXComboBox fx:id="repairTypeCombo"
+                                                 floatMode="BORDER" floatingText="Repair Type"
+                                                 prefHeight="34" prefWidth="200" />
                                  </children>
                               </HBox>
 

@@ -56,6 +56,7 @@ public class ViewOrderController {
     // Location / PO — new fields
     @FXML private MFXTextField         locationTXF;
     @FXML private MFXTextField         poNumber;
+    @FXML private MFXComboBox<String>  repairTypeCombo;
 
     // Customer info
     @FXML private MFXTextField         idTFX;
@@ -127,6 +128,8 @@ public class ViewOrderController {
     public void initialize() {
         tabPane.setFocusTraversable(false);
         statusCombo.setItems(WORK_ORDER_STATUSES);
+        repairTypeCombo.setItems(FXCollections.observableArrayList(
+                "In-Shop Repair Check", "In-Home Repair Check"));
 
         refreshTechList();
         setupTables();
@@ -240,6 +243,7 @@ public class ViewOrderController {
         // New fields
         locationTXF.textProperty().addListener((obs, o, n)    -> markDirtyIfChanged(o, n));
         poNumber.textProperty().addListener((obs, o, n)        -> markDirtyIfChanged(o, n));
+        repairTypeCombo.valueProperty().addListener((obs, o, n)  -> markDirtyIfChanged(o, n));
 
         // Combo boxes
         techIdCombo.valueProperty().addListener((obs, o, n)    -> markDirtyIfChanged(o, n));
@@ -384,6 +388,8 @@ public class ViewOrderController {
         // Location & PO Number
         locationTXF.setText(wo.getLocation() != null ? wo.getLocation() : "");
         poNumber.setText(wo.getPoNumber()   != null ? wo.getPoNumber()  : "");
+        repairTypeCombo.selectItem(wo.getRepairType() != null && !wo.getRepairType().isBlank()
+                ? wo.getRepairType() : "In-Shop Repair Check");
 
         boolean hasWarranty = wo.getVendorId() != null && !wo.getVendorId().isBlank();
         warrantyCheckBox.setSelected(hasWarranty);
@@ -687,7 +693,8 @@ public class ViewOrderController {
                 problemDesc.getText(), vendorId.getText(), warrantyNumber.getText(),
                 serviceNotesTXT.getText(), techId, status,
                 locationTXF.getText(),
-                poNumber.getText()
+                poNumber.getText(),
+                repairTypeCombo.getText()
         );
 
         savePartsToDb();
