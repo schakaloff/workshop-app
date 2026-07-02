@@ -663,9 +663,9 @@ public class ActualWorkshopController {
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
                                        String problemDesc, int customerId, String vendorId,
-                                       String warrantyNumber, double deposit) {
+                                       String warrantyNumber, double deposit, String repairType) {
         return workshopQueries.insertOrderIntoDatabase(status, type, model, serialNumber,
-                problemDesc, customerId, vendorId, warrantyNumber, deposit);
+                problemDesc, customerId, vendorId, warrantyNumber, deposit, repairType);
     }
 
     public void loadOrdersTable() {
