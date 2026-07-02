@@ -519,13 +519,11 @@ public class ViewOrderController {
 
     private void loadRepairsFromDb() {
         isLoading = true;
-        repairTable.setItems(FXCollections.observableArrayList());
         repairData.clear();
         for (WorkTable row : ViewControllerQueries.loadRepairsFromDb(currentWorkOrder.getWorkorderNumber())) {
             attachRepairListeners(row);
             repairData.add(row);
         }
-        repairTable.setItems(repairData);
         isLoading = false;
     }
 
@@ -559,13 +557,11 @@ public class ViewOrderController {
 
     private void loadPartsFromDb() {
         isLoading = true;
-        partsTable.setItems(FXCollections.observableArrayList());
         partsData.clear();
         for (PartTable row : ViewControllerQueries.loadPartsFromDb(currentWorkOrder.getWorkorderNumber())) {
             attachPartListeners(row);
             partsData.add(row);
         }
-        partsTable.setItems(partsData);
         isLoading = false;
     }
 

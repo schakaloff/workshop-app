@@ -117,7 +117,15 @@
                     "-fx-border-width: 0 0 0 3;" +
                     "-fx-font-size: 12;"
                 );
-                preview.setOnMouseClicked(e -> openDescriptionPopup(item, preview));
+                preview.setOnMouseClicked(e -> {
+                    if (item.getTech() == null || item.getTech().isBlank()) {
+                        new Alert(Alert.AlertType.WARNING,
+                                "Select a technician for this row before writing repair notes.",
+                                ButtonType.OK).showAndWait();
+                        return;
+                    }
+                    openDescriptionPopup(item, preview);
+                });
 
                 cell.setGraphic(preview);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -399,14 +407,13 @@
         private static void openDescriptionPopup(WorkTable item, javafx.scene.Node anchor) {
             Stage popup = new Stage();
             popup.initStyle(StageStyle.TRANSPARENT);
+            popup.setAlwaysOnTop(true);
 
             Window owner = anchor.getScene() != null ? anchor.getScene().getWindow() : null;
             if (owner != null) {
                 popup.initOwner(owner);
-                popup.initModality(Modality.WINDOW_MODAL);
-            } else {
-                popup.initModality(Modality.APPLICATION_MODAL);
             }
+            popup.initModality(Modality.APPLICATION_MODAL);
 
             String techName = item.getTech() != null && !item.getTech().isBlank() ? item.getTech() : "–";
 
@@ -509,5 +516,10 @@
             }
 
             popup.showAndWait();
+
+            if (owner instanceof Stage) {
+                ((Stage) owner).toFront();
+                ((Stage) owner).requestFocus();
+            }
         }
     }
