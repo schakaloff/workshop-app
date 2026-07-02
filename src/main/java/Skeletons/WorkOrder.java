@@ -22,6 +22,7 @@ public class WorkOrder {
     private String customerName;
     private String location;
     private String poNumber;
+    private String repairType;
 
     // ─── CONSTRUCTOR ────────────────────────────────────────────────────────────
 
@@ -54,6 +55,7 @@ public class WorkOrder {
         this.customerName = "";
         this.location     = "";
         this.poNumber     = "";
+        this.repairType   = "";
     }
 
     // ─── GETTERS ────────────────────────────────────────────────────────────────
@@ -74,6 +76,7 @@ public class WorkOrder {
     public String getCustomerName()    { return customerName; }
     public String getLocation()        { return location; }
     public String getPoNumber()        { return poNumber; }
+    public String getRepairType()      { return repairType; }
 
     // ─── SETTERS ────────────────────────────────────────────────────────────────
 
@@ -89,4 +92,5 @@ public class WorkOrder {
     public void setCustomerName(String customerName)    { this.customerName = customerName; }
     public void setLocation(String location)            { this.location = location != null ? location : ""; }
     public void setPoNumber(String poNumber)            { this.poNumber = poNumber != null ? poNumber : ""; }
+    public void setRepairType(String repairType)         { this.repairType = repairType != null ? repairType : ""; }
 }
