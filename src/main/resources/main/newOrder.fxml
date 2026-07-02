@@ -103,11 +103,21 @@
                </children>
             </HBox>
 
+            <!-- ─── Repair type row ──────────────────────────────────── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: #fafbfc; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <MFXComboBox fx:id="repairTypeCombo"
+                               floatMode="BORDER" floatingText="Repair Type"
+                               prefHeight="34" prefWidth="220" />
+               </children>
+            </HBox>
+
             <!-- ─── Problem description ──────────────────────────────── -->
             <VBox style="-fx-background-color: white; -fx-padding: 12 16 12 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                <children>
                   <TextArea fx:id="problemDesc"
-                            prefHeight="110" prefWidth="748"
+                            prefHeight="70" prefWidth="748"
                             promptText="Problem / Complaint"
                             wrapText="true"
                             style="-fx-background-color: #f9f9f9; -fx-border-color: #e0e0e0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 12;" />

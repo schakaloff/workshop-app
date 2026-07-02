@@ -34,6 +34,7 @@ public class NewOrderController {
     @FXML private MFXTextField model;
     @FXML private MFXTextField serialNumber;
     @FXML private TextArea problemDesc;
+    @FXML private MFXComboBox<String> repairTypeCombo;
 
     @FXML private MFXTextField idTFX;
     @FXML private MFXTextField firstNameTXF;
@@ -65,6 +66,9 @@ public class NewOrderController {
         warrantyNumber.setDisable(true);
 
         vendorId.setItems(Vendors.loadIntoBox());
+
+        repairTypeCombo.setItems(javafx.collections.FXCollections.observableArrayList(
+                "In-Shop Repair Check", "In-Home Repair Check"));
     }
 
     public void warrantySelected(){
@@ -123,9 +127,14 @@ public class NewOrderController {
 
         String stringId = idTFX.getText();
         Double depositDB = Double.valueOf(depositTXF.getText());
+        String repairTypeDb = repairTypeCombo.getText();
 
         if(typeDB.isBlank() || modelDB.isBlank() || stringId.isBlank()){
             new Alert(Alert.AlertType.WARNING, "Please fill out the fields", ButtonType.OK).showAndWait();
+            return;
+        }
+        if(repairTypeDb == null || repairTypeDb.isBlank()){
+            new Alert(Alert.AlertType.WARNING, "Please select a Repair Type", ButtonType.OK).showAndWait();
             return;
         }
         int customerId;
@@ -136,11 +145,12 @@ public class NewOrderController {
             return;
         }
 
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB);
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb);
 
         mainController.reloadOrders();
 
         WorkOrder wo = new WorkOrder(Integer.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId, depositDB);
+        wo.setRepairType(repairTypeDb);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
         //pay
