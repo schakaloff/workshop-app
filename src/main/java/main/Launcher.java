@@ -6,6 +6,11 @@ import java.nio.file.Path;
 public class Launcher {
 
     public static void main(String[] args) throws Exception {
+        // Windows JVMs stall ~15s on IPv6 fallback / WPAD proxy auto-detection
+        // before any HTTPS connection; force IPv4 and skip proxy discovery.
+        System.setProperty("java.net.preferIPv4Stack", "true");
+        System.setProperty("java.net.useSystemProxies", "false");
+
         // Just launch the UpdateScreen — it handles everything
         UpdateScreen.main(args);
     }
