@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="842.0" prefWidth="595.0"
+<AnchorPane prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controllers.InvoiceController">
@@ -82,11 +82,11 @@
       </Text>
 
       <!-- ─── Column headers ───────────────────────────────────────── -->
-      <Rectangle fill="BLACK" height="20.0" layoutX="14.0" layoutY="200.0" width="567.0" />
-      <Text fill="WHITE" layoutX="18.0" layoutY="214.0" text="DESCRIPTION">
+      <Rectangle fill="WHITE" height="20.0" layoutX="14.0" layoutY="200.0" stroke="BLACK" strokeType="INSIDE" width="567.0" />
+      <Text layoutX="18.0" layoutY="214.0" text="DESCRIPTION">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
-      <Text fill="WHITE" layoutX="480.0" layoutY="214.0" text="AMOUNT">
+      <Text layoutX="480.0" layoutY="214.0" text="AMOUNT">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
 
@@ -183,11 +183,11 @@
       </Text>
 
       <!-- Balance Due -->
-      <Rectangle fill="BLACK" height="28.0" layoutX="380.0" layoutY="522.0" width="201.0" />
-      <Text fill="WHITE" layoutX="386.0" layoutY="540.0" text="BALANCE DUE:">
+      <Rectangle fill="WHITE" height="28.0" layoutX="380.0" layoutY="522.0" stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="540.0" text="BALANCE DUE:">
          <font><Font name="Arial Bold" size="12.0" /></font>
       </Text>
-      <Text fx:id="totalDueTXT" fill="WHITE" layoutX="470.0" layoutY="540.0" text="">
+      <Text fx:id="totalDueTXT" layoutX="470.0" layoutY="540.0" text="">
          <font><Font name="Arial Bold" size="12.0" /></font>
       </Text>
 
@@ -200,8 +200,8 @@
       </Text>
 
       <!-- ─── Billing summary ───────────────────────────────────────── -->
-      <Rectangle fill="BLACK" height="16.0" layoutX="14.0" layoutY="556.0" width="360.0" />
-      <Text fill="WHITE" layoutX="18.0" layoutY="568.0" text="BILLING SUMMARY">
+      <Rectangle fill="WHITE" height="16.0" layoutX="14.0" layoutY="556.0" stroke="BLACK" strokeType="INSIDE" width="360.0" />
+      <Text layoutX="18.0" layoutY="568.0" text="BILLING SUMMARY">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
       <Rectangle fill="WHITE" height="44.0" layoutX="14.0" layoutY="572.0"

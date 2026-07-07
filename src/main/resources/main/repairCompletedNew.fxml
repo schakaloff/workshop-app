@@ -86,7 +86,12 @@
             <Text layoutX="94.0" layoutY="15.241" text="Serial Number"><font><Font size="11.0" /></font></Text>
             <Text fx:id="serialNumberTXT" layoutX="94.0" layoutY="30.0"><font><Font size="11.0" /></font></Text>
             <Text layoutX="320.0" layoutY="15.241" text="Problem/Complaint"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="problemTXTArea" layoutX="320.0" layoutY="30.0" wrappingWidth="265.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="problemTXTArea" layoutX="320.0" layoutY="22.0" textOrigin="TOP" wrappingWidth="265.0">
+               <font><Font size="11.0" /></font>
+               <clip>
+                  <Rectangle width="265.0" height="118.0" />
+               </clip>
+            </Text>
          </children>
       </Group>
 

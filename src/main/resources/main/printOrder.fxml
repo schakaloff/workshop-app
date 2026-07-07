@@ -171,6 +171,10 @@
       </Text>
       <Text fx:id="typeText" layoutX="4.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="dateText" layoutX="114.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="problemTextArea" layoutX="431.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="137.13000106811523" />
+      <Text fx:id="problemTextArea" layoutX="431.0" layoutY="285.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="137.13000106811523">
+         <clip>
+            <Rectangle width="137.13" height="95.0" />
+         </clip>
+      </Text>
    </children>
 </AnchorPane>

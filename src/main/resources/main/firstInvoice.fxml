@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="842.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FirstInvoiceController">
+<AnchorPane prefHeight="842.0" prefWidth="595.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.FirstInvoiceController">
    <children>
 
       <!-- ─── Shop header ───────────────────────────────────────────── -->
@@ -74,11 +74,11 @@
       </Text>
 
       <!-- ─── Column headers ───────────────────────────────────────── -->
-      <Rectangle fill="BLACK" height="20.0" layoutX="14.0" layoutY="200.0" width="567.0" />
-      <Text fill="WHITE" layoutX="18.0" layoutY="214.0" text="DESCRIPTION">
+      <Rectangle fill="WHITE" height="20.0" layoutX="14.0" layoutY="200.0" stroke="BLACK" strokeType="INSIDE" width="567.0" />
+      <Text layoutX="18.0" layoutY="214.0" text="DESCRIPTION">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
-      <Text fill="WHITE" layoutX="480.0" layoutY="214.0" text="AMOUNT">
+      <Text layoutX="480.0" layoutY="214.0" text="AMOUNT">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
 
