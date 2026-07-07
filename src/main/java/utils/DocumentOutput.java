@@ -200,6 +200,14 @@ public class DocumentOutput {
 
     // ─── Print ───────────────────────────────────────────────────────────────────
 
+    // Use whatever paper is actually loaded in the printer (e.g. Letter in North
+    // America) instead of forcing A4 — forcing A4 on a Letter tray clips the
+    // bottom ~50pt of every page since Letter (792pt) is shorter than A4 (842pt).
+    private static PageLayout pageLayoutForLoadedPaper(Printer printer) {
+        Paper paper = printer.getDefaultPageLayout().getPaper();
+        return printer.createPageLayout(paper, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+    }
+
     private static void printAllPages(Window owner, List<Parent> pages) {
         Printer printer = Printer.getDefaultPrinter();
         if (printer == null) {
@@ -208,8 +216,7 @@ public class DocumentOutput {
         }
         PrinterJob job = PrinterJob.createPrinterJob(printer);
         if (job == null || !job.showPrintDialog(owner)) return;
-        PageLayout layout = printer.createPageLayout(
-                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+        PageLayout layout = pageLayoutForLoadedPaper(printer);
         for (Parent page : pages)
             printScaled(job, layout, page);
         job.endJob();
@@ -223,8 +230,7 @@ public class DocumentOutput {
         }
         PrinterJob job = PrinterJob.createPrinterJob(printer);
         if (job == null || !job.showPrintDialog(owner)) return;
-        PageLayout layout = printer.createPageLayout(
-                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+        PageLayout layout = pageLayoutForLoadedPaper(printer);
         for (AnchorPane page : pages)
             printScaled(job, layout, page);
         job.endJob();
@@ -240,8 +246,7 @@ public class DocumentOutput {
         PrinterJob job = PrinterJob.createPrinterJob(printer);
         if (job == null || !job.showPrintDialog(owner)) return;
 
-        PageLayout layout = printer.createPageLayout(
-                Paper.A4, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+        PageLayout layout = pageLayoutForLoadedPaper(printer);
 
         printScaled(job, layout, page1);
 
