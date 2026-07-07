@@ -18,6 +18,7 @@ import javafx.scene.text.Text;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PrintRepairController {
@@ -73,6 +74,11 @@ public class PrintRepairController {
     // ─── Pagination state ────────────────────────────────────────────────────────
     // Holds overflow parts rows that didn't fit on page 1
     private final List<AnchorPane> overflowRows = new ArrayList<>();
+    // Tail of the problem/complaint text that didn't fit in its box on page 1
+    private String problemOverflowText = "";
+
+    private static final double PROBLEM_BOX_W = 265.0;
+    private static final double PROBLEM_BOX_H = 118.0;
     private String  totalLabour;
     private String  totalParts;
     private String totalPST;
@@ -153,41 +159,62 @@ public class PrintRepairController {
     }
 
     public AnchorPane buildPage2() {
-        if (overflowRows.isEmpty()) return null;
+        if (overflowRows.isEmpty() && problemOverflowText.isEmpty()) return null;
 
         AnchorPane page = new AnchorPane();
         page.setPrefWidth(PAGE_W);
         page.setPrefHeight(PAGE_H);
         page.setStyle("-fx-background-color: white;");
 
-        // Parts header at top of page 2
         double y = 20.0;
 
-        Rectangle hdrRect = new Rectangle(4, y, 590, HEADER_H);
-        hdrRect.setFill(Color.LIGHTGRAY);
-        hdrRect.setStroke(Color.BLACK);
-        hdrRect.setStrokeWidth(0.5);
-        page.getChildren().add(hdrRect);
+        // Problem/Complaint continuation, if it overflowed off page 1
+        if (!problemOverflowText.isEmpty()) {
+            Rectangle problemHdrRect = new Rectangle(4, y, 590, HEADER_H);
+            problemHdrRect.setFill(Color.LIGHTGRAY);
+            problemHdrRect.setStroke(Color.BLACK);
+            problemHdrRect.setStrokeWidth(0.5);
+            page.getChildren().add(problemHdrRect);
+            page.getChildren().add(staticText("Problem/Complaint (continued)", 6, y + 12, true));
+            y += HEADER_H + 10;
 
-        page.getChildren().addAll(
-                staticText("Part (continued)", 6,   y + 12, true),
-                staticText("Qty",              354,  y + 12, true),
-                staticText("Unit Price",       424,  y + 12, true),
-                staticText("Total",            524,  y + 12, true)
-        );
+            Text continued = new Text(problemOverflowText);
+            continued.setFont(Font.font(11));
+            continued.setWrappingWidth(590);
+            continued.setLayoutX(4);
+            continued.setLayoutY(y);
+            page.getChildren().add(continued);
+            y += continued.getLayoutBounds().getHeight() + 20;
+        }
 
-        y += HEADER_H;
+        // Parts header, if any parts rows overflowed off page 1
+        if (!overflowRows.isEmpty()) {
+            Rectangle hdrRect = new Rectangle(4, y, 590, HEADER_H);
+            hdrRect.setFill(Color.LIGHTGRAY);
+            hdrRect.setStroke(Color.BLACK);
+            hdrRect.setStrokeWidth(0.5);
+            page.getChildren().add(hdrRect);
 
-        // Add overflow rows
-        for (AnchorPane row : overflowRows) {
-            row.setLayoutX(4);
-            row.setLayoutY(y);
-            page.getChildren().add(row);
-            y += row.getPrefHeight() <= 0 ? ROW_H : row.getPrefHeight();
+            page.getChildren().addAll(
+                    staticText("Part (continued)", 6,   y + 12, true),
+                    staticText("Qty",              354,  y + 12, true),
+                    staticText("Unit Price",       424,  y + 12, true),
+                    staticText("Total",            524,  y + 12, true)
+            );
+
+            y += HEADER_H;
+
+            for (AnchorPane row : overflowRows) {
+                row.setLayoutX(4);
+                row.setLayoutY(y);
+                page.getChildren().add(row);
+                y += row.getPrefHeight() <= 0 ? ROW_H : row.getPrefHeight();
+            }
         }
 
         // Totals box at bottom of page 2 — taller to fit 5 lines
-        double totalsY = PAGE_H - 120;
+        // (pushed down further if the content above ran long)
+        double totalsY = Math.max(PAGE_H - 120, y + 20);
 
         Rectangle totalsRect = new Rectangle(465, totalsY, 129, 109);
         totalsRect.setFill(Color.WHITE);
@@ -248,7 +275,40 @@ public class PrintRepairController {
     private void populateDevice(WorkOrder wo) {
         unitDescTXT.setText(wo.getType() + "  " + wo.getModel());
         serialNumberTXT.setText(nullSafe(wo.getSerialNumber()));
-        problemTXTArea.setText(nullSafe(wo.getProblemDesc()));
+
+        String[] split = splitTextToFit(nullSafe(wo.getProblemDesc()), PROBLEM_BOX_W, PROBLEM_BOX_H, 11.0);
+        problemTXTArea.setText(split[0]);
+        problemOverflowText = split[1];
+    }
+
+    // Splits text at the last word boundary that still fits within maxHeight
+    // when wrapped at maxWidth; returns {fits, remainder}.
+    private String[] splitTextToFit(String full, double maxWidth, double maxHeight, double fontSize) {
+        if (full.isEmpty()) return new String[] { "", "" };
+
+        Text probe = new Text();
+        probe.setFont(Font.font(fontSize));
+        probe.setWrappingWidth(maxWidth);
+
+        probe.setText(full);
+        if (probe.getLayoutBounds().getHeight() <= maxHeight) {
+            return new String[] { full, "" };
+        }
+
+        String[] words = full.split(" ");
+        StringBuilder fitted = new StringBuilder();
+        int fitWordCount = 0;
+
+        for (int i = 0; i < words.length; i++) {
+            String candidate = fitted.length() == 0 ? words[i] : fitted + " " + words[i];
+            probe.setText(candidate);
+            if (probe.getLayoutBounds().getHeight() > maxHeight) break;
+            fitted = new StringBuilder(candidate);
+            fitWordCount = i + 1;
+        }
+
+        String remainder = String.join(" ", Arrays.copyOfRange(words, fitWordCount, words.length));
+        return new String[] { fitted.toString(), remainder };
     }
 
     private void populateTotals() {
