@@ -51,10 +51,10 @@
 
                   <Label fx:id="versionLabel"
                          text="v0.0.8"
-                         style="-fx-text-fill: rgba(255,255,255,0.35); -fx-font-size: 10;"
+                         style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 13; -fx-font-weight: bold;"
                          alignment="CENTER"
                          prefWidth="116">
-                     <font><Font size="10.0"/></font>
+                     <font><Font size="13.0"/></font>
                   </Label>
 
                   <MFXButton fx:id="signOutBtn" buttonType="FLAT" onAction="#signOut" prefHeight="36.0" prefWidth="116.0" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.55); -fx-background-radius: 8;" text="Sign Out" />

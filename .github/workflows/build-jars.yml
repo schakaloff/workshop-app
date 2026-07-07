@@ -130,6 +130,7 @@ jobs:
             --win-menu `
             --win-menu-group FixelCRM `
             --win-shortcut `
+            --icon packaging\icon.ico `
             --description "FixelCRM - Work Order Management System"
         shell: powershell
 
@@ -182,6 +183,7 @@ jobs:
             --main-class main.Launcher \
             --dest build \
             --runtime-image "$JAVA_HOME" \
+            --icon src/main/resources/icon.png \
             --description "FixelCRM - Work Order Management System"
 
       - name: Install AppImage dependencies

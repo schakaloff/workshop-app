@@ -1,5 +1,6 @@
 package Controllers;
 import DB.DbConfig;
+import DB.ShopSettings;
 import io.github.palexdev.materialfx.controls.MFXPasswordField;
 import io.github.palexdev.materialfx.controls.MFXTextField;
 import javafx.concurrent.Task;
@@ -25,13 +26,17 @@ public class LoginController {
     @FXML private MFXPasswordField passwordField;
     @FXML
     private Label wrongLogin;
+    @FXML
+    private Label versionLabel;
 
     private Stage stage;
     private Scene scene;
     private Parent root;
 
-
-
+    @FXML
+    public void initialize() {
+        versionLabel.setText("v" + ShopSettings.VERSION);
+    }
 
     public static void main(String[] args){
 

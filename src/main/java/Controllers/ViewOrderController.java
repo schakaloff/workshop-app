@@ -205,6 +205,7 @@ public class ViewOrderController {
             loadServiceNotes();
             loadPartsFromDb();
             loadRepairsFromDb();
+            loadFilesFromDb();
             applyBillingLockUI();
             isLoading = false;
             isDirty   = false;

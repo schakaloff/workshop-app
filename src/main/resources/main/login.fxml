@@ -73,6 +73,13 @@
                        layoutX="40" layoutY="300"
                        prefWidth="310" prefHeight="36"
                        style="-fx-background-color: #0097A7; -fx-text-fill: white;" />
+
+            <Label fx:id="versionLabel"
+                   text="v0.0.8"
+                   layoutX="330" layoutY="370"
+                   style="-fx-text-fill: #999; -fx-font-size: 13; -fx-font-weight: bold;">
+               <font><Font size="13.0" /></font>
+            </Label>
          </children>
       </AnchorPane>
    </center>
