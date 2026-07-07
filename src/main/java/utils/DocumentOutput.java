@@ -217,6 +217,7 @@ public class DocumentOutput {
         PrinterJob job = PrinterJob.createPrinterJob(printer);
         if (job == null || !job.showPrintDialog(owner)) return;
         PageLayout layout = pageLayoutForLoadedPaper(printer);
+        job.getJobSettings().setPageLayout(layout);
         for (Parent page : pages)
             printScaled(job, layout, page);
         job.endJob();
@@ -231,6 +232,7 @@ public class DocumentOutput {
         PrinterJob job = PrinterJob.createPrinterJob(printer);
         if (job == null || !job.showPrintDialog(owner)) return;
         PageLayout layout = pageLayoutForLoadedPaper(printer);
+        job.getJobSettings().setPageLayout(layout);
         for (AnchorPane page : pages)
             printScaled(job, layout, page);
         job.endJob();
@@ -247,6 +249,7 @@ public class DocumentOutput {
         if (job == null || !job.showPrintDialog(owner)) return;
 
         PageLayout layout = pageLayoutForLoadedPaper(printer);
+        job.getJobSettings().setPageLayout(layout);
 
         printScaled(job, layout, page1);
 
