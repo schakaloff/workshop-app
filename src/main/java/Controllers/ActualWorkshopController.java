@@ -383,6 +383,24 @@ public class ActualWorkshopController {
 
     // ─── FILTER BUTTONS ─────────────────────────────────────────────────────────
 
+    private void runFilterQuery(java.util.function.Supplier<List<WorkOrder>> query, Runnable onResult) {
+        Task<List<WorkOrder>> task = new Task<>() {
+            @Override protected List<WorkOrder> call() { return query.get(); }
+        };
+        task.setOnSucceeded(ev -> {
+            lastFilterResult = FXCollections.observableArrayList(task.getValue());
+            onResult.run();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
+        });
+        task.setOnFailed(ev -> {
+            task.getException().printStackTrace();
+            hideLoadingOverlay();
+        });
+        new Thread(task).start();
+    }
+
+    private ObservableList<WorkOrder> lastFilterResult = FXCollections.observableArrayList();
+
     @FXML
     public void showAllOpenWO() {
         allOpenFilterEnabled = !allOpenFilterEnabled;
@@ -394,22 +412,22 @@ public class ActualWorkshopController {
             btnOldNew.setStyle(STYLE_BTN_DEFAULT);
             btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
             btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream().filter(this::isOpenWO).toList());
-            setTableItems(filtered);
-            btnAllWO.setText("SHOWING ALL OPEN WO: " + filtered.size());
-            btnAllWO.setStyle(STYLE_BTN_CYAN);
-            updateOldNewButtonCount();
-            updateRepairedNotBilledButtonCount();
-            updateMyWoButtonCount();
+            runFilterQuery(workshopQueries::getAllOpenWO, () -> {
+                setTableItems(lastFilterResult);
+                btnAllWO.setText("SHOWING ALL OPEN WO: " + lastFilterResult.size());
+                btnAllWO.setStyle(STYLE_BTN_CYAN);
+                updateOldNewButtonCount();
+                updateRepairedNotBilledButtonCount();
+                updateMyWoButtonCount();
+            });
         } else {
             showDashboardItems();
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
-        Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
 
     @FXML
@@ -422,25 +440,22 @@ public class ActualWorkshopController {
             myWoFilterEnabled = false;
             btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
             btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream()
-                            .filter(wo -> isStatusNew(wo.getStatus()))
-                            .filter(wo -> ageDays(wo) > 10)
-                            .toList());
-            setTableItems(filtered);
-            btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + filtered.size());
-            btnOldNew.setStyle(STYLE_BTN_RED_HI);
-            updateAllOpenWOButtonCount();
-            updateRepairedNotBilledButtonCount();
-            updateMyWoButtonCount();
+            runFilterQuery(workshopQueries::getOldNewOver10, () -> {
+                setTableItems(lastFilterResult);
+                btnOldNew.setText("SHOWING OLD NEW WO (>10d): " + lastFilterResult.size());
+                btnOldNew.setStyle(STYLE_BTN_RED_HI);
+                updateAllOpenWOButtonCount();
+                updateRepairedNotBilledButtonCount();
+                updateMyWoButtonCount();
+            });
         } else {
             showDashboardItems();
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
-        Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
 
     @FXML
@@ -453,22 +468,22 @@ public class ActualWorkshopController {
             myWoFilterEnabled = false;
             btnOldNew.setStyle(STYLE_BTN_DEFAULT);
             btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).toList());
-            setTableItems(filtered);
-            btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + filtered.size());
-            btnRepairedNotPaid.setStyle(STYLE_BTN_BLUE_HI);
-            updateAllOpenWOButtonCount();
-            updateOldNewButtonCount();
-            updateMyWoButtonCount();
+            runFilterQuery(workshopQueries::getRepairedNotBilled, () -> {
+                setTableItems(lastFilterResult);
+                btnRepairedNotPaid.setText("SHOWING REPAIRED NOT BILLED: " + lastFilterResult.size());
+                btnRepairedNotPaid.setStyle(STYLE_BTN_BLUE_HI);
+                updateAllOpenWOButtonCount();
+                updateOldNewButtonCount();
+                updateMyWoButtonCount();
+            });
         } else {
             showDashboardItems();
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
-        Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
 
     @FXML
@@ -481,22 +496,23 @@ public class ActualWorkshopController {
             repairedNotBilledFilterEnabled = false;
             btnOldNew.setStyle(STYLE_BTN_DEFAULT);
             btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
-            ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                    allData.stream().filter(this::isMyWO).toList());
-            setTableItems(filtered);
-            btnShowMyWO.setText("SHOWING MY WO: " + filtered.size());
-            btnShowMyWO.setStyle(STYLE_BTN_PURP_HI);
-            updateAllOpenWOButtonCount();
-            updateOldNewButtonCount();
-            updateRepairedNotBilledButtonCount();
+            int myId = getLoggedTechId();
+            runFilterQuery(() -> workshopQueries.getMyWO(myId), () -> {
+                setTableItems(lastFilterResult);
+                btnShowMyWO.setText("SHOWING MY WO: " + lastFilterResult.size());
+                btnShowMyWO.setStyle(STYLE_BTN_PURP_HI);
+                updateAllOpenWOButtonCount();
+                updateOldNewButtonCount();
+                updateRepairedNotBilledButtonCount();
+            });
         } else {
             showDashboardItems();
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
             updateMyWoButtonCount();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
-        Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
     }
 
     // ─── BUTTON COUNTS ──────────────────────────────────────────────────────────
@@ -567,10 +583,14 @@ public class ActualWorkshopController {
         return s.equals("new") || s.equals("in progress") || s.equals("waiting parts");
     }
 
-    private int countAllOpenWO()         { return (int) allData.stream().filter(this::isOpenWO).count(); }
-    private int countOldNewOver10()      { return (int) allData.stream().filter(wo -> isStatusNew(wo.getStatus())).filter(wo -> ageDays(wo) > 10).count(); }
-    private int countRepairedNotBilled() { return (int) allData.stream().filter(wo -> isStatusComplete(wo.getStatus())).count(); }
-    private int countMyWO()              { return (int) allData.stream().filter(this::isMyWO).count(); }
+    private int countAllOpenWO()         { return workshopQueries.countAllOpenWO(); }
+    private int countOldNewOver10()      { return workshopQueries.countOldNewOver10(); }
+    private int countRepairedNotBilled() { return workshopQueries.countRepairedNotBilled(); }
+    private int countMyWO() {
+        int myId = getLoggedTechId();
+        if (myId == 0) return 0;
+        return workshopQueries.countMyWO(myId);
+    }
 
     // ─── DB HELPERS ─────────────────────────────────────────────────────────────
 

@@ -132,6 +132,109 @@ public class WorkshopQueries {
         return list;
     }
 
+    // ─── DASHBOARD FILTERS (query full table, not just the 75-row cache) ─────────
+
+    private static final String FILTER_SELECT_BASE =
+            "SELECT wo.workorder, wo.status, wo.type, " +
+            "DATE_FORMAT(wo.createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
+            "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
+            "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
+            "COALESCE(c.first_name, '') AS first_name, " +
+            "COALESCE(c.last_name,  '') AS last_name, " +
+            "COALESCE(t.username,   '') AS tech_username " +
+            "FROM work_order wo " +
+            "LEFT JOIN customer    c ON wo.customer_id = c.id " +
+            "LEFT JOIN technician  t ON wo.tech_id     = t.id ";
+
+    private List<WorkOrder> queryFilteredOrders(String whereClause, Object... params) {
+        List<WorkOrder> list = new ArrayList<>();
+        String sql = FILTER_SELECT_BASE + whereClause + " ORDER BY wo.createdAt DESC";
+
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) stmt.setObject(i + 1, params[i]);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    WorkOrder wo = new WorkOrder(
+                            rs.getInt("workorder"),
+                            rs.getString("status"),
+                            rs.getString("type"),
+                            rs.getString("createdAt"),
+                            rs.getString("vendorId"),
+                            rs.getString("warrantyNumber"),
+                            rs.getString("model"),
+                            rs.getString("serialNumber"),
+                            rs.getString("problemDesc"),
+                            rs.getInt("customer_id"),
+                            rs.getDouble("deposit_amount")
+                    );
+
+                    int techId = rs.getInt("tech_id");
+                    if (rs.wasNull()) techId = 0;
+                    wo.setTechId(techId);
+                    wo.setTechUsername(rs.getString("tech_username"));
+                    wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+
+                    list.add(wo);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    private int queryFilteredCount(String whereClause, Object... params) {
+        String sql = "SELECT COUNT(*) FROM work_order wo " + whereClause;
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) stmt.setObject(i + 1, params[i]);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<WorkOrder> getAllOpenWO() {
+        return queryFilteredOrders("WHERE wo.status NOT IN ('Repair Complete', 'Billing Complete')");
+    }
+
+    public int countAllOpenWO() {
+        return queryFilteredCount("WHERE wo.status NOT IN ('Repair Complete', 'Billing Complete')");
+    }
+
+    public List<WorkOrder> getOldNewOver10() {
+        return queryFilteredOrders("WHERE wo.status = 'New' AND wo.createdAt < NOW() - INTERVAL 10 DAY");
+    }
+
+    public int countOldNewOver10() {
+        return queryFilteredCount("WHERE wo.status = 'New' AND wo.createdAt < NOW() - INTERVAL 10 DAY");
+    }
+
+    public List<WorkOrder> getRepairedNotBilled() {
+        return queryFilteredOrders("WHERE wo.status = 'Repair Complete'");
+    }
+
+    public int countRepairedNotBilled() {
+        return queryFilteredCount("WHERE wo.status = 'Repair Complete'");
+    }
+
+    public List<WorkOrder> getMyWO(int techId) {
+        return queryFilteredOrders("WHERE wo.tech_id = ? AND wo.status <> 'Billing Complete'", techId);
+    }
+
+    public int countMyWO(int techId) {
+        return queryFilteredCount("WHERE wo.tech_id = ? AND wo.status <> 'Billing Complete'", techId);
+    }
+
     // ─── INSERT ORDER ────────────────────────────────────────────────────────────
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
