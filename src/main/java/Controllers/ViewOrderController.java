@@ -101,7 +101,7 @@ public class ViewOrderController {
     private final ObservableList<String>       techNames  = FXCollections.observableArrayList();
 
     public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList(
-            "New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed"
+            "New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed", "Cancelled"
     );
 
     // ─── STATE ──────────────────────────────────────────────────────────────────
