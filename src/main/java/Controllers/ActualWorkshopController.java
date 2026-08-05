@@ -138,9 +138,17 @@ public class ActualWorkshopController {
 
     // ─── CORE HELPERS ───────────────────────────────────────────────────────────
 
+    // MFXPagination renders garbled/oversized once the total page count gets large
+    // (known MaterialFX bug). Scale rows-per-page so big filtered result sets never
+    // exceed a safe page count instead of always using ROWS_PER_PAGE.
+    private static final int MAX_SAFE_PAGES = 10;
+
     private void setTableItems(ObservableList<WorkOrder> items) {
+        int rowsPerPage = Math.max(ROWS_PER_PAGE,
+                (int) Math.ceil(items.size() / (double) MAX_SAFE_PAGES));
         Platform.runLater(() -> {
             try {
+                table.setRowsPerPage(rowsPerPage);
                 table.setItems(items);
                 table.setCurrentPage(1);
                 table.goToPage(1);
