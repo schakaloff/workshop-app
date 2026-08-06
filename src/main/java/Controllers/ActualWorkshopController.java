@@ -64,6 +64,12 @@ public class ActualWorkshopController {
 
     @FXML private MFXTextField searchTxtField;
     @FXML private MFXPaginatedTableView<WorkOrder> table;
+    // Plain scrollable table (no pagination) for filter results too large for
+    // MFXPaginatedTableView, whose internal page bookkeeping throws
+    // IndexOutOfBoundsException once rowsPerPage stops cleanly dividing a large
+    // item count (confirmed via crash log). See MaterialFX wiki: MFXTableView and
+    // MFXPaginatedTableView are separate classes, not one widget with a mode switch.
+    @FXML private MFXTableView<WorkOrder> tableScrollable;
     @FXML private AnchorPane personalwork;
     @FXML private MFXTextField techTXF;
     @FXML private MFXDatePicker fromDPicker;
@@ -138,20 +144,22 @@ public class ActualWorkshopController {
 
     // ─── CORE HELPERS ───────────────────────────────────────────────────────────
 
-    // MFXPagination renders garbled/oversized once the total page count gets large
-    // (known MaterialFX bug). Scale rows-per-page so big filtered result sets never
-    // exceed a safe page count instead of always using ROWS_PER_PAGE.
-    private static final int MAX_SAFE_PAGES = 10;
-
     private void setTableItems(ObservableList<WorkOrder> items) {
-        int rowsPerPage = Math.max(ROWS_PER_PAGE,
-                (int) Math.ceil(items.size() / (double) MAX_SAFE_PAGES));
+        boolean big = items.size() > DASHBOARD_LIMIT;
         Platform.runLater(() -> {
             try {
-                table.setRowsPerPage(rowsPerPage);
-                table.setItems(items);
-                table.setCurrentPage(1);
-                table.goToPage(1);
+                table.setVisible(!big);
+                table.setManaged(!big);
+                tableScrollable.setVisible(big);
+                tableScrollable.setManaged(big);
+                if (big) {
+                    tableScrollable.setItems(items);
+                } else {
+                    table.setRowsPerPage(ROWS_PER_PAGE);
+                    table.setItems(items);
+                    table.setCurrentPage(1);
+                    table.goToPage(1);
+                }
             } catch (Exception ignored) {}
         });
     }
@@ -231,8 +239,11 @@ public class ActualWorkshopController {
         showDashboardControls();
         table.getTableColumns().clear();
         table.getItems().clear();
+        tableScrollable.getTableColumns().clear();
+        tableScrollable.getItems().clear();
         loadOrdersTable();
         viewOrder(table);
+        viewOrder(tableScrollable);
         loadOrdersAsync();
     }
 
@@ -696,9 +707,12 @@ public class ActualWorkshopController {
                 problemDesc, customerId, vendorId, warrantyNumber, deposit, repairType);
     }
 
-    public void loadOrdersTable() {
-        table.getItems().clear();
-        table.getFilters().clear();
+    // Columns/filters can't be shared between two table instances, so this builds a
+    // fresh set each time — called once for the paginated table, once for the plain
+    // scrollable one.
+    private void setupOrdersColumns(MFXTableView<WorkOrder> targetTable) {
+        targetTable.getItems().clear();
+        targetTable.getFilters().clear();
 
         MFXTableColumn<WorkOrder> workOrder   = new MFXTableColumn<>("Workorder", false);
         MFXTableColumn<WorkOrder> techCol     = new MFXTableColumn<>("Tech", false);
@@ -734,14 +748,19 @@ public class ActualWorkshopController {
         }});
 
         date.setAlignment(Pos.CENTER_RIGHT);
-        table.getTableColumns().addAll(workOrder, techCol, status, type, customerCol, date);
+        targetTable.getTableColumns().addAll(workOrder, techCol, status, type, customerCol, date);
 
-        table.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
-        table.getFilters().addAll(new StringFilter<>("Tech", WorkOrder::getTechUsername));
-        table.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
-        table.getFilters().addAll(new StringFilter<>("Customer", WorkOrder::getCustomerName));
-        table.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
-        table.getFilters().addAll(new StringFilter<>("Warranty Number", WorkOrder::getWarrantyNumber));
+        targetTable.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
+        targetTable.getFilters().addAll(new StringFilter<>("Tech", WorkOrder::getTechUsername));
+        targetTable.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
+        targetTable.getFilters().addAll(new StringFilter<>("Customer", WorkOrder::getCustomerName));
+        targetTable.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
+        targetTable.getFilters().addAll(new StringFilter<>("Warranty Number", WorkOrder::getWarrantyNumber));
+    }
+
+    public void loadOrdersTable() {
+        setupOrdersColumns(table);
+        setupOrdersColumns(tableScrollable);
     }
 
     private void loadTechStatsTable() {

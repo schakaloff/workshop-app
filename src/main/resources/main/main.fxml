@@ -91,6 +91,8 @@
                         <AnchorPane style="-fx-background-color: #f5f7fa; -fx-padding: 12;">
                            <children>
                               <MFXPaginatedTableView fx:id="table" prefWidth="841.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <!-- Plain scrollable table for filter results too large for MFXPaginatedTableView's pagination (it throws internally past a certain row count) -->
+                              <MFXTableView fx:id="tableScrollable" managed="false" visible="false" prefWidth="841.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children>
                         </AnchorPane>
 
