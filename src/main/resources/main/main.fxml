@@ -77,8 +77,8 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <MFXComboBox fx:id="searchCondition" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" prefHeight="25.0" prefWidth="100.0" />
-                        <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" prefHeight="25.0" prefWidth="100.0" />
+                        <MFXComboBox fx:id="searchCondition" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" prefHeight="25.0" prefWidth="100.0" style="-mfx-main: #999999; -fx-background-radius: 6; -fx-border-radius: 6; -fx-padding: 2 8 2 8;" />
+                        <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" prefHeight="25.0" prefWidth="100.0" style="-mfx-main: #999999; -fx-background-radius: 6; -fx-border-radius: 6; -fx-padding: 2 8 2 8;" />
                         <MFXButton fx:id="newOrderBTN" buttonType="RAISED" onAction="#createNewOrder" prefHeight="25.0" prefWidth="90.0" style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" text="+ New WO" />
                      </children>
                   </HBox>

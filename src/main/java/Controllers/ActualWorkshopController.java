@@ -185,7 +185,7 @@ public class ActualWorkshopController {
 
         searchCondition.setItems(FXCollections.observableArrayList(
                 "WO Number", "Phone Number", "First Name", "Last Name", "Full Name",
-                "Customer ID", "Serial Number", "Model Number"
+                "Customer ID", "Serial Number", "Model Number", "Warranty Reference"
         ));
         searchCondition.selectItem("WO Number");
         searchTxtField.setOnAction(ev -> onSearchEnter());
@@ -353,6 +353,7 @@ public class ActualWorkshopController {
             case "Customer ID"    -> searchByCustomerId(trimmed);
             case "Serial Number"  -> runFilterQuery(() -> workshopQueries.getWorkOrdersBySerialNumber(trimmed), this::showSearchResults);
             case "Model Number"   -> runFilterQuery(() -> workshopQueries.getWorkOrdersByModel(trimmed), this::showSearchResults);
+            case "Warranty Reference" -> runFilterQuery(() -> workshopQueries.getWorkOrdersByWarrantyNumber(trimmed), this::showSearchResults);
         }
     }
 

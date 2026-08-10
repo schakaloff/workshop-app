@@ -2,6 +2,7 @@
 
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
 <?import io.github.palexdev.materialfx.controls.MFXComboBox?>
+<?import io.github.palexdev.materialfx.controls.MFXPaginatedTableView?>
 <?import io.github.palexdev.materialfx.controls.MFXTableView?>
 <?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.dialogs.MFXGenericDialog?>
@@ -14,7 +15,7 @@
 <MFXGenericDialog
         maxHeight="-Infinity" maxWidth="-Infinity"
         minHeight="-Infinity" minWidth="-Infinity"
-        prefHeight="420.0" prefWidth="620.0"
+        prefHeight="420.0" prefWidth="740.0"
         showAlwaysOnTop="false" showClose="true" showMinimize="false"
         style="-fx-background-color: white;"
         xmlns="http://javafx.com/javafx/21"
@@ -22,12 +23,12 @@
         fx:controller="Controllers.CustomersController">
 
    <center>
-      <VBox prefHeight="420.0" prefWidth="620.0"
+      <VBox prefHeight="420.0" prefWidth="740.0"
             style="-fx-background-color: white;">
          <children>
 
             <!-- ─── Top bar ──────────────────────────────────────────── -->
-            <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="620"
+            <HBox alignment="CENTER_LEFT" prefHeight="44" prefWidth="740"
                   spacing="10"
                   style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
                <children>
@@ -59,7 +60,13 @@
             <AnchorPane VBox.vgrow="ALWAYS"
                         style="-fx-background-color: #f5f7fa; -fx-padding: 10 12 12 12;">
                <children>
-                  <MFXTableView fx:id="table"
+                  <MFXPaginatedTableView fx:id="table"
+                                AnchorPane.topAnchor="0"
+                                AnchorPane.leftAnchor="0"
+                                AnchorPane.rightAnchor="0"
+                                AnchorPane.bottomAnchor="0" />
+                  <!-- Plain scrollable table for search results too large for MFXPaginatedTableView (pagination bar breaks past a certain page count) -->
+                  <MFXTableView fx:id="tableScrollable" managed="false" visible="false"
                                 AnchorPane.topAnchor="0"
                                 AnchorPane.leftAnchor="0"
                                 AnchorPane.rightAnchor="0"

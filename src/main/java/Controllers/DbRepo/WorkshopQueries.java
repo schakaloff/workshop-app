@@ -243,6 +243,10 @@ public class WorkshopQueries {
         return queryFilteredOrders("WHERE wo.serialNumber LIKE ?", "%" + serialNumber + "%");
     }
 
+    public List<WorkOrder> getWorkOrdersByWarrantyNumber(String warrantyNumber) {
+        return queryFilteredOrders("WHERE wo.warrantyNumber LIKE ?", "%" + warrantyNumber + "%");
+    }
+
     public List<WorkOrder> getWorkOrdersByModel(String model) {
         return queryFilteredOrders("WHERE wo.model LIKE ?", "%" + model + "%");
     }

@@ -68,37 +68,37 @@
             </HBox>
 
             <!-- ─── Customer row ─────────────────────────────────────── -->
-            <HBox spacing="12" alignment="CENTER_LEFT"
+            <HBox spacing="5" alignment="CENTER_LEFT"
                   style="-fx-background-color: white; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                <children>
                   <MFXTextField fx:id="idTFX"
                                 allowEdit="false"
                                 floatMode="BORDER" floatingText="ID"
-                                prefHeight="32" prefWidth="70" />
+                                prefHeight="32" prefWidth="50" minWidth="50" maxWidth="50" />
                   <MFXTextField fx:id="firstNameTXF"
                                 allowEdit="false"
                                 floatMode="BORDER" floatingText="First Name"
-                                prefHeight="32" prefWidth="110" />
+                                prefHeight="32" prefWidth="95" />
                   <MFXTextField fx:id="lastNameTXF"
                                 allowEdit="false"
                                 floatMode="BORDER" floatingText="Last Name"
-                                prefHeight="32" prefWidth="110" />
+                                prefHeight="32" prefWidth="85" />
                   <MFXTextField fx:id="phoneTFX"
                                 allowEdit="false"
                                 floatMode="BORDER" floatingText="Phone"
-                                prefHeight="32" prefWidth="110" />
+                                prefHeight="32" prefWidth="105" />
                   <MFXTextField fx:id="addressTFX"
                                 floatMode="BORDER" floatingText="Address"
-                                prefHeight="32" prefWidth="110" />
+                                prefHeight="32" prefWidth="90" />
                   <MFXTextField fx:id="townTFX"
                                 floatMode="BORDER" floatingText="Town"
-                                prefHeight="32" prefWidth="100" />
+                                prefHeight="32" prefWidth="70" />
                   <MFXTextField fx:id="zipTFX"
                                 floatMode="BORDER" floatingText="ZIP"
-                                prefHeight="32" prefWidth="80" />
+                                prefHeight="32" prefWidth="60" />
                   <MFXButton onAction="#selectCustomer"
-                             prefHeight="32" prefWidth="100"
-                             text="Pick Customer"
+                             prefHeight="32" prefWidth="120" minWidth="120"
+                             text="Customer"
                              style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
                </children>
             </HBox>
