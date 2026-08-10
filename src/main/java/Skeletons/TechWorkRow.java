@@ -2,14 +2,14 @@ package Skeletons;
 
 public class TechWorkRow {
     private final int workOrderNumber;
-    private final String type;
+    private final String model;
     private final String status;
     private final double labourAmount;
     private final String finishedDate;
 
-    public TechWorkRow(int workOrderNumber, String type, String status, double labourAmount, String finishedDate) {
+    public TechWorkRow(int workOrderNumber, String model, String status, double labourAmount, String finishedDate) {
         this.workOrderNumber = workOrderNumber;
-        this.type = type;
+        this.model = model;
         this.status = status;
         this.labourAmount = labourAmount;
         this.finishedDate = finishedDate;
@@ -19,8 +19,8 @@ public class TechWorkRow {
         return workOrderNumber;
     }
 
-    public String getType() {
-        return type;
+    public String getModel() {
+        return model;
     }
 
     public String getStatus() {

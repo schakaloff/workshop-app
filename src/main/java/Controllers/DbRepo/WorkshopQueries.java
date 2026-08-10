@@ -17,14 +17,14 @@ public class WorkshopQueries {
     public List<TechWorkRow> loadTechWorkByDateRange(String techUsername, LocalDate fromDate, LocalDate toDate) {
         List<TechWorkRow> list = new ArrayList<>();
 
-        String sql = "SELECT w.workorder, w.type, w.status, SUM(r.price) AS labour_total, " +
+        String sql = "SELECT w.workorder, w.model, w.status, SUM(r.price) AS labour_total, " +
                 "DATE_FORMAT(COALESCE(w.finished_at, MAX(TIMESTAMP(r.repair_date, '00:00:00'))), '%Y-%m-%d %H:%i') AS finished_date " +
                 "FROM work_order_repairs r " +
                 "JOIN work_order w ON w.workorder = r.workorder_id " +
                 "WHERE r.tech = ? " +
                 "AND w.status IN ('Repair Complete', 'Billing Complete') " +
                 "AND r.repair_date BETWEEN ? AND ? " +
-                "GROUP BY w.workorder, w.type, w.status, w.finished_at " +
+                "GROUP BY w.workorder, w.model, w.status, w.finished_at " +
                 "ORDER BY COALESCE(w.finished_at, MAX(TIMESTAMP(r.repair_date, '00:00:00'))) DESC";
 
         try (Connection conn = DataSourceProvider.getConnection();
@@ -37,7 +37,7 @@ public class WorkshopQueries {
                 while (rs.next()) {
                     list.add(new TechWorkRow(
                             rs.getInt("workorder"),
-                            rs.getString("type"),
+                            rs.getString("model"),
                             rs.getString("status"),
                             rs.getDouble("labour_total"),
                             rs.getString("finished_date")
@@ -204,11 +204,11 @@ public class WorkshopQueries {
     }
 
     public List<WorkOrder> getAllOpenWO() {
-        return queryFilteredOrders("WHERE wo.status NOT IN ('Repair Complete', 'Billing Complete')");
+        return queryFilteredOrders("WHERE wo.status NOT IN ('Repair Complete', 'Billing Complete', 'Cancelled')");
     }
 
     public int countAllOpenWO() {
-        return queryFilteredCount("WHERE wo.status NOT IN ('Repair Complete', 'Billing Complete')");
+        return queryFilteredCount("WHERE wo.status NOT IN ('Repair Complete', 'Billing Complete', 'Cancelled')");
     }
 
     public List<WorkOrder> getOldNewOver10() {
@@ -228,11 +228,23 @@ public class WorkshopQueries {
     }
 
     public List<WorkOrder> getMyWO(int techId) {
-        return queryFilteredOrders("WHERE wo.tech_id = ? AND wo.status <> 'Billing Complete'", techId);
+        return queryFilteredOrders("WHERE wo.tech_id = ? AND wo.status NOT IN ('Billing Complete', 'Cancelled')", techId);
     }
 
     public int countMyWO(int techId) {
-        return queryFilteredCount("WHERE wo.tech_id = ? AND wo.status <> 'Billing Complete'", techId);
+        return queryFilteredCount("WHERE wo.tech_id = ? AND wo.status NOT IN ('Billing Complete', 'Cancelled')", techId);
+    }
+
+    public List<WorkOrder> getWorkOrdersByCustomerId(int customerId) {
+        return queryFilteredOrders("WHERE wo.customer_id = ?", customerId);
+    }
+
+    public List<WorkOrder> getWorkOrdersBySerialNumber(String serialNumber) {
+        return queryFilteredOrders("WHERE wo.serialNumber LIKE ?", "%" + serialNumber + "%");
+    }
+
+    public List<WorkOrder> getWorkOrdersByModel(String model) {
+        return queryFilteredOrders("WHERE wo.model LIKE ?", "%" + model + "%");
     }
 
     // ─── INSERT ORDER ────────────────────────────────────────────────────────────

@@ -103,7 +103,7 @@
                 Label preview = new Label();
                 preview.textProperty().bind(Bindings.createStringBinding(() -> {
                     String d = item.getDescription();
-                    if (d == null || d.isBlank()) return "Click to add description...";
+                    if (d == null || d.isBlank()) return "Click to add a repair description...";
                     return d.length() > 55 ? d.substring(0, 52) + "…" : d;
                 }, item.descriptionProperty()));
                 preview.setMaxWidth(Double.MAX_VALUE);

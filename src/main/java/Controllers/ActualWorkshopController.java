@@ -184,7 +184,8 @@ public class ActualWorkshopController {
         versionLabel.setText("v" + ShopSettings.VERSION);
 
         searchCondition.setItems(FXCollections.observableArrayList(
-                "WO Number", "Phone Number", "First Name", "Last Name", "Full Name"
+                "WO Number", "Phone Number", "First Name", "Last Name", "Full Name",
+                "Customer ID", "Serial Number", "Model Number"
         ));
         searchCondition.selectItem("WO Number");
         searchTxtField.setOnAction(ev -> onSearchEnter());
@@ -344,12 +345,29 @@ public class ActualWorkshopController {
         String trimmed   = text.trim();
         String condition = searchCondition.getValue();
         switch (condition) {
-            case "WO Number"    -> searchByWoNumber(trimmed);
-            case "Phone Number" -> searchByPhone(trimmed);
-            case "First Name"   -> searchByCustomerField(trimmed, "first_name");
-            case "Last Name"    -> searchByCustomerField(trimmed, "last_name");
-            case "Full Name"    -> searchByFullName(trimmed);
+            case "WO Number"      -> searchByWoNumber(trimmed);
+            case "Phone Number"   -> searchByPhone(trimmed);
+            case "First Name"     -> searchByCustomerField(trimmed, "first_name");
+            case "Last Name"      -> searchByCustomerField(trimmed, "last_name");
+            case "Full Name"      -> searchByFullName(trimmed);
+            case "Customer ID"    -> searchByCustomerId(trimmed);
+            case "Serial Number"  -> runFilterQuery(() -> workshopQueries.getWorkOrdersBySerialNumber(trimmed), this::showSearchResults);
+            case "Model Number"   -> runFilterQuery(() -> workshopQueries.getWorkOrdersByModel(trimmed), this::showSearchResults);
         }
+    }
+
+    private void searchByCustomerId(String text) {
+        int customerId;
+        try {
+            customerId = Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return;
+        }
+        runFilterQuery(() -> workshopQueries.getWorkOrdersByCustomerId(customerId), this::showSearchResults);
+    }
+
+    private void showSearchResults() {
+        setTableItems(lastFilterResult);
     }
 
     private void searchByWoNumber(String text) {
@@ -717,7 +735,7 @@ public class ActualWorkshopController {
         MFXTableColumn<WorkOrder> workOrder   = new MFXTableColumn<>("Workorder", false);
         MFXTableColumn<WorkOrder> techCol     = new MFXTableColumn<>("Tech", false);
         MFXTableColumn<WorkOrder> status      = new MFXTableColumn<>("Status", false);
-        MFXTableColumn<WorkOrder> type        = new MFXTableColumn<>("Type", false);
+        MFXTableColumn<WorkOrder> type        = new MFXTableColumn<>("Model", false);
         MFXTableColumn<WorkOrder> customerCol = new MFXTableColumn<>("Customer", false);
         MFXTableColumn<WorkOrder> date        = new MFXTableColumn<>("Date", false);
 
@@ -741,7 +759,7 @@ public class ActualWorkshopController {
             return (t != null && !t.isBlank()) ? t : "";
         }));
         status.setRowCellFactory(order      -> new MFXTableRowCell<>(WorkOrder::getStatus));
-        type.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getType));
+        type.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getModel));
         customerCol.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCustomerName));
         date.setRowCellFactory(order        -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{
             setAlignment(Pos.CENTER_RIGHT);
@@ -766,13 +784,13 @@ public class ActualWorkshopController {
     private void loadTechStatsTable() {
         techTable.getTableColumns().clear();
         MFXTableColumn<TechWorkRow> workOrderCol    = new MFXTableColumn<>("Work Order", false);
-        MFXTableColumn<TechWorkRow> typeCol         = new MFXTableColumn<>("Type", false);
+        MFXTableColumn<TechWorkRow> typeCol         = new MFXTableColumn<>("Model", false);
         MFXTableColumn<TechWorkRow> statusCol       = new MFXTableColumn<>("Status", false);
         MFXTableColumn<TechWorkRow> labourCol       = new MFXTableColumn<>("Labour", false);
         MFXTableColumn<TechWorkRow> finishedDateCol = new MFXTableColumn<>("Finished Date", false);
 
         workOrderCol.setRowCellFactory(row    -> new MFXTableRowCell<>(TechWorkRow::getWorkOrderNumber));
-        typeCol.setRowCellFactory(row         -> new MFXTableRowCell<>(TechWorkRow::getType));
+        typeCol.setRowCellFactory(row         -> new MFXTableRowCell<>(TechWorkRow::getModel));
         statusCol.setRowCellFactory(row       -> new MFXTableRowCell<>(TechWorkRow::getStatus));
         labourCol.setRowCellFactory(row       -> new MFXTableRowCell<>(r -> String.format("$%.2f", r.getLabourAmount())));
         finishedDateCol.setRowCellFactory(row -> new MFXTableRowCell<>(TechWorkRow::getFinishedDate));
