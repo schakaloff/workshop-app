@@ -215,7 +215,7 @@ public class ActualWorkshopController {
         searchCondition.setItems(FXCollections.observableArrayList(
                 "WO#", "Phone#", "First Name", "Last Name", "Full Name",
                 "Customer ID", "Serial#", "Model#", "Warranty Reference"));
-        searchCondition.selectItem("WO Number");
+        searchCondition.selectItem("WO#");
         searchTxtField.setOnAction(ev -> onSearchEnter());
         searchTxtField.textProperty().addListener((obs, o, n) -> {
             if (n == null || n.isBlank()) {
@@ -374,15 +374,15 @@ public class ActualWorkshopController {
         String trimmed = text.trim();
         String condition = searchCondition.getValue();
         switch (condition) {
-            case "WO Number" -> searchByWoNumber(trimmed);
-            case "Phone Number" -> searchByPhone(trimmed);
+            case "WO#" -> searchByWoNumber(trimmed);
+            case "Phone#" -> searchByPhone(trimmed);
             case "First Name" -> searchByCustomerField(trimmed, "first_name");
             case "Last Name" -> searchByCustomerField(trimmed, "last_name");
             case "Full Name" -> searchByFullName(trimmed);
             case "Customer ID" -> searchByCustomerId(trimmed);
-            case "Serial Number" ->
+            case "Serial#" ->
                 runFilterQuery(() -> workshopQueries.getWorkOrdersBySerialNumber(trimmed), this::showSearchResults);
-            case "Model Number" ->
+            case "Model#" ->
                 runFilterQuery(() -> workshopQueries.getWorkOrdersByModel(trimmed), this::showSearchResults);
             case "Warranty Reference" ->
                 runFilterQuery(() -> workshopQueries.getWorkOrdersByWarrantyNumber(trimmed), this::showSearchResults);
