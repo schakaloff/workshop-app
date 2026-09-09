@@ -110,6 +110,12 @@
                   <MFXComboBox fx:id="repairTypeCombo"
                                floatMode="BORDER" floatingText="Repair Type"
                                prefHeight="34" prefWidth="220" />
+                  <MFXTextField fx:id="accessoriesTXF"
+                                floatMode="BORDER" floatingText="Accessories"
+                                prefHeight="34" prefWidth="180" />
+                  <MFXTextField fx:id="conditionTXF"
+                                floatMode="BORDER" floatingText="Condition"
+                                prefHeight="34" prefWidth="180" />
                </children>
             </HBox>
 

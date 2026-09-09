@@ -56,6 +56,8 @@ public class ViewOrderController {
     // Location / PO — new fields
     @FXML private MFXTextField         locationTXF;
     @FXML private MFXTextField         poNumber;
+    @FXML private MFXTextField         accessoriesTXF;
+    @FXML private MFXTextField         conditionTXF;
     @FXML private MFXComboBox<String>  repairTypeCombo;
 
     // Customer info
@@ -389,6 +391,8 @@ public class ViewOrderController {
         // Location & PO Number
         locationTXF.setText(wo.getLocation() != null ? wo.getLocation() : "");
         poNumber.setText(wo.getPoNumber()   != null ? wo.getPoNumber()  : "");
+        accessoriesTXF.setText(wo.getAccessories() != null ? wo.getAccessories() : "");
+        conditionTXF.setText(wo.getCondition()     != null ? wo.getCondition()   : "");
         repairTypeCombo.selectItem(wo.getRepairType() != null && !wo.getRepairType().isBlank()
                 ? wo.getRepairType() : "In-Shop Repair Check");
 
@@ -444,6 +448,8 @@ public class ViewOrderController {
         // Location and PO locked after billing complete
         locationTXF.setDisable(locked);
         poNumber.setDisable(locked);
+        accessoriesTXF.setDisable(locked);
+        conditionTXF.setDisable(locked);
 
         // Service notes always editable
         serviceNotesTXT.setDisable(false);
@@ -452,7 +458,8 @@ public class ViewOrderController {
         // variable that the app stylesheet can't reliably override (theme
         // origin/specificity beats it). Force the readable color directly
         // through MFXTextField's Java-side textFill property instead.
-        forceReadableText(type, model, serialNumber, warrantyNumber, locationTXF, poNumber);
+        forceReadableText(type, model, serialNumber, warrantyNumber, locationTXF, poNumber,
+                accessoriesTXF, conditionTXF);
     }
 
     private void forceReadableText(MFXTextField... fields) {
@@ -707,7 +714,9 @@ public class ViewOrderController {
                 serviceNotesTXT.getText(), techId, status,
                 locationTXF.getText(),
                 poNumber.getText(),
-                repairTypeCombo.getText()
+                repairTypeCombo.getText(),
+                accessoriesTXF.getText(),
+                conditionTXF.getText()
         );
 
         savePartsToDb();

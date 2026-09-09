@@ -35,6 +35,8 @@ public class NewOrderController {
     @FXML private MFXTextField serialNumber;
     @FXML private TextArea problemDesc;
     @FXML private MFXComboBox<String> repairTypeCombo;
+    @FXML private MFXTextField accessoriesTXF;
+    @FXML private MFXTextField conditionTXF;
 
     @FXML private MFXTextField idTFX;
     @FXML private MFXTextField firstNameTXF;
@@ -140,6 +142,11 @@ public class NewOrderController {
             new Alert(Alert.AlertType.WARNING, "Please select a Repair Type", ButtonType.OK).showAndWait();
             return;
         }
+        if(conditionTXF.getText() == null || conditionTXF.getText().isBlank()){
+            new Alert(Alert.AlertType.WARNING, "Please specify the Condition", ButtonType.OK).showAndWait();
+            conditionTXF.requestFocus();
+            return;
+        }
         int customerId;
         try{
             customerId = Integer.parseInt(idTFX.getText());
@@ -148,12 +155,17 @@ public class NewOrderController {
             return;
         }
 
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb);
+        String accessoriesDb = accessoriesTXF.getText();
+        String conditionDb = conditionTXF.getText();
+
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb, accessoriesDb, conditionDb);
 
         mainController.reloadOrders();
 
         WorkOrder wo = new WorkOrder(Integer.valueOf(newId), "New", typeDB, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), vendorIdDb, warrantyNumberDb, modelDB, serialNumberDB, problemDescDB, customerId, depositDB);
         wo.setRepairType(repairTypeDb);
+        wo.setAccessories(accessoriesDb);
+        wo.setCondition(conditionDb);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
         //pay

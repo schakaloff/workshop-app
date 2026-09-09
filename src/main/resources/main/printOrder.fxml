@@ -146,17 +146,17 @@
          </font>
       </Text>
       <Text fx:id="customerNameText" layoutX="58.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="160.0" />
-      <Text layoutX="155.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description:">
+      <Text layoutX="110.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="293.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number:">
+      <Text layoutX="230.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="431.0" layoutY="315.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:">
+      <Text layoutX="330.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:">
          <font>
             <Font size="11.0" />
          </font>
@@ -180,18 +180,33 @@
       <Text fx:id="warrantyText" layoutX="60.0" layoutY="283.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="warrantyNumText" layoutX="379.0" layoutY="284.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="poText" layoutX="386.0" layoutY="284.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="descriptionText" layoutX="155.0" layoutY="334.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="serialNumberText" layoutX="292.0" layoutY="334.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="descriptionText" layoutX="110.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="115.0">
+         <clip>
+            <Rectangle width="115.0" height="88.0" />
+         </clip>
+      </Text>
+      <Text fx:id="serialNumberText" layoutX="230.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="95.0">
+         <clip>
+            <Rectangle width="95.0" height="88.0" />
+         </clip>
+      </Text>
       <Text layoutX="4.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text fx:id="typeText" layoutX="4.0" layoutY="334.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="dateText" layoutX="114.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="problemTextArea" layoutX="431.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="137.13000106811523">
+      <Text fx:id="typeText" layoutX="4.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="100.0">
          <clip>
-            <Rectangle width="137.13" height="95.0" />
+            <Rectangle width="100.0" height="88.0" />
+         </clip>
+      </Text>
+      <Text fx:id="dateText" layoutX="114.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="problemTextArea" layoutX="330.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="260.0">
+         <font>
+            <Font size="9.0" />
+         </font>
+         <clip>
+            <Rectangle width="260.0" height="100.0" />
          </clip>
       </Text>
    </children>

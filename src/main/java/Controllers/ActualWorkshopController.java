@@ -785,9 +785,11 @@ public class ActualWorkshopController {
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
             String problemDesc, int customerId, String vendorId,
-            String warrantyNumber, double deposit, String repairType) {
+            String warrantyNumber, double deposit, String repairType,
+            String accessories, String condition) {
         return workshopQueries.insertOrderIntoDatabase(status, type, model, serialNumber,
-                problemDesc, customerId, vendorId, warrantyNumber, deposit, repairType);
+                problemDesc, customerId, vendorId, warrantyNumber, deposit, repairType,
+                accessories, condition);
     }
 
     // Columns/filters can't be shared between two table instances, so this builds a

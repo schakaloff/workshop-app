@@ -23,6 +23,8 @@ public class WorkOrder {
     private String location;
     private String poNumber;
     private String repairType;
+    private String accessories;
+    private String condition;
 
     // ─── CONSTRUCTOR ────────────────────────────────────────────────────────────
 
@@ -56,6 +58,8 @@ public class WorkOrder {
         this.location     = "";
         this.poNumber     = "";
         this.repairType   = "";
+        this.accessories  = "";
+        this.condition    = "";
     }
 
     // ─── GETTERS ────────────────────────────────────────────────────────────────
@@ -77,6 +81,8 @@ public class WorkOrder {
     public String getLocation()        { return location; }
     public String getPoNumber()        { return poNumber; }
     public String getRepairType()      { return repairType; }
+    public String getAccessories()     { return accessories; }
+    public String getCondition()       { return condition; }
 
     // ─── SETTERS ────────────────────────────────────────────────────────────────
 
@@ -93,4 +99,6 @@ public class WorkOrder {
     public void setLocation(String location)            { this.location = location != null ? location : ""; }
     public void setPoNumber(String poNumber)            { this.poNumber = poNumber != null ? poNumber : ""; }
     public void setRepairType(String repairType)         { this.repairType = repairType != null ? repairType : ""; }
+    public void setAccessories(String accessories)       { this.accessories = accessories != null ? accessories : ""; }
+    public void setCondition(String condition)           { this.condition = condition != null ? condition : ""; }
 }
