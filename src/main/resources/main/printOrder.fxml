@@ -71,12 +71,12 @@
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="159.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty Number:">
+      <Text fx:id="warrantyNumLabel" layoutX="280.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty#:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="359.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:">
+      <Text fx:id="poLabel" layoutX="520.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:">
          <font>
             <Font size="11.0" />
          </font>
@@ -160,8 +160,8 @@
       <Text fx:id="contactText" layoutX="4.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="phoneText" layoutX="193.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="warrantyText" layoutX="60.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="warrantyNumText" layoutX="258.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text layoutX="386.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="None" />
+      <Text fx:id="warrantyNumText" layoutX="379.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="poText" layoutX="386.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="descriptionText" layoutX="155.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="serialNumberText" layoutX="292.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text layoutX="4.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:">

@@ -110,3 +110,36 @@
     -mfx-main-color: white;
 }
 
+/* ─── Disabled fields (Billing Complete lock) ───────────────────────────
+   MaterialFX's own theme drives disabled text off the -mfx-text-disabled
+   variable (rgba(0,0,0,0.38) — near-invisible light gray), not node opacity.
+   Redefine it app-wide so disabled fields read the same as normal ones. ── */
+.root {
+    -mfx-text-disabled: #333333;
+}
+
+.mfx-text-field:disabled,
+.mfx-combo-box:disabled,
+.mfx-checkbox:disabled,
+.text-area:disabled,
+.mfx-table-view:disabled,
+.mfx-paginated-table-view:disabled,
+.mfx-table-row:disabled,
+.mfx-table-row-cell:disabled {
+    -fx-opacity: 1.0;
+}
+
+.mfx-text-field:disabled .floating-text {
+    -fx-text-fill: #333333;
+}
+
+.mfx-text-field:disabled .text-field {
+    -fx-text-inner-color: #333333;
+}
+
+.text-area:disabled .text,
+.mfx-table-row-cell:disabled .label {
+    -fx-fill: #333333;
+    -fx-text-fill: #333333;
+}
+

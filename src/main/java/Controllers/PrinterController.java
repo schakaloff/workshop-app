@@ -17,7 +17,10 @@ public class PrinterController {
     @FXML private Text phoneText;
 
     @FXML private Text warrantyText;
+    @FXML private Text warrantyNumLabel;
     @FXML private Text warrantyNumText;
+    @FXML private Text poLabel;
+    @FXML private Text poText;
 
     @FXML private Text typeText;
     @FXML private Text descriptionText;
@@ -43,11 +46,33 @@ public class PrinterController {
 
         warrantyText.setText(wo.getVendorId());
         warrantyNumText.setText(wo.getWarrantyNumber());
+        String po = wo.getPoNumber();
+        poText.setText(po == null || po.isBlank() ? "None" : po);
+        layoutWarrantyRow();
 
         typeText.setText(wo.getType());
         descriptionText.setText(wo.getModel());
         serialNumberText.setText(wo.getSerialNumber());
         problemTextArea.setText(wo.getProblemDesc());
 
+    }
+
+    // Vendor names vary a lot in length, so the "Warranty#:" / "PO#:" columns
+    // that follow the vendor name can't sit at fixed x positions without risking
+    // overlap — push each one out based on the measured width of what's before it.
+    private static final double GAP = 16.0;
+
+    private void layoutWarrantyRow() {
+        double x = warrantyText.getLayoutX() + warrantyText.getLayoutBounds().getWidth() + GAP;
+        warrantyNumLabel.setLayoutX(x);
+
+        x = warrantyNumLabel.getLayoutX() + warrantyNumLabel.getLayoutBounds().getWidth() + 6;
+        warrantyNumText.setLayoutX(x);
+
+        x = warrantyNumText.getLayoutX() + warrantyNumText.getLayoutBounds().getWidth() + GAP;
+        poLabel.setLayoutX(x);
+
+        x = poLabel.getLayoutX() + poLabel.getLayoutBounds().getWidth() + 6;
+        poText.setLayoutX(x);
     }
 }

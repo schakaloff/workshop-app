@@ -37,7 +37,9 @@ public class PrintEstimateController {
     // ─── Warranty ────────────────────────────────────────────────────────────────
     @FXML private Text yesOrNoTXT;
     @FXML private Text vendorTXT;
+    @FXML private Text warrantyRefLabel;
     @FXML private Text warrantyNumTXT;
+    @FXML private Text poLabel;
     @FXML private Text POTXT;
 
     // ─── Device ──────────────────────────────────────────────────────────────────
@@ -225,13 +227,29 @@ public class PrintEstimateController {
         dateCompletedTXT.setText(LocalDate.now().format(DATE_FMT));
     }
 
+    private static final double WARRANTY_GAP = 16.0;
+
     private void populateWarranty(WorkOrder wo) {
         boolean hasWarranty = wo.getWarrantyNumber() != null
                 && !wo.getWarrantyNumber().isBlank();
         yesOrNoTXT.setText(hasWarranty ? "Yes" : "No");
         vendorTXT.setText(nullSafe(wo.getVendorId()));
         warrantyNumTXT.setText(nullSafe(wo.getWarrantyNumber()));
-        POTXT.setText("");
+        String po = wo.getPoNumber();
+        POTXT.setText(po == null || po.isBlank() ? "None" : po);
+
+        // Vendor names vary in length — push the Warranty Ref# / PO# columns
+        // (label + value together) out based on the measured width of what
+        // comes before them instead of sitting at fixed x and risking overlap.
+        double x = vendorTXT.getLayoutX() + vendorTXT.getLayoutBounds().getWidth() + WARRANTY_GAP;
+        warrantyRefLabel.setLayoutX(x);
+        warrantyNumTXT.setLayoutX(x);
+
+        double refWidth = Math.max(warrantyRefLabel.getLayoutBounds().getWidth(),
+                warrantyNumTXT.getLayoutBounds().getWidth());
+        x = x + refWidth + WARRANTY_GAP;
+        poLabel.setLayoutX(x);
+        POTXT.setLayoutX(x);
     }
 
     private void populateDevice(WorkOrder wo) {

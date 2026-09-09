@@ -70,9 +70,9 @@
             <Text fx:id="yesOrNoTXT" layoutX="3.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
             <Text layoutX="78.0" layoutY="12.0" text="Vendor"><font><Font size="11.0" /></font></Text>
             <Text fx:id="vendorTXT" layoutX="78.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
-            <Text layoutX="153.0" layoutY="12.0" text="Warranty Ref#"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="warrantyRefLabel" layoutX="153.0" layoutY="12.0" text="Warranty Ref#"><font><Font size="11.0" /></font></Text>
             <Text fx:id="warrantyNumTXT" layoutX="153.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
-            <Text layoutX="267.0" layoutY="12.0" text="PO#"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="poLabel" layoutX="267.0" layoutY="12.0" text="PO#"><font><Font size="11.0" /></font></Text>
             <Text fx:id="POTXT" layoutX="267.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
          </children>
       </Group>

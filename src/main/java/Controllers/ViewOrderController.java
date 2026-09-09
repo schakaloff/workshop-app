@@ -447,6 +447,18 @@ public class ViewOrderController {
 
         // Service notes always editable
         serviceNotesTXT.setDisable(false);
+
+        // MaterialFX's own theme fades disabled MFXTextField text via a CSS
+        // variable that the app stylesheet can't reliably override (theme
+        // origin/specificity beats it). Force the readable color directly
+        // through MFXTextField's Java-side textFill property instead.
+        forceReadableText(type, model, serialNumber, warrantyNumber, locationTXF, poNumber);
+    }
+
+    private void forceReadableText(MFXTextField... fields) {
+        for (MFXTextField f : fields) {
+            f.setTextFill(MFXTextField.DEFAULT_TEXT_COLOR);
+        }
     }
 
     // ─── TECH LIST ──────────────────────────────────────────────────────────────
