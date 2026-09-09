@@ -256,8 +256,17 @@ public class PrintRepairController {
         cxNameTXT.setText(co.getLastName() + ", " + co.getFirstName());
         adressTXT.setText(co.getAddress());
         custIDTxt.setText(co.getId());
-        phoneTXT.setText(co.getPhone());
+        phoneTXT.setText(formatPhone(co.getPhone()));
         cityProvinceCodeTXT.setText(co.getTown() + "  " + co.getPostalCode());
+    }
+
+    // Formats to +1(XXX)XXX-XXXX regardless of how the phone digits were stored.
+    private static String formatPhone(String raw) {
+        if (raw == null) return "";
+        String digits = raw.replaceAll("\\D", "");
+        if (digits.length() == 11 && digits.startsWith("1")) digits = digits.substring(1);
+        if (digits.length() != 10) return raw;
+        return "+1(" + digits.substring(0, 3) + ")" + digits.substring(3, 6) + "-" + digits.substring(6);
     }
 
     private void populateDates(WorkOrder wo) {

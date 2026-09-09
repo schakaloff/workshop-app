@@ -47,14 +47,16 @@
       <Group layoutX="3.0" layoutY="107.241">
          <children>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutY="0.759" stroke="BLACK" strokeType="INSIDE" width="290.0" />
-            <Text layoutX="2.0" layoutY="13.0" text="Customer"><font><Font size="11.0" /></font></Text>
-            <Text layoutX="247.0" layoutY="14.0" text="CustID"><font><Font size="11.0" /></font></Text>
-            <Text layoutX="246.0" layoutY="61.0" text="Phone"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="cxNameTXT" layoutX="3.0" layoutY="28.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="adressTXT" layoutX="3.0" layoutY="44.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="custIDTxt" layoutX="248.0" layoutY="29.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="phoneTXT" layoutX="211.0" layoutY="75.0"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="cityProvinceCodeTXT" layoutX="3.0" layoutY="58.0"><font><Font size="11.0" /></font></Text>
+            <Text layoutX="3.0" layoutY="13.0" text="Customer:"><font><Font size="11.0" /></font></Text>
+            <Text layoutX="230.0" layoutY="13.0" text="ID:"><font><Font size="11.0" /></font></Text>
+            <Text layoutX="3.0" layoutY="30.0" text="Address:"><font><Font size="11.0" /></font></Text>
+            <Text layoutX="3.0" layoutY="47.0" text="Town/Postal:"><font><Font size="11.0" /></font></Text>
+            <Text layoutX="3.0" layoutY="64.0" text="Phone:"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="cxNameTXT" layoutX="58.0" layoutY="13.0" wrappingWidth="165.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="custIDTxt" layoutX="248.0" layoutY="13.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="adressTXT" layoutX="58.0" layoutY="30.0" wrappingWidth="228.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="cityProvinceCodeTXT" layoutX="80.0" layoutY="47.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="phoneTXT" layoutX="58.0" layoutY="64.0"><font><Font size="11.0" /></font></Text>
          </children>
       </Group>
 

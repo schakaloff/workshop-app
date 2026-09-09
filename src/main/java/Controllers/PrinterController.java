@@ -15,6 +15,9 @@ public class PrinterController {
     @FXML private Text custIDText;
     @FXML private Text contactText;
     @FXML private Text phoneText;
+    @FXML private Text addressText;
+    @FXML private Text townText;
+    @FXML private Text postalText;
 
     @FXML private Text warrantyText;
     @FXML private Text warrantyNumLabel;
@@ -41,7 +44,10 @@ public class PrinterController {
         customerNameText.setText(fullName);
         custIDText.setText(co.getId());
         contactText.setText(firstNLast);
-        phoneText.setText("+1" + co.getPhone());
+        phoneText.setText(formatPhone(co.getPhone()));
+        addressText.setText(co.getAddress());
+        townText.setText(co.getTown());
+        postalText.setText(co.getPostalCode());
 
 
         warrantyText.setText(wo.getVendorId());
@@ -55,6 +61,15 @@ public class PrinterController {
         serialNumberText.setText(wo.getSerialNumber());
         problemTextArea.setText(wo.getProblemDesc());
 
+    }
+
+    // Formats to +1(XXX)XXX-XXXX regardless of how the phone digits were stored.
+    private static String formatPhone(String raw) {
+        if (raw == null) return "";
+        String digits = raw.replaceAll("\\D", "");
+        if (digits.length() == 11 && digits.startsWith("1")) digits = digits.substring(1);
+        if (digits.length() != 10) return raw;
+        return "+1(" + digits.substring(0, 3) + ")" + digits.substring(3, 6) + "-" + digits.substring(6);
     }
 
     // Vendor names vary a lot in length, so the "Warranty#:" / "PO#:" columns

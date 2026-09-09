@@ -33,60 +33,75 @@
          </font>
       </Text>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutX="476.0" layoutY="4.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="4.0" width="117.0" />
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="2.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
-      <Text layoutX="3.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="120.0" layoutX="2.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
+      <Text layoutX="4.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Customer:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="3.0" layoutY="164.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Contact">
+      <Text layoutX="222.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ID:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="218.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CustID">
+      <Text layoutX="4.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Contact:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="218.0" layoutY="163.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phone">
+      <Text layoutX="4.0" layoutY="155.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phone:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="304.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
+      <Text layoutX="4.0" layoutY="172.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Address:">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text layoutX="4.0" layoutY="189.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Town:">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text layoutX="4.0" layoutY="206.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Postal:">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="120.0" layoutX="304.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
       <Text layoutX="305.0" layoutY="119.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Repair Location">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="3.0" layoutY="211.0" strokeType="OUTSIDE" strokeWidth="0.0" text="On-Site">
+      <Text layoutX="3.0" layoutY="251.0" strokeType="OUTSIDE" strokeWidth="0.0" text="On-Site">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="3.0" layoutY="224.0" stroke="BLACK" strokeType="INSIDE" width="591.0" />
-      <Text layoutX="6.0" layoutY="242.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty:">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="3.0" layoutY="264.0" stroke="BLACK" strokeType="INSIDE" width="591.0" />
+      <Text layoutX="6.0" layoutY="282.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text fx:id="warrantyNumLabel" layoutX="280.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty#:">
+      <Text fx:id="warrantyNumLabel" layoutX="280.0" layoutY="283.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Warranty#:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text fx:id="poLabel" layoutX="520.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:">
+      <Text fx:id="poLabel" layoutX="520.0" layoutY="284.0" strokeType="OUTSIDE" strokeWidth="0.0" text="PO#:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="4.0" layoutY="387.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Additional Products:">
+      <Text layoutX="4.0" layoutY="427.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Additional Products:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="4.0" layoutY="403.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition:">
+      <Text layoutX="4.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition:">
          <font>
             <Font size="11.0" />
          </font>
@@ -130,18 +145,18 @@
             <Font size="9.0" />
          </font>
       </Text>
-      <Text fx:id="customerNameText" layoutX="4.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="162.17499542236328" />
-      <Text layoutX="155.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description:">
+      <Text fx:id="customerNameText" layoutX="58.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="160.0" />
+      <Text layoutX="155.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Description:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="293.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number:">
+      <Text layoutX="293.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Serial Number:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text layoutX="431.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:">
+      <Text layoutX="431.0" layoutY="315.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Problem:">
          <font>
             <Font size="11.0" />
          </font>
@@ -156,22 +171,25 @@
             <Font size="32.0" />
          </font>
       </Text>
-      <Text fx:id="custIDText" layoutX="221.0" layoutY="140.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" />
-      <Text fx:id="contactText" layoutX="4.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="phoneText" layoutX="193.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="warrantyText" layoutX="60.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="warrantyNumText" layoutX="379.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="poText" layoutX="386.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="descriptionText" layoutX="155.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="serialNumberText" layoutX="292.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text layoutX="4.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:">
+      <Text fx:id="custIDText" layoutX="240.0" layoutY="121.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="contactText" layoutX="58.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="phoneText" layoutX="58.0" layoutY="155.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="addressText" layoutX="58.0" layoutY="172.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="228.0" />
+      <Text fx:id="townText" layoutX="58.0" layoutY="189.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="postalText" layoutX="58.0" layoutY="206.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="warrantyText" layoutX="60.0" layoutY="283.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="warrantyNumText" layoutX="379.0" layoutY="284.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="poText" layoutX="386.0" layoutY="284.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="descriptionText" layoutX="155.0" layoutY="334.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="serialNumberText" layoutX="292.0" layoutY="334.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text layoutX="4.0" layoutY="317.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:">
          <font>
             <Font size="11.0" />
          </font>
       </Text>
-      <Text fx:id="typeText" layoutX="4.0" layoutY="294.0" strokeType="OUTSIDE" strokeWidth="0.0" />
+      <Text fx:id="typeText" layoutX="4.0" layoutY="334.0" strokeType="OUTSIDE" strokeWidth="0.0" />
       <Text fx:id="dateText" layoutX="114.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" />
-      <Text fx:id="problemTextArea" layoutX="431.0" layoutY="285.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="137.13000106811523">
+      <Text fx:id="problemTextArea" layoutX="431.0" layoutY="325.0" strokeType="OUTSIDE" strokeWidth="0.0" textOrigin="TOP" wrappingWidth="137.13000106811523">
          <clip>
             <Rectangle width="137.13" height="95.0" />
          </clip>
