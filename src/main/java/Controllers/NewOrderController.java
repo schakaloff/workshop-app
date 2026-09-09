@@ -69,6 +69,8 @@ public class NewOrderController {
 
         repairTypeCombo.setItems(javafx.collections.FXCollections.observableArrayList(
                 "In-Shop Repair Check", "In-Home Repair Check"));
+
+        depositTXF.setText("0.00");
     }
 
     public void warrantySelected(){
@@ -126,7 +128,8 @@ public class NewOrderController {
         String warrantyNumberDb= warrantyNumber.getText();
 
         String stringId = idTFX.getText();
-        Double depositDB = Double.valueOf(depositTXF.getText());
+        String depositTxt = depositTXF.getText();
+        Double depositDB = depositTxt == null || depositTxt.isBlank() ? 0.0 : Double.valueOf(depositTxt);
         String repairTypeDb = repairTypeCombo.getText();
 
         if(typeDB.isBlank() || modelDB.isBlank() || stringId.isBlank()){
