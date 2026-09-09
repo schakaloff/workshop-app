@@ -43,8 +43,12 @@ public class PrinterController {
         dateText.setText(wo.getCreatedAt());
         customerNameText.setText(fullName);
         custIDText.setText(co.getId());
-        contactText.setText(firstNLast);
-        phoneText.setText(formatPhone(co.getPhone()));
+        // Order can name its own contact/phone (e.g. an employee who dropped off
+        // a company's item) distinct from the account owner — use it when set.
+        String contactName = wo.getContactName();
+        String contactPhone = wo.getContactPhone();
+        contactText.setText(contactName != null && !contactName.isBlank() ? contactName : firstNLast);
+        phoneText.setText(formatPhone(contactPhone != null && !contactPhone.isBlank() ? contactPhone : co.getPhone()));
         addressText.setText(co.getAddress());
         townText.setText(co.getTown());
         postalText.setText(co.getPostalCode());

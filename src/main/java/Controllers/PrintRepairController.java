@@ -120,7 +120,7 @@ public class PrintRepairController {
                          ObservableList<WorkTable> repairData,
                          ObservableList<PartTable>  partsData) {
 
-        populateCustomer(co);
+        populateCustomer(co, wo);
         populateDates(wo);
         populateWarranty(wo);
         populateDevice(wo);
@@ -252,11 +252,14 @@ public class PrintRepairController {
 
     // ─── Populate helpers ────────────────────────────────────────────────────────
 
-    private void populateCustomer(Customer co) {
+    private void populateCustomer(Customer co, WorkOrder wo) {
         cxNameTXT.setText(co.getLastName() + ", " + co.getFirstName());
         adressTXT.setText(co.getAddress());
         custIDTxt.setText(co.getId());
-        phoneTXT.setText(formatPhone(co.getPhone()));
+        // Order can name its own contact phone (e.g. an employee who dropped off
+        // a company's item) distinct from the account owner — use it when set.
+        String contactPhone = wo.getContactPhone();
+        phoneTXT.setText(formatPhone(contactPhone != null && !contactPhone.isBlank() ? contactPhone : co.getPhone()));
         cityProvinceCodeTXT.setText(co.getTown() + "  " + co.getPostalCode());
     }
 

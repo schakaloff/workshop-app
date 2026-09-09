@@ -786,10 +786,11 @@ public class ActualWorkshopController {
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
             String problemDesc, int customerId, String vendorId,
             String warrantyNumber, double deposit, String repairType,
-            String accessories, String condition) {
+            String accessories, String condition,
+            String contactName, String contactPhone) {
         return workshopQueries.insertOrderIntoDatabase(status, type, model, serialNumber,
                 problemDesc, customerId, vendorId, warrantyNumber, deposit, repairType,
-                accessories, condition);
+                accessories, condition, contactName, contactPhone);
     }
 
     // Columns/filters can't be shared between two table instances, so this builds a

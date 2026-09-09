@@ -58,6 +58,8 @@ public class ViewOrderController {
     @FXML private MFXTextField         poNumber;
     @FXML private MFXTextField         accessoriesTXF;
     @FXML private MFXTextField         conditionTXF;
+    @FXML private MFXTextField         contactNameTXF;
+    @FXML private MFXTextField         contactPhoneTXF;
     @FXML private MFXComboBox<String>  repairTypeCombo;
 
     // Customer info
@@ -393,6 +395,8 @@ public class ViewOrderController {
         poNumber.setText(wo.getPoNumber()   != null ? wo.getPoNumber()  : "");
         accessoriesTXF.setText(wo.getAccessories() != null ? wo.getAccessories() : "");
         conditionTXF.setText(wo.getCondition()     != null ? wo.getCondition()   : "");
+        contactNameTXF.setText(wo.getContactName()   != null ? wo.getContactName()  : "");
+        contactPhoneTXF.setText(wo.getContactPhone() != null ? wo.getContactPhone() : "");
         repairTypeCombo.selectItem(wo.getRepairType() != null && !wo.getRepairType().isBlank()
                 ? wo.getRepairType() : "In-Shop Repair Check");
 
@@ -450,6 +454,8 @@ public class ViewOrderController {
         poNumber.setDisable(locked);
         accessoriesTXF.setDisable(locked);
         conditionTXF.setDisable(locked);
+        contactNameTXF.setDisable(locked);
+        contactPhoneTXF.setDisable(locked);
 
         // Service notes always editable
         serviceNotesTXT.setDisable(false);
@@ -459,7 +465,7 @@ public class ViewOrderController {
         // origin/specificity beats it). Force the readable color directly
         // through MFXTextField's Java-side textFill property instead.
         forceReadableText(type, model, serialNumber, warrantyNumber, locationTXF, poNumber,
-                accessoriesTXF, conditionTXF);
+                accessoriesTXF, conditionTXF, contactNameTXF, contactPhoneTXF);
     }
 
     private void forceReadableText(MFXTextField... fields) {
@@ -716,7 +722,9 @@ public class ViewOrderController {
                 poNumber.getText(),
                 repairTypeCombo.getText(),
                 accessoriesTXF.getText(),
-                conditionTXF.getText()
+                conditionTXF.getText(),
+                contactNameTXF.getText(),
+                contactPhoneTXF.getText()
         );
 
         savePartsToDb();

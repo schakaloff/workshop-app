@@ -37,6 +37,8 @@ public class NewOrderController {
     @FXML private MFXComboBox<String> repairTypeCombo;
     @FXML private MFXTextField accessoriesTXF;
     @FXML private MFXTextField conditionTXF;
+    @FXML private MFXTextField contactNameTXF;
+    @FXML private MFXTextField contactPhoneTXF;
 
     @FXML private MFXTextField idTFX;
     @FXML private MFXTextField firstNameTXF;
@@ -157,8 +159,10 @@ public class NewOrderController {
 
         String accessoriesDb = accessoriesTXF.getText();
         String conditionDb = conditionTXF.getText();
+        String contactNameDb = contactNameTXF.getText();
+        String contactPhoneDb = contactPhoneTXF.getText();
 
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb, accessoriesDb, conditionDb);
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb, accessoriesDb, conditionDb, contactNameDb, contactPhoneDb);
 
         mainController.reloadOrders();
 
@@ -166,6 +170,8 @@ public class NewOrderController {
         wo.setRepairType(repairTypeDb);
         wo.setAccessories(accessoriesDb);
         wo.setCondition(conditionDb);
+        wo.setContactName(contactNameDb);
+        wo.setContactPhone(contactPhoneDb);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
         //pay

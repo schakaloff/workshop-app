@@ -114,7 +114,7 @@ public class ViewControllerQueries {
     }
 
     public static void refreshWorkOrderFromDb(WorkOrder currentWorkOrder) {
-        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number, repair_type, accessories, `condition` FROM work_order WHERE workorder = ?";
+        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number, repair_type, accessories, `condition`, contact_name, contact_phone FROM work_order WHERE workorder = ?";
 
         try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -135,6 +135,8 @@ public class ViewControllerQueries {
                 currentWorkOrder.setRepairType(rs.getString("repair_type"));
                 currentWorkOrder.setAccessories(rs.getString("accessories"));
                 currentWorkOrder.setCondition(rs.getString("condition"));
+                currentWorkOrder.setContactName(rs.getString("contact_name"));
+                currentWorkOrder.setContactPhone(rs.getString("contact_phone"));
 
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
@@ -292,7 +294,8 @@ public class ViewControllerQueries {
                                        String problemDesc, String vendorId, String warrantyNumber,
                                        String serviceNotes, int techId, String status,
                                        String location, String poNumber, String repairType,
-                                       String accessories, String condition) {
+                                       String accessories, String condition,
+                                       String contactName, String contactPhone) {
         String sql = """
         UPDATE work_order
         SET type = ?,
@@ -308,7 +311,9 @@ public class ViewControllerQueries {
             po_number = ?,
             repair_type = ?,
             accessories = ?,
-            `condition` = ?
+            `condition` = ?,
+            contact_name = ?,
+            contact_phone = ?
         WHERE workorder = ?
     """;
 
@@ -333,7 +338,9 @@ public class ViewControllerQueries {
             ps.setString(12, repairType);
             ps.setString(13, accessories);
             ps.setString(14, condition);
-            ps.setInt(15, workorderNumber);
+            ps.setString(15, contactName);
+            ps.setString(16, contactPhone);
+            ps.setInt(17, workorderNumber);
 
             ps.executeUpdate();
 

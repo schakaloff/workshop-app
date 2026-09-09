@@ -25,6 +25,8 @@ public class WorkOrder {
     private String repairType;
     private String accessories;
     private String condition;
+    private String contactName;
+    private String contactPhone;
 
     // ─── CONSTRUCTOR ────────────────────────────────────────────────────────────
 
@@ -60,6 +62,8 @@ public class WorkOrder {
         this.repairType   = "";
         this.accessories  = "";
         this.condition    = "";
+        this.contactName  = "";
+        this.contactPhone = "";
     }
 
     // ─── GETTERS ────────────────────────────────────────────────────────────────
@@ -83,6 +87,8 @@ public class WorkOrder {
     public String getRepairType()      { return repairType; }
     public String getAccessories()     { return accessories; }
     public String getCondition()       { return condition; }
+    public String getContactName()     { return contactName; }
+    public String getContactPhone()    { return contactPhone; }
 
     // ─── SETTERS ────────────────────────────────────────────────────────────────
 
@@ -101,4 +107,6 @@ public class WorkOrder {
     public void setRepairType(String repairType)         { this.repairType = repairType != null ? repairType : ""; }
     public void setAccessories(String accessories)       { this.accessories = accessories != null ? accessories : ""; }
     public void setCondition(String condition)           { this.condition = condition != null ? condition : ""; }
+    public void setContactName(String contactName)       { this.contactName = contactName != null ? contactName : ""; }
+    public void setContactPhone(String contactPhone)     { this.contactPhone = contactPhone != null ? contactPhone : ""; }
 }

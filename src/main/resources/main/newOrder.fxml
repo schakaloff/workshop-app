@@ -15,7 +15,7 @@
 <MFXGenericDialog
         maxHeight="-Infinity" maxWidth="-Infinity"
         onClose="#closeDialog"
-        prefHeight="470.0" prefWidth="780.0"
+        prefHeight="518.0" prefWidth="780.0"
         showAlwaysOnTop="false" showClose="true" showMinimize="false"
         style="-fx-background-color: white;"
         xmlns="http://javafx.com/javafx/21"
@@ -23,7 +23,7 @@
         fx:controller="Controllers.NewOrderController">
 
    <center>
-      <VBox prefHeight="470.0" prefWidth="780.0"
+      <VBox prefHeight="518.0" prefWidth="780.0"
             style="-fx-background-color: white;">
          <children>
 
@@ -100,6 +100,21 @@
                              prefHeight="32" prefWidth="120" minWidth="120"
                              text="Customer"
                              style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+               </children>
+            </HBox>
+
+            <!-- ─── Order contact row (may differ from account owner) ── -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 8 16 8 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+               <children>
+                  <Text text="Order Contact (if different from account):"
+                        style="-fx-font-size: 11; -fx-fill: #888;" />
+                  <MFXTextField fx:id="contactNameTXF"
+                                floatMode="BORDER" floatingText="Contact Name"
+                                prefHeight="32" prefWidth="160" />
+                  <MFXTextField fx:id="contactPhoneTXF"
+                                floatMode="BORDER" floatingText="Contact Phone"
+                                prefHeight="32" prefWidth="160" />
                </children>
             </HBox>
 
