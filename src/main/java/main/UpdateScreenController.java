@@ -18,6 +18,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UpdateScreenController {
 
@@ -70,9 +72,16 @@ public class UpdateScreenController {
             return;
         }
 
+        // This screen runs from the launcher's own bundled jar, which is never
+        // itself replaced by an update — ShopSettings.VERSION here is frozen at
+        // whatever version was installed originally. The config.xml's base URI
+        // (e.g. .../releases/download/v1.0.9/) is the actual source of truth for
+        // what version is/will be running, so read the version from there instead.
+        String displayVersion = extractVersion(config, ShopSettings.VERSION);
+
         try {
             if (!config.requiresUpdate()) {
-                setVersion("v" + ShopSettings.VERSION + " — Up to date");
+                setVersion("v" + displayVersion + " — Up to date");
                 setProgress(1.0);
                 setStatus("Launching...");
                 Thread.sleep(600);
@@ -84,7 +93,7 @@ public class UpdateScreenController {
             return;
         }
 
-        setVersion("v" + ShopSettings.VERSION + " → New update available!");
+        setVersion("v" + displayVersion + " → New update available!");
         setStatus("Preparing...");
         setProgress(0);
 
@@ -142,6 +151,16 @@ public class UpdateScreenController {
             try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
             launchApp(stage);
         }
+    }
+
+    private static final Pattern VERSION_PATTERN = Pattern.compile("/v(\\d+\\.\\d+\\.\\d+)/");
+
+    private static String extractVersion(Configuration config, String fallback) {
+        try {
+            Matcher m = VERSION_PATTERN.matcher(config.getBaseUri().toString());
+            if (m.find()) return m.group(1);
+        } catch (Exception ignored) {}
+        return fallback;
     }
 
     private static Path resolveLogFile() {

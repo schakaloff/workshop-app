@@ -736,8 +736,6 @@ public class ViewOrderController {
     // ─── STATUS UPDATE ──────────────────────────────────────────────────────────
 
     private void updateStatusInDb(String newStatus) {
-        System.out.println("[TAX DEBUG] updateStatusInDb called: " + newStatus);
-
         if ("Repair Complete".equalsIgnoreCase(newStatus) ||
                 "Billing Complete".equalsIgnoreCase(newStatus)) {
 
@@ -751,12 +749,7 @@ public class ViewOrderController {
             double labour = ViewControllerQueries.labourTotalDb(currentWorkOrder.getWorkorderNumber());
             double parts  = ViewControllerQueries.partsTotalDb(currentWorkOrder.getWorkorderNumber());
 
-            System.out.println("[TAX DEBUG] labour=" + labour + " parts=" + parts
-                    + " warranty=" + hasWarranty + " pstExempt=" + hasPstNum + " gstExempt=" + hasGstNum);
-
             double[] taxes = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
-
-            System.out.println("[TAX DEBUG] pst=" + taxes[0] + " gst=" + taxes[1]);
 
             ViewControllerQueries.saveTaxesToDb(
                     currentWorkOrder.getWorkorderNumber(),
@@ -965,12 +958,22 @@ public class ViewOrderController {
         return locationTXF.getText() != null && !locationTXF.getText().isBlank();
     }
 
+    // Tax on work_order.pst/gst is only (re)computed and saved once, at the
+    // moment status transitions to Repair Complete — if parts or labour are
+    // added/edited afterward (marking repair complete, then finalizing costs
+    // before payment is a normal workflow), that cached tax goes stale and
+    // undercharges. Recompute live from current totals instead of trusting it.
     private double finalDueDb() {
-        int      woNumber = currentWorkOrder.getWorkorderNumber();
-        double   labour   = ViewControllerQueries.labourTotalDb(woNumber);
-        double   parts    = ViewControllerQueries.partsTotalDb(woNumber);
-        double   deposit  = ViewControllerQueries.depositFromDb(woNumber);
-        double[] taxes    = ViewControllerQueries.taxesFromDb(woNumber);
+        int      woNumber    = currentWorkOrder.getWorkorderNumber();
+        double   labour      = ViewControllerQueries.labourTotalDb(woNumber);
+        double   parts       = ViewControllerQueries.partsTotalDb(woNumber);
+        double   deposit     = ViewControllerQueries.depositFromDb(woNumber);
+        boolean  hasWarranty = currentWorkOrder.getVendorId() != null && !currentWorkOrder.getVendorId().isBlank();
+        boolean  hasPstNum   = currentCustomer.getPstNumber() != null && !currentCustomer.getPstNumber().isBlank();
+        boolean  hasGstNum   = currentCustomer.getGstNumber() != null && !currentCustomer.getGstNumber().isBlank();
+        double[] taxes       = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
+        // Keep the stored snapshot in sync with what's actually being charged.
+        ViewControllerQueries.saveTaxesToDb(woNumber, taxes[0], taxes[1]);
         return Math.max(0, labour + parts + taxes[0] + taxes[1] - deposit);
     }
 

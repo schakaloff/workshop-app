@@ -466,7 +466,11 @@ public class ViewControllerQueries {
                 String name = rs.getString("part_name");
                 int qty = rs.getInt("quantity");
                 double price = rs.getDouble("price");
-                double total = rs.getDouble("total_price");
+                // total_price is only ever (re)computed by the UI's price/qty edit
+                // handlers, never on load — legacy/imported rows stored 0 here
+                // regardless of price, so always derive it instead of trusting
+                // the stored column.
+                double total = qty * price;
 
                 rows.add(new PartTable(id, name, qty, price, total));
             }
