@@ -251,6 +251,19 @@ public class WorkshopQueries {
         return queryFilteredOrders("WHERE wo.model LIKE ?", "%" + model + "%");
     }
 
+    // Matches either the account's own phone (customer.phone) or the order's
+    // own contact phone (wo.contact_phone — e.g. an employee who dropped off a
+    // company's item), so one search box finds a WO either way. Both sides are
+    // digit-normalized since phone is stored formatted as "(XXX)XXX-XXXX".
+    public List<WorkOrder> getWorkOrdersByPhone(String phone) {
+        String digitsOnly = phone.replaceAll("\\D", "");
+        String like = "%" + digitsOnly + "%";
+        return queryFilteredOrders(
+                "WHERE REGEXP_REPLACE(c.phone, '[^0-9]', '') LIKE ? " +
+                "OR REGEXP_REPLACE(wo.contact_phone, '[^0-9]', '') LIKE ?",
+                like, like);
+    }
+
     // ─── INSERT ORDER ────────────────────────────────────────────────────────────
 
     public int insertOrderIntoDatabase(String status, String type, String model, String serialNumber,
@@ -292,21 +305,6 @@ public class WorkshopQueries {
     }
 
     // ─── SEARCH ──────────────────────────────────────────────────────────────────
-
-    public List<Integer> getCustomerIdsByPhone(String phone) {
-        List<Integer> ids = new ArrayList<>();
-        String sql = "SELECT id FROM customer WHERE phone LIKE ?";
-        try (Connection conn = DataSourceProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + phone + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) ids.add(rs.getInt("id"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ids;
-    }
 
     public List<Integer> getCustomerIdsByField(String column, String value) {
         List<Integer> ids = new ArrayList<>();

@@ -201,12 +201,12 @@ public class CustomersController {
     // background for search to use — the visible table always stays capped at 75
     // by default, same as the dashboard's work order table.
     public void loadCustomers() {
-        ObservableList<Customer> firstBatch = queryCustomers(" ORDER BY id LIMIT " + SHOWN_LIMIT);
+        ObservableList<Customer> firstBatch = queryCustomers(" ORDER BY id DESC LIMIT " + SHOWN_LIMIT);
         allData.setAll(firstBatch);
         showDefaultItems();
 
         Task<ObservableList<Customer>> task = new Task<>() {
-            @Override protected ObservableList<Customer> call() { return queryCustomers(" ORDER BY id"); }
+            @Override protected ObservableList<Customer> call() { return queryCustomers(" ORDER BY id DESC"); }
         };
         task.setOnSucceeded(ev -> {
             allData.setAll(task.getValue());

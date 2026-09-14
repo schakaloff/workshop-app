@@ -423,7 +423,7 @@ public class ActualWorkshopController {
     }
 
     private void searchByPhone(String phone) {
-        applyCustomerFilter(workshopQueries.getCustomerIdsByPhone(phone));
+        runFilterQuery(() -> workshopQueries.getWorkOrdersByPhone(phone), this::showSearchResults);
     }
 
     private void searchByCustomerField(String value, String column) {
