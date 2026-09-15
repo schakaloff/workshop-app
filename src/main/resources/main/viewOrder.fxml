@@ -232,8 +232,8 @@
                                                   prefHeight="28" prefWidth="80" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <MFXButton onAction="#onAddStep"
-                                               prefHeight="28" prefWidth="100"
-                                               text="Add Row"
+                                               prefHeight="28" prefWidth="140"
+                                               text="Add Repair Desc"
                                                style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
                                     <MFXButton onAction="#repairComplete"
                                                prefHeight="28" prefWidth="130"
@@ -298,6 +298,10 @@
                                     <MFXButton onAction="#addPart"
                                                prefHeight="28" prefWidth="80"
                                                text="Add Part"
+                                               style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                    <MFXButton onAction="#updateOrder"
+                                               prefHeight="28" prefWidth="70"
+                                               text="Save"
                                                style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
                                  </children>
                               </HBox>

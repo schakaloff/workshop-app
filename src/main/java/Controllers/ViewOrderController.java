@@ -409,6 +409,12 @@ public class ViewOrderController {
         if (hasWarranty) {
             vendorId.selectItem(wo.getVendorId());
             warrantyNumber.setText(wo.getWarrantyNumber());
+        } else {
+            // Leftover vendor/warranty# from a differently-warrantied order
+            // must not bleed into this one just because the fields are disabled.
+            vendorId.clearSelection();
+            vendorId.setText("");
+            warrantyNumber.setText("");
         }
     }
 
@@ -547,6 +553,12 @@ public class ViewOrderController {
 
         updateStatusInDb("Repair Complete");
         statusCombo.selectItem("Repair Complete");
+
+        try {
+            printRepaired();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadRepairsFromDb() {
@@ -883,7 +895,8 @@ public class ViewOrderController {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(dialogInstance.getScene().getWindow());
-            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            stage.setTitle("Print Options");
+            stage.setResizable(false);
             stage.setScene(new Scene(root));
             poc.setStage(stage);
 
@@ -953,8 +966,13 @@ public class ViewOrderController {
         return s != null && s.equalsIgnoreCase("Repair Complete");
     }
 
-    /** Returns true only when locationTXF contains non-blank text. */
+    /**
+     * Returns true when locationTXF contains non-blank text, or when the repair
+     * happened in the customer's home — there's no shop shelf location to record
+     * for an in-home repair, so the requirement doesn't apply.
+     */
     private boolean isLocationFilled() {
+        if ("In-Home Repair Check".equalsIgnoreCase(repairTypeCombo.getText())) return true;
         return locationTXF.getText() != null && !locationTXF.getText().isBlank();
     }
 

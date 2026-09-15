@@ -19,10 +19,10 @@
       <Text layoutX="14.0" layoutY="52.0" text="6-1551 Sutherland Ave, Kelowna BC  V1Y 9M9">
          <font><Font size="11.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="65.0" text="Ph: (250) 860-9888   |   E-mail: service@teltronics.ca">
+      <Text layoutX="14.0" layoutY="65.0" text="Ph: (250) 860-9888   Cell: (236) 970-7337">
          <font><Font size="11.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="78.0" text="GST No. 706673340RT0001">
+      <Text layoutX="14.0" layoutY="78.0" text="E-mail: service@teltronics.ca   GST No. 706673340RT0001">
          <font><Font size="11.0" /></font>
       </Text>
 

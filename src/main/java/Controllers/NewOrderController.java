@@ -73,6 +73,7 @@ public class NewOrderController {
 
         repairTypeCombo.setItems(javafx.collections.FXCollections.observableArrayList(
                 "In-Shop Repair Check", "In-Home Repair Check"));
+        repairTypeCombo.selectItem("In-Shop Repair Check");
 
         depositTXF.setText("0.00");
     }
