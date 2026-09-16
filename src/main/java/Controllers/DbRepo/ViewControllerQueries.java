@@ -1,6 +1,6 @@
 package Controllers.DbRepo;
 
-import DB.DbConfig;
+import DB.DataSourceProvider;
 import Skeletons.*;
 
 import java.io.InputStream;
@@ -24,7 +24,7 @@ public class ViewControllerQueries {
             WHERE workorder = ?
         """;
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, newStatus);
@@ -43,7 +43,7 @@ public class ViewControllerQueries {
         List<String> techNames = new ArrayList<>();
         String sql = "SELECT username FROM technician";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -62,7 +62,7 @@ public class ViewControllerQueries {
         int id = 0;
         String sql = "SELECT id FROM technician WHERE username = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -82,7 +82,7 @@ public class ViewControllerQueries {
         String username = "";
         String sql = "SELECT username FROM technician WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, techId);
@@ -101,7 +101,7 @@ public class ViewControllerQueries {
     public static void updateTechIdInDb(int techId, int workorderNumber) {
         String sql = "UPDATE work_order SET tech_id = ? WHERE workorder = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, techId);
@@ -114,9 +114,9 @@ public class ViewControllerQueries {
     }
 
     public static void refreshWorkOrderFromDb(WorkOrder currentWorkOrder) {
-        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number, repair_type, accessories, `condition`, contact_name, contact_phone FROM work_order WHERE workorder = ?";
+        String sql = "SELECT status, type, model, serialNumber, problemDesc, vendorId, warrantyNumber, tech_id, location, po_number, repair_type, accessories, `condition`, contact_name, contact_phone, vendor_paid FROM work_order WHERE workorder = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, currentWorkOrder.getWorkorderNumber());
@@ -137,6 +137,7 @@ public class ViewControllerQueries {
                 currentWorkOrder.setCondition(rs.getString("condition"));
                 currentWorkOrder.setContactName(rs.getString("contact_name"));
                 currentWorkOrder.setContactPhone(rs.getString("contact_phone"));
+                currentWorkOrder.setVendorPaid(rs.getBoolean("vendor_paid"));
 
                 int techId = rs.getInt("tech_id");
                 if (rs.wasNull()) techId = 0;
@@ -152,7 +153,7 @@ public class ViewControllerQueries {
         boolean ok = false;
         String sql = "SELECT tech, description FROM work_order_repairs WHERE workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -179,7 +180,7 @@ public class ViewControllerQueries {
         List<WorkTable> rows = new ArrayList<>();
         String sql = "SELECT repair_date, tech, description, price FROM work_order_repairs WHERE workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -205,7 +206,7 @@ public class ViewControllerQueries {
         String deleteSQL = "DELETE FROM work_order_repairs WHERE workorder_id = ?";
         String insertSQL = "INSERT INTO work_order_repairs (workorder_id, repair_date, tech, description, price) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password)) {
+        try (Connection conn = DataSourceProvider.getConnection()) {
 
             PreparedStatement del = conn.prepareStatement(deleteSQL);
             del.setInt(1, workorderNumber);
@@ -234,7 +235,7 @@ public class ViewControllerQueries {
         double deposit = 0.0;
         String sql = "SELECT deposit_amount FROM work_order WHERE workorder = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -254,7 +255,7 @@ public class ViewControllerQueries {
         double total = 0.0;
         String sql = "SELECT SUM(price) FROM work_order_repairs WHERE workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -274,7 +275,7 @@ public class ViewControllerQueries {
         double total = 0.0;
         String sql = "SELECT SUM(total_price) FROM work_order_parts WHERE workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -317,7 +318,7 @@ public class ViewControllerQueries {
         WHERE workorder = ?
     """;
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, type);
@@ -353,7 +354,7 @@ public class ViewControllerQueries {
     public static void updateServiceNotesInDb(int workorderNumber, String serviceNotes) {
         String sql = "UPDATE work_order SET service_notes = ? WHERE workorder = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, serviceNotes);
@@ -373,7 +374,7 @@ public class ViewControllerQueries {
         }
 
         String sql = "INSERT INTO work_order_files (workorder_id, file_name, file_path) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, workorderNumber);
             ps.setString(2, file.getName());
@@ -386,7 +387,7 @@ public class ViewControllerQueries {
         List<FilesHandler> files = new ArrayList<>();
         String sql = "SELECT id, file_name FROM work_order_files WHERE workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -405,7 +406,7 @@ public class ViewControllerQueries {
     public static Object[] openFileFromDb(int fileId) throws Exception {
         String sql = "SELECT file_name, file_path FROM work_order_files WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, fileId);
@@ -426,7 +427,7 @@ public class ViewControllerQueries {
         String deleteSQL = "DELETE FROM work_order_parts WHERE workorder_id = ?";
         String insertSQL = "INSERT INTO work_order_parts (workorder_id, part_name, quantity, price, total_price) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password)) {
+        try (Connection conn = DataSourceProvider.getConnection()) {
 
             PreparedStatement del = conn.prepareStatement(deleteSQL);
             del.setInt(1, workorderNumber);
@@ -455,7 +456,7 @@ public class ViewControllerQueries {
         List<PartTable> rows = new ArrayList<>();
         String sql = "SELECT id, part_name, quantity, price, total_price FROM work_order_parts WHERE workorder_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -485,7 +486,7 @@ public class ViewControllerQueries {
     public static String loadServiceNotes(int workorderNumber) {
         String sql = "SELECT service_notes FROM work_order WHERE workorder = ?";
 
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, workorderNumber);
@@ -503,7 +504,7 @@ public class ViewControllerQueries {
 
     public static void saveTaxesToDb(int woNumber, double pst, double gst) {
         String sql = "UPDATE work_order SET pst = ?, gst = ? WHERE workorder = ?";
-        try (Connection conn = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDouble(1, pst);
             ps.setDouble(2, gst);
@@ -512,9 +513,19 @@ public class ViewControllerQueries {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
+    public static void saveVendorPaid(int woNumber, boolean vendorPaid) {
+        String sql = "UPDATE work_order SET vendor_paid = ? WHERE workorder = ?";
+        try (Connection conn = DataSourceProvider.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, vendorPaid);
+            ps.setInt(2, woNumber);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
     public static double[] taxesFromDb(int woNumber) {
         String sql = "SELECT pst, gst FROM work_order WHERE workorder = ?";
-        try (Connection con = DriverManager.getConnection(DbConfig.url, DbConfig.user, DbConfig.password);
+        try (Connection con = DataSourceProvider.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, woNumber);
             ResultSet rs = ps.executeQuery();

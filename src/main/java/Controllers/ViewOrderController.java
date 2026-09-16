@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -38,6 +39,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ViewOrderController {
+
+    // The dialog/controller is preloaded once and reused for every WO opened
+    // (see ActualWorkshopController's preload+reuse pattern), and initData()
+    // runs its DB prep work on a background thread before populating the UI via
+    // Platform.runLater. If a user closes an order and opens another before the
+    // first call's DB work finishes, both calls' runLater blocks end up queued
+    // on the FX thread — whichever happens to enqueue LAST wins and overwrites
+    // the screen, even if it belongs to the order the user already closed. This
+    // generation counter lets a stale call's runLater block detect it's been
+    // superseded and no-op instead of clobbering the newer order's data.
+    private final java.util.concurrent.atomic.AtomicLong loadGeneration =
+            new java.util.concurrent.atomic.AtomicLong(0);
 
     // ─── FXML FIELDS ────────────────────────────────────────────────────────────
 
@@ -77,6 +90,15 @@ public class ViewOrderController {
     @FXML private MFXComboBox<String>  statusCombo;
     @FXML private MFXComboBox<String>  techIdCombo;
     @FXML private TextArea             serviceNotesTXT;
+
+    // Billing tab
+    @FXML private Text                 labourAmountTXT;
+    @FXML private Text                 partsAmountTXT;
+    @FXML private Text                 pstAmountTXT;
+    @FXML private Text                 gstAmountTXT;
+    @FXML private Text                 depositAmountTXT;
+    @FXML private Text                 totalDueTXT;
+    @FXML private MFXCheckbox          vendorPaidCheckBox;
 
     // Main tab header
     @FXML private MFXTextField         mainNumberTFX;
@@ -147,6 +169,8 @@ public class ViewOrderController {
 
         tabPane.getSelectionModel().selectedIndexProperty().addListener((obs, oldTab, newTab) -> {
             if (newTab.intValue() == 3 && currentWorkOrder != null) {
+                refreshBillingTab();
+            } else if (newTab.intValue() == 4 && currentWorkOrder != null) {
                 loadFilesFromDb();
             }
         });
@@ -188,6 +212,8 @@ public class ViewOrderController {
     // ─── INIT DATA (called after initialize) ────────────────────────────────────
 
     public void initData(WorkOrder wo, Customer co) {
+        long myGeneration = loadGeneration.incrementAndGet();
+
         isLoading = true;
 
         this.currentWorkOrder = wo;
@@ -199,6 +225,11 @@ public class ViewOrderController {
         List<String> techList = ViewControllerQueries.loadTechList();
 
         Platform.runLater(() -> {
+            // A newer initData() call started after this one — its own
+            // runLater will populate the screen; applying this stale call's
+            // data now would overwrite the order the user actually has open.
+            if (myGeneration != loadGeneration.get()) return;
+
             techNames.clear();
             techNames.addAll(techList);
             techIdCombo.setItems(techNames);
@@ -211,6 +242,12 @@ public class ViewOrderController {
             loadRepairsFromDb();
             loadFilesFromDb();
             applyBillingLockUI();
+            // The dialog/controller is preloaded once and reused for every WO
+            // opened (see ActualWorkshopController's preload+reuse pattern), so
+            // the TabPane's selected index survives across different orders —
+            // if Billing was left selected, its tab-change listener never fires
+            // again for the next order and shows stale numbers. Refresh directly.
+            refreshBillingTab();
             isLoading = false;
             isDirty   = false;
         });
@@ -952,6 +989,64 @@ public class ViewOrderController {
         mainController.rootStack.getChildren().remove(dialogInstance);
         mainController.contentPane.setEffect(null);
         mainController.contentPane.setDisable(false);
+        clearFields();
+    }
+
+    // The dialog/controller is reused for the next order opened, and its DB
+    // load runs in the background for ~1s before the new data arrives — until
+    // now that window showed this order's leftover fields. Blank everything on
+    // close so the ~1s gap shows empty instead of the previous order's data.
+    private void clearFields() {
+        isLoading = true;
+
+        mainNumberTFX.setText("");
+        type.setText("");
+        model.setText("");
+        serialNumber.setText("");
+        problemDesc.setText("");
+        locationTXF.setText("");
+        poNumber.setText("");
+        accessoriesTXF.setText("");
+        conditionTXF.setText("");
+        contactNameTXF.setText("");
+        contactPhoneTXF.setText("");
+        warrantyNumber.setText("");
+        vendorId.clearSelection();
+        vendorId.setText("");
+        warrantyCheckBox.setSelected(false);
+
+        idTFX.setText("");
+        firstNameTXF.setText("");
+        lastNameTXF.setText("");
+        phoneTFX.setText("");
+        addressTFX.setText("");
+        townTFX.setText("");
+        zipTFX.setText("");
+        depositTXF.setText("");
+
+        statusCombo.clearSelection();
+        statusCombo.setText("");
+        techIdCombo.clearSelection();
+        techIdCombo.setText("");
+        serviceNotesTXT.clear();
+
+        repairData.clear();
+        partsData.clear();
+        filesList.getItems().clear();
+
+        labourAmountTXT.setText("");
+        partsAmountTXT.setText("");
+        pstAmountTXT.setText("");
+        gstAmountTXT.setText("");
+        depositAmountTXT.setText("");
+        totalDueTXT.setText("");
+        vendorPaidCheckBox.setSelected(false);
+        vendorPaidCheckBox.setVisible(false);
+        vendorPaidCheckBox.setManaged(false);
+
+        tabPane.getSelectionModel().select(0);
+
+        isLoading = false;
     }
 
     // ─── UTILITY / HELPERS ──────────────────────────────────────────────────────
@@ -993,6 +1088,64 @@ public class ViewOrderController {
         // Keep the stored snapshot in sync with what's actually being charged.
         ViewControllerQueries.saveTaxesToDb(woNumber, taxes[0], taxes[1]);
         return Math.max(0, labour + parts + taxes[0] + taxes[1] - deposit);
+    }
+
+    // ─── BILLING TAB ────────────────────────────────────────────────────────────
+
+    private void refreshBillingTab() {
+        int      woNumber    = currentWorkOrder.getWorkorderNumber();
+        double   labour      = ViewControllerQueries.labourTotalDb(woNumber);
+        double   parts       = ViewControllerQueries.partsTotalDb(woNumber);
+        double   deposit     = ViewControllerQueries.depositFromDb(woNumber);
+        boolean  hasWarranty = currentWorkOrder.getVendorId() != null && !currentWorkOrder.getVendorId().isBlank();
+        boolean  hasPstNum   = currentCustomer.getPstNumber() != null && !currentCustomer.getPstNumber().isBlank();
+        boolean  hasGstNum   = currentCustomer.getGstNumber() != null && !currentCustomer.getGstNumber().isBlank();
+        double[] taxes       = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
+        double   total       = Math.max(0, labour + parts + taxes[0] + taxes[1] - deposit);
+
+        labourAmountTXT.setText(String.format("$%.2f", labour));
+        partsAmountTXT.setText(String.format("$%.2f", parts));
+        pstAmountTXT.setText(String.format("$%.2f", taxes[0]));
+        gstAmountTXT.setText(String.format("$%.2f", taxes[1]));
+        depositAmountTXT.setText(String.format("-$%.2f", deposit));
+        totalDueTXT.setText(String.format("$%.2f", total));
+
+        // Only a warranty job has a vendor to be reimbursed by, so the checkbox
+        // is meaningless (and hidden) for a regular customer-paid repair.
+        vendorPaidCheckBox.setVisible(hasWarranty);
+        vendorPaidCheckBox.setManaged(hasWarranty);
+        isLoading = true;
+        vendorPaidCheckBox.setSelected(currentWorkOrder.isVendorPaid());
+        isLoading = false;
+    }
+
+    @FXML
+    public void onVendorPaidToggled() {
+        if (isLoading) return;
+        boolean paid = vendorPaidCheckBox.isSelected();
+        currentWorkOrder.setVendorPaid(paid);
+        ViewControllerQueries.saveVendorPaid(currentWorkOrder.getWorkorderNumber(), paid);
+    }
+
+    @FXML
+    public void openInvoicePreview() throws Exception {
+        Window owner = dialogInstance.getScene().getWindow();
+        double amount = finalDueDb();
+        String tech = LoginController.tech != null ? LoginController.tech : "";
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
+        String method = currentWorkOrder.isVendorPaid() ? "Warranty (Paid)" : "Warranty (Pending)";
+        boolean hasWarranty = currentWorkOrder.getVendorId() != null && !currentWorkOrder.getVendorId().isBlank();
+
+        DocumentOutput.printOrPdf(
+                "WO_INVOICE_" + currentWorkOrder.getWorkorderNumber(),
+                "/main/invoiceSheet.fxml",
+                loader -> {
+                    InvoiceController ic = loader.getController();
+                    ic.initData(currentWorkOrder, currentCustomer,
+                            hasWarranty ? method : "Invoice", amount, tech, date);
+                },
+                owner
+        );
     }
 
     /** Marks isDirty only when not loading and the value actually changed. */

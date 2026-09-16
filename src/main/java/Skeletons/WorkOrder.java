@@ -27,6 +27,7 @@ public class WorkOrder {
     private String condition;
     private String contactName;
     private String contactPhone;
+    private boolean vendorPaid;
 
     // ─── CONSTRUCTOR ────────────────────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ public class WorkOrder {
         this.condition    = "";
         this.contactName  = "";
         this.contactPhone = "";
+        this.vendorPaid   = false;
     }
 
     // ─── GETTERS ────────────────────────────────────────────────────────────────
@@ -89,6 +91,7 @@ public class WorkOrder {
     public String getCondition()       { return condition; }
     public String getContactName()     { return contactName; }
     public String getContactPhone()    { return contactPhone; }
+    public boolean isVendorPaid()      { return vendorPaid; }
 
     // ─── SETTERS ────────────────────────────────────────────────────────────────
 
@@ -109,4 +112,5 @@ public class WorkOrder {
     public void setCondition(String condition)           { this.condition = condition != null ? condition : ""; }
     public void setContactName(String contactName)       { this.contactName = contactName != null ? contactName : ""; }
     public void setContactPhone(String contactPhone)     { this.contactPhone = contactPhone != null ? contactPhone : ""; }
+    public void setVendorPaid(boolean vendorPaid)         { this.vendorPaid = vendorPaid; }
 }

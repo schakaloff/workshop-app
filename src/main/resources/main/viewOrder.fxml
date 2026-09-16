@@ -323,6 +323,92 @@
                      </content>
                   </Tab>
 
+                  <!-- ═══ BILLING TAB ════════════════════════════════ -->
+                  <Tab closable="false" text="Billing">
+                     <content>
+                        <VBox spacing="0" style="-fx-background-color: #f5f7fa;">
+                           <children>
+
+                              <!-- Breakdown box -->
+                              <VBox spacing="0"
+                                    style="-fx-background-color: white; -fx-padding: 20 24 20 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                                 <children>
+
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                                       <children>
+                                          <Text text="Labour:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Text fx:id="labourAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                                       <children>
+                                          <Text text="Parts:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Text fx:id="partsAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                                       <children>
+                                          <Text text="PST:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Text fx:id="pstAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                                       <children>
+                                          <Text text="GST:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Text fx:id="gstAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
+                                       <children>
+                                          <Text text="Deposit Paid:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Text fx:id="depositAmountTXT" text="-$0.00" style="-fx-font-size: 13;" />
+                                       </children>
+                                    </HBox>
+
+                                    <Region style="-fx-min-height: 1; -fx-background-color: #e0e0e0;" VBox.vgrow="NEVER" />
+
+                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 0 0 0;">
+                                       <children>
+                                          <Text text="Total Due:" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: #333;" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Text fx:id="totalDueTXT" text="\$0.00" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: #0097A7;" />
+                                       </children>
+                                    </HBox>
+
+                                 </children>
+                              </VBox>
+
+                              <!-- Warranty vendor payment -->
+                              <HBox alignment="CENTER_LEFT" spacing="10"
+                                    style="-fx-background-color: white; -fx-padding: 14 24 14 24; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                                 <children>
+                                    <MFXCheckbox fx:id="vendorPaidCheckBox"
+                                                 onAction="#onVendorPaidToggled"
+                                                 text="Vendor Paid Us (warranty reimbursement received)" />
+                                 </children>
+                              </HBox>
+
+                              <!-- Actions -->
+                              <HBox alignment="CENTER_LEFT" spacing="10"
+                                    style="-fx-background-color: white; -fx-padding: 14 24 14 24;">
+                                 <children>
+                                    <MFXButton onAction="#openInvoicePreview"
+                                               prefHeight="32" prefWidth="140"
+                                               text="Open Invoice"
+                                               style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" />
+                                 </children>
+                              </HBox>
+
+                           </children>
+                        </VBox>
+                     </content>
+                  </Tab>
+
                   <!-- ═══ FILES TAB ══════════════════════════════════ -->
                   <Tab closable="false" text="Files">
                      <content>

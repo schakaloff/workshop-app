@@ -227,6 +227,14 @@ public class WorkshopQueries {
         return queryFilteredCount("WHERE wo.status = 'Repair Complete'");
     }
 
+    public List<WorkOrder> getWarrantyUnpaid() {
+        return queryFilteredOrders("WHERE wo.status = 'Repair Complete' AND wo.vendorId IS NOT NULL AND wo.vendorId <> '' AND wo.vendor_paid = 0");
+    }
+
+    public int countWarrantyUnpaid() {
+        return queryFilteredCount("WHERE wo.status = 'Repair Complete' AND wo.vendorId IS NOT NULL AND wo.vendorId <> '' AND wo.vendor_paid = 0");
+    }
+
     public List<WorkOrder> getMyWO(int techId) {
         return queryFilteredOrders("WHERE wo.tech_id = ? AND wo.status NOT IN ('Billing Complete', 'Cancelled')", techId);
     }

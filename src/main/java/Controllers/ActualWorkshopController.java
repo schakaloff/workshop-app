@@ -70,6 +70,8 @@ public class ActualWorkshopController {
     @FXML
     private MFXButton btnRepairedNotPaid;
     @FXML
+    private MFXButton btnWarrantyUnpaid;
+    @FXML
     private MFXButton btnShowMyWO;
 
     @FXML
@@ -118,6 +120,7 @@ public class ActualWorkshopController {
 
     private boolean oldNewFilterEnabled = false;
     private boolean repairedNotBilledFilterEnabled = false;
+    private boolean warrantyUnpaidFilterEnabled = false;
     private boolean myWoFilterEnabled = false;
     private boolean allOpenFilterEnabled = false;
     private boolean isDashboardLoaded = false;
@@ -146,6 +149,8 @@ public class ActualWorkshopController {
     private static final String STYLE_BTN_BLUE_HI = "-fx-background-color: rgba(0,120,255,0.30); -fx-background-radius: 6; -fx-border-color: #1a6fcc; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #1a6fcc; -fx-font-size: 10;";
     private static final String STYLE_BTN_PURP_LO = "-fx-background-color: rgba(160,70,255,0.10); -fx-background-radius: 6; -fx-border-color: rgba(160,70,255,0.35); -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #7b2fbe; -fx-font-size: 10;";
     private static final String STYLE_BTN_PURP_HI = "-fx-background-color: rgba(160,70,255,0.30); -fx-background-radius: 6; -fx-border-color: #7b2fbe; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #7b2fbe; -fx-font-size: 10;";
+    private static final String STYLE_BTN_ORANGE_LO = "-fx-background-color: rgba(255,140,0,0.12); -fx-background-radius: 6; -fx-border-color: rgba(255,140,0,0.40); -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #cc6d00; -fx-font-size: 10;";
+    private static final String STYLE_BTN_ORANGE_HI = "-fx-background-color: rgba(255,140,0,0.32); -fx-background-radius: 6; -fx-border-color: #cc6d00; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-text-fill: #cc6d00; -fx-font-size: 10;";
     private static final String SIDEBAR_ACTIVE = "-fx-background-color: rgba(255,255,255,0.20); -fx-text-fill: white; -fx-background-radius: 8;";
     private static final String SIDEBAR_INACTIVE = "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.75); -fx-background-radius: 8;";
 
@@ -309,6 +314,7 @@ public class ActualWorkshopController {
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         });
@@ -347,6 +353,7 @@ public class ActualWorkshopController {
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
             updateMyWoButtonCount();
 
             long endTime = System.currentTimeMillis();
@@ -481,9 +488,11 @@ public class ActualWorkshopController {
         if (allOpenFilterEnabled) {
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
+            warrantyUnpaidFilterEnabled = false;
             myWoFilterEnabled = false;
             btnOldNew.setStyle(STYLE_BTN_DEFAULT);
             btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
+            btnWarrantyUnpaid.setStyle(STYLE_BTN_DEFAULT);
             btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
             runFilterQuery(workshopQueries::getAllOpenWO, () -> {
                 setTableItems(lastFilterResult);
@@ -491,6 +500,7 @@ public class ActualWorkshopController {
                 btnAllWO.setStyle(STYLE_BTN_CYAN);
                 updateOldNewButtonCount();
                 updateRepairedNotBilledButtonCount();
+                updateWarrantyUnpaidButtonCount();
                 updateMyWoButtonCount();
             });
         } else {
@@ -498,6 +508,7 @@ public class ActualWorkshopController {
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
@@ -510,8 +521,10 @@ public class ActualWorkshopController {
         if (oldNewFilterEnabled) {
             allOpenFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
+            warrantyUnpaidFilterEnabled = false;
             myWoFilterEnabled = false;
             btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
+            btnWarrantyUnpaid.setStyle(STYLE_BTN_DEFAULT);
             btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
             runFilterQuery(workshopQueries::getOldNewOver10, () -> {
                 setTableItems(lastFilterResult);
@@ -519,6 +532,7 @@ public class ActualWorkshopController {
                 btnOldNew.setStyle(STYLE_BTN_RED_HI);
                 updateAllOpenWOButtonCount();
                 updateRepairedNotBilledButtonCount();
+                updateWarrantyUnpaidButtonCount();
                 updateMyWoButtonCount();
             });
         } else {
@@ -526,6 +540,7 @@ public class ActualWorkshopController {
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
@@ -538,8 +553,10 @@ public class ActualWorkshopController {
         if (repairedNotBilledFilterEnabled) {
             allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
+            warrantyUnpaidFilterEnabled = false;
             myWoFilterEnabled = false;
             btnOldNew.setStyle(STYLE_BTN_DEFAULT);
+            btnWarrantyUnpaid.setStyle(STYLE_BTN_DEFAULT);
             btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
             runFilterQuery(workshopQueries::getRepairedNotBilled, () -> {
                 setTableItems(lastFilterResult);
@@ -547,6 +564,7 @@ public class ActualWorkshopController {
                 btnRepairedNotPaid.setStyle(STYLE_BTN_BLUE_HI);
                 updateAllOpenWOButtonCount();
                 updateOldNewButtonCount();
+                updateWarrantyUnpaidButtonCount();
                 updateMyWoButtonCount();
             });
         } else {
@@ -554,6 +572,39 @@ public class ActualWorkshopController {
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
+            updateMyWoButtonCount();
+            Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
+        }
+    }
+
+    @FXML
+    public void showWarrantyUnpaid() {
+        warrantyUnpaidFilterEnabled = !warrantyUnpaidFilterEnabled;
+        showLoadingOverlay();
+        if (warrantyUnpaidFilterEnabled) {
+            allOpenFilterEnabled = false;
+            oldNewFilterEnabled = false;
+            repairedNotBilledFilterEnabled = false;
+            myWoFilterEnabled = false;
+            btnOldNew.setStyle(STYLE_BTN_DEFAULT);
+            btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
+            btnShowMyWO.setStyle(STYLE_BTN_DEFAULT);
+            runFilterQuery(workshopQueries::getWarrantyUnpaid, () -> {
+                setTableItems(lastFilterResult);
+                btnWarrantyUnpaid.setText("SHOWING WARRANTY UNPAID: " + lastFilterResult.size());
+                btnWarrantyUnpaid.setStyle(STYLE_BTN_ORANGE_HI);
+                updateAllOpenWOButtonCount();
+                updateOldNewButtonCount();
+                updateRepairedNotBilledButtonCount();
+                updateMyWoButtonCount();
+            });
+        } else {
+            showDashboardItems();
+            updateAllOpenWOButtonCount();
+            updateOldNewButtonCount();
+            updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
@@ -567,8 +618,10 @@ public class ActualWorkshopController {
             allOpenFilterEnabled = false;
             oldNewFilterEnabled = false;
             repairedNotBilledFilterEnabled = false;
+            warrantyUnpaidFilterEnabled = false;
             btnOldNew.setStyle(STYLE_BTN_DEFAULT);
             btnRepairedNotPaid.setStyle(STYLE_BTN_DEFAULT);
+            btnWarrantyUnpaid.setStyle(STYLE_BTN_DEFAULT);
             int myId = getLoggedTechId();
             runFilterQuery(() -> workshopQueries.getMyWO(myId), () -> {
                 setTableItems(lastFilterResult);
@@ -577,12 +630,14 @@ public class ActualWorkshopController {
                 updateAllOpenWOButtonCount();
                 updateOldNewButtonCount();
                 updateRepairedNotBilledButtonCount();
+                updateWarrantyUnpaidButtonCount();
             });
         } else {
             showDashboardItems();
             updateAllOpenWOButtonCount();
             updateOldNewButtonCount();
             updateRepairedNotBilledButtonCount();
+            updateWarrantyUnpaidButtonCount();
             updateMyWoButtonCount();
             Platform.runLater(() -> Platform.runLater(this::hideLoadingOverlay));
         }
@@ -611,6 +666,14 @@ public class ActualWorkshopController {
         int count = countRepairedNotBilled();
         btnRepairedNotPaid.setText("REPAIRED NOT BILLED: " + count);
         btnRepairedNotPaid.setStyle(count > 0 ? STYLE_BTN_BLUE_LO : STYLE_BTN_DEFAULT);
+    }
+
+    private void updateWarrantyUnpaidButtonCount() {
+        if (btnWarrantyUnpaid == null)
+            return;
+        int count = countWarrantyUnpaid();
+        btnWarrantyUnpaid.setText("WARRANTY UNPAID: " + count);
+        btnWarrantyUnpaid.setStyle(count > 0 ? STYLE_BTN_ORANGE_LO : STYLE_BTN_DEFAULT);
     }
 
     private void updateMyWoButtonCount() {
@@ -679,6 +742,10 @@ public class ActualWorkshopController {
 
     private int countRepairedNotBilled() {
         return workshopQueries.countRepairedNotBilled();
+    }
+
+    private int countWarrantyUnpaid() {
+        return workshopQueries.countWarrantyUnpaid();
     }
 
     private int countMyWO() {
