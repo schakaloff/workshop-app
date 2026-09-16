@@ -38,9 +38,13 @@ public class LoginController {
     private Scene scene;
     private Parent root;
 
+    private static final String REPO_URL = "https://github.com/schakaloff/workshop-app";
+
     @FXML
     public void initialize() {
         versionLabel.setText("v" + ShopSettings.VERSION);
+        versionLabel.setStyle(versionLabel.getStyle() + "; -fx-cursor: hand; -fx-underline: true;");
+        versionLabel.setOnMouseClicked(e -> utils.LinkOpener.open(REPO_URL));
     }
 
     public static void main(String[] args){

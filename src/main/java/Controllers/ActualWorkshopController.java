@@ -216,6 +216,8 @@ public class ActualWorkshopController {
         table.setRowsPerPage(ROWS_PER_PAGE);
 
         versionLabel.setText("v" + ShopSettings.VERSION);
+        versionLabel.setStyle(versionLabel.getStyle() + "; -fx-cursor: hand; -fx-underline: true;");
+        versionLabel.setOnMouseClicked(e -> utils.LinkOpener.open("https://github.com/schakaloff/workshop-app"));
 
         searchCondition.setItems(FXCollections.observableArrayList(
                 "WO#", "Phone#", "First Name", "Last Name", "Full Name",
