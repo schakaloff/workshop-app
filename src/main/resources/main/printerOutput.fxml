@@ -34,7 +34,7 @@
          <!-- ─── Sub-title ─────────────────────────────────────────── -->
          <HBox alignment="CENTER" prefHeight="36"
                style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
-            <Label text="How would you like to output this document?"
+            <Label fx:id="docLabel" text="How would you like to output this document?"
                    style="-fx-text-fill: #666; -fx-font-size: 11;" />
          </HBox>
 

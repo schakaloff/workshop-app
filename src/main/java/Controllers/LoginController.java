@@ -95,7 +95,7 @@ public class LoginController {
     // whole thing as one uniform image — resizing/maximizing auto-fits it to the
     // window, and Ctrl+scroll lets the user zoom in further on top of that. Much
     // bigger text for low-vision users without touching per-widget layouts.
-    private static final double BASE_W = 1000.0;
+    private static final double BASE_W = 1150.0;
     private static final double BASE_H = 675.0;
     private double manualZoom = 1.0;
 

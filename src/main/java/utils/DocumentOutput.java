@@ -47,7 +47,7 @@ public class DocumentOutput {
     // ─── Public entry points ─────────────────────────────────────────────────────
 
     public static void printOrPdf(String title, String fxmlPath, InitFn initFn, Window owner) throws Exception {
-        OutputChoice choice = showChoiceDialog(owner);
+        OutputChoice choice = showChoiceDialog(owner, title);
         if (choice == OutputChoice.CANCEL) return;
 
         FXMLLoader loader = new FXMLLoader(DocumentOutput.class.getResource(fxmlPath));
@@ -104,7 +104,7 @@ public class DocumentOutput {
             InitFn initFn,
             Window owner,
             PdfSavedFn pdfSavedFn) throws Exception {
-        OutputChoice choice = showChoiceDialog(owner);
+        OutputChoice choice = showChoiceDialog(owner, title);
         if (choice == OutputChoice.CANCEL) return;
 
         FXMLLoader loader = new FXMLLoader(DocumentOutput.class.getResource(fxmlPath));
@@ -142,7 +142,7 @@ public class DocumentOutput {
     }
 
     public static void printPages(String title, List<AnchorPane> pages, Window owner) throws Exception {
-        OutputChoice choice = showChoiceDialog(owner);
+        OutputChoice choice = showChoiceDialog(owner, title);
         if (choice == OutputChoice.CANCEL) return;
 
         List<Stage> hiddenStages = new ArrayList<>();
@@ -184,10 +184,11 @@ public class DocumentOutput {
 
     // ─── Choice dialog ───────────────────────────────────────────────────────────
 
-    private static OutputChoice showChoiceDialog(Window owner) throws Exception {
+    private static OutputChoice showChoiceDialog(Window owner, String documentTitle) throws Exception {
         FXMLLoader loader = new FXMLLoader(DocumentOutput.class.getResource("/main/printerOutput.fxml"));
         Parent root = loader.load();
         PrinterOutputController controller = loader.getController();
+        controller.setDocumentTitle(prettifyDocumentTitle(documentTitle));
         Stage stage = new Stage();
         stage.initOwner(owner);
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -196,6 +197,16 @@ public class DocumentOutput {
         stage.setScene(new Scene(root));
         stage.showAndWait();
         return controller.getResult();
+    }
+
+    // Call sites pass filename-style titles (e.g. "WO_REPAIRED_124055",
+    // "WO_INVOICE_124055") as well as human-readable ones ("Work Order
+    // 124055") — turn the underscored ones into something readable for the
+    // "what am I about to print" dialog without touching the actual filenames.
+    private static String prettifyDocumentTitle(String title) {
+        if (title == null || title.isBlank()) return "this document";
+        String pretty = title.replace('_', ' ').trim();
+        return "Print: " + pretty;
     }
 
     // ─── Print ───────────────────────────────────────────────────────────────────

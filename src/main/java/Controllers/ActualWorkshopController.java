@@ -869,6 +869,7 @@ public class ActualWorkshopController {
 
         MFXTableColumn<WorkOrder> workOrder = new MFXTableColumn<>("Workorder", false);
         MFXTableColumn<WorkOrder> techCol = new MFXTableColumn<>("Tech", false);
+        MFXTableColumn<WorkOrder> locationCol = new MFXTableColumn<>("Location", false);
         MFXTableColumn<WorkOrder> status = new MFXTableColumn<>("Status", false);
         MFXTableColumn<WorkOrder> type = new MFXTableColumn<>("Model", false);
         MFXTableColumn<WorkOrder> customerCol = new MFXTableColumn<>("Customer", false);
@@ -876,37 +877,46 @@ public class ActualWorkshopController {
 
         workOrder.setColumnResizable(true);
         techCol.setColumnResizable(true);
+        locationCol.setColumnResizable(true);
         status.setColumnResizable(true);
         type.setColumnResizable(true);
         customerCol.setColumnResizable(true);
         date.setColumnResizable(true);
 
         workOrder.setMinWidth(110);
-        techCol.setMinWidth(100);
-        status.setMinWidth(160);
-        type.setMinWidth(160);
-        customerCol.setMinWidth(150);
-        date.setMinWidth(170);
+        techCol.setMinWidth(90);
+        locationCol.setMinWidth(110);
+        status.setMinWidth(150);
+        type.setMinWidth(150);
+        customerCol.setMinWidth(140);
+        date.setMinWidth(160);
 
-        workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber));
-        techCol.setRowCellFactory(order -> new MFXTableRowCell<>(wo -> {
+        // Every column header + cell shares the same left alignment so text lines
+        // up cleanly column-to-column — Date used to be right-aligned while
+        // everything else defaulted to center, causing the ragged/overlapping look.
+        for (MFXTableColumn<WorkOrder> col : new MFXTableColumn[]{workOrder, techCol, locationCol, status, type, customerCol, date}) {
+            col.setAlignment(Pos.CENTER_LEFT);
+        }
+
+        workOrder.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getWorkorderNumber) {{ setAlignment(Pos.CENTER_LEFT); }});
+        techCol.setRowCellFactory(order -> new MFXTableRowCell<>((WorkOrder wo) -> {
             String t = wo.getTechUsername();
             return (t != null && !t.isBlank()) ? t : "";
-        }));
-        status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus));
-        type.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getModel));
-        customerCol.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCustomerName));
-        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {
-            {
-                setAlignment(Pos.CENTER_RIGHT);
-            }
-        });
+        }) {{ setAlignment(Pos.CENTER_LEFT); }});
+        locationCol.setRowCellFactory(order -> new MFXTableRowCell<>((WorkOrder wo) -> {
+            String l = wo.getLocation();
+            return (l != null && !l.isBlank()) ? l : "";
+        }) {{ setAlignment(Pos.CENTER_LEFT); }});
+        status.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getStatus) {{ setAlignment(Pos.CENTER_LEFT); }});
+        type.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getModel) {{ setAlignment(Pos.CENTER_LEFT); }});
+        customerCol.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCustomerName) {{ setAlignment(Pos.CENTER_LEFT); }});
+        date.setRowCellFactory(order -> new MFXTableRowCell<>(WorkOrder::getCreatedAt) {{ setAlignment(Pos.CENTER_LEFT); }});
 
-        date.setAlignment(Pos.CENTER_RIGHT);
-        targetTable.getTableColumns().addAll(workOrder, techCol, status, type, customerCol, date);
+        targetTable.getTableColumns().addAll(workOrder, techCol, locationCol, status, type, customerCol, date);
 
         targetTable.getFilters().addAll(new IntegerFilter<>("Workorder", WorkOrder::getWorkorderNumber));
         targetTable.getFilters().addAll(new StringFilter<>("Tech", WorkOrder::getTechUsername));
+        targetTable.getFilters().addAll(new StringFilter<>("Location", WorkOrder::getLocation));
         targetTable.getFilters().addAll(new StringFilter<>("Status", WorkOrder::getStatus));
         targetTable.getFilters().addAll(new StringFilter<>("Customer", WorkOrder::getCustomerName));
         targetTable.getFilters().addAll(new StringFilter<>("Date", WorkOrder::getCreatedAt));
@@ -1016,6 +1026,13 @@ public class ActualWorkshopController {
             return;
         if (isStatusBillingComplete(wo.getStatus())) {
             row.setStyle("-fx-background-color: rgba(0,200,0,0.18);");
+            return;
+        }
+        boolean hasWarranty = wo.getVendorId() != null && !wo.getVendorId().isBlank();
+        if (isStatusComplete(wo.getStatus()) && hasWarranty && !wo.isVendorPaid()) {
+            // Warranty-unpaid takes priority over the plain "Repair Complete" blue —
+            // it's the more actionable state (money still owed by the vendor).
+            row.setStyle("-fx-background-color: rgba(255,140,0,0.22);");
             return;
         }
         if (isStatusComplete(wo.getStatus())) {

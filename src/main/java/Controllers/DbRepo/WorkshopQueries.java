@@ -87,7 +87,7 @@ public class WorkshopQueries {
         String sql = "SELECT wo.workorder, wo.status, wo.type, " +
                 "DATE_FORMAT(wo.createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
                 "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
-                "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
+                "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, wo.vendor_paid, wo.location, " +
                 "COALESCE(c.first_name, '') AS first_name, " +
                 "COALESCE(c.last_name,  '') AS last_name, " +
                 "COALESCE(t.username,   '') AS tech_username " +
@@ -121,6 +121,8 @@ public class WorkshopQueries {
                 wo.setTechId(techId);
                 wo.setTechUsername(rs.getString("tech_username"));
                 wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+                wo.setVendorPaid(rs.getBoolean("vendor_paid"));
+                wo.setLocation(rs.getString("location"));
 
                 list.add(wo);
             }
@@ -138,7 +140,7 @@ public class WorkshopQueries {
             "SELECT wo.workorder, wo.status, wo.type, " +
             "DATE_FORMAT(wo.createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
             "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
-            "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
+            "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, wo.vendor_paid, wo.location, " +
             "COALESCE(c.first_name, '') AS first_name, " +
             "COALESCE(c.last_name,  '') AS last_name, " +
             "COALESCE(t.username,   '') AS tech_username " +
@@ -176,6 +178,8 @@ public class WorkshopQueries {
                     wo.setTechId(techId);
                     wo.setTechUsername(rs.getString("tech_username"));
                     wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+                    wo.setVendorPaid(rs.getBoolean("vendor_paid"));
+                wo.setLocation(rs.getString("location"));
 
                     list.add(wo);
                 }
@@ -351,7 +355,7 @@ public class WorkshopQueries {
         String sql = "SELECT wo.workorder, wo.status, wo.type, " +
                 "DATE_FORMAT(wo.createdAt, '%Y-%m-%d %H:%i') AS createdAt, " +
                 "wo.vendorId, wo.warrantyNumber, wo.model, wo.serialNumber, " +
-                "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, " +
+                "wo.problemDesc, wo.customer_id, wo.deposit_amount, wo.tech_id, wo.vendor_paid, wo.location, " +
                 "COALESCE(c.first_name, '') AS first_name, " +
                 "COALESCE(c.last_name,  '') AS last_name, " +
                 "COALESCE(t.username,   '') AS tech_username " +
@@ -383,6 +387,8 @@ public class WorkshopQueries {
                     wo.setTechId(techId);
                     wo.setTechUsername(rs.getString("tech_username"));
                     wo.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+                    wo.setVendorPaid(rs.getBoolean("vendor_paid"));
+                wo.setLocation(rs.getString("location"));
                     return wo;
                 }
             }

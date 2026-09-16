@@ -18,9 +18,9 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootStack" maxHeight="675.0" maxWidth="1000.0" minHeight="675.0" minWidth="1000.0" prefHeight="675.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
+<StackPane fx:id="rootStack" maxHeight="675.0" maxWidth="1150.0" minHeight="675.0" minWidth="1150.0" prefHeight="675.0" prefWidth="1150.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ActualWorkshopController">
    <children>
-      <BorderPane fx:id="contentPane" prefHeight="675.0" prefWidth="1000.0">
+      <BorderPane fx:id="contentPane" prefHeight="675.0" prefWidth="1150.0">
 
          <!-- ─── Sidebar ─────────────────────────────────────────────────── -->
          <left>
@@ -64,23 +64,23 @@
 
          <!-- ─── Main content ───────────────────────────────────────────── -->
          <center>
-            <VBox prefHeight="675.0" prefWidth="860.0" style="-fx-background-color: #f5f7fa;" BorderPane.alignment="CENTER">
+            <VBox prefHeight="675.0" prefWidth="1010.0" style="-fx-background-color: #f5f7fa;" BorderPane.alignment="CENTER">
                <children>
 
                   <!-- Top bar with filter buttons + search -->
-                  <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="860.0" spacing="8" style="-fx-background-color: white; -fx-padding: 0 16 0 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                  <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="1010.0" spacing="8" style="-fx-background-color: white; -fx-padding: 0 16 0 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                      <children>
-                        <MFXButton fx:id="btnAllWO" buttonType="FLAT" onAction="#showAllOpenWO" prefHeight="28.0" prefWidth="115.0" style="-fx-background-color: #e8f8f9; -fx-text-fill: #0097A7; -fx-background-radius: 6; -fx-border-color: #0097A7; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="ALL OPEN WO: 0" />
-                        <MFXButton fx:id="btnOldNew" buttonType="FLAT" onAction="#showOldNewOver10" prefHeight="28.0" prefWidth="115.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="OLD OPENED WO: 0" />
-                        <MFXButton fx:id="btnRepairedNotPaid" buttonType="FLAT" onAction="#showRepairedNotPaid" prefHeight="28.0" prefWidth="135.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="REPAIRED NOT BILLED: 0" />
-                        <MFXButton fx:id="btnWarrantyUnpaid" buttonType="FLAT" onAction="#showWarrantyUnpaid" prefHeight="28.0" prefWidth="135.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="WARRANTY UNPAID: 0" />
-                        <MFXButton fx:id="btnShowMyWO" buttonType="FLAT" onAction="#showMyWO" prefHeight="28.0" prefWidth="90.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="MY WO: 0" />
+                        <MFXButton fx:id="btnAllWO" buttonType="FLAT" onAction="#showAllOpenWO" prefHeight="28.0" prefWidth="130.0" style="-fx-background-color: #e8f8f9; -fx-text-fill: #0097A7; -fx-background-radius: 6; -fx-border-color: #0097A7; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="ALL OPEN WO: 0" />
+                        <MFXButton fx:id="btnOldNew" buttonType="FLAT" onAction="#showOldNewOver10" prefHeight="28.0" prefWidth="140.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="OLD OPENED WO: 0" />
+                        <MFXButton fx:id="btnRepairedNotPaid" buttonType="FLAT" onAction="#showRepairedNotPaid" prefHeight="28.0" prefWidth="185.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="REPAIRED NOT BILLED: 0" />
+                        <MFXButton fx:id="btnWarrantyUnpaid" buttonType="FLAT" onAction="#showWarrantyUnpaid" prefHeight="28.0" prefWidth="155.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="WARRANTY UNPAID: 0" />
+                        <MFXButton fx:id="btnShowMyWO" buttonType="FLAT" onAction="#showMyWO" prefHeight="28.0" prefWidth="95.0" style="-fx-background-color: white; -fx-text-fill: #666; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5; -fx-font-size: 10;" text="MY WO: 0" />
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <MFXComboBox fx:id="searchCondition" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" prefHeight="25.0" prefWidth="100.0" style="-mfx-main: #999999; -fx-background-radius: 6; -fx-border-radius: 6; -fx-padding: 2 8 2 8;" />
-                        <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" maxHeight="25.0" maxWidth="100.0" minHeight="25.0" minWidth="100.0" prefHeight="25.0" prefWidth="100.0" style="-mfx-main: #999999; -fx-background-radius: 6; -fx-border-radius: 6; -fx-padding: 2 8 2 8;" />
-                        <MFXButton fx:id="newOrderBTN" buttonType="RAISED" onAction="#createNewOrder" prefHeight="25.0" prefWidth="90.0" style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" text="+ New WO" />
+                        <MFXComboBox fx:id="searchCondition" maxHeight="25.0" maxWidth="90.0" minHeight="25.0" minWidth="90.0" prefHeight="25.0" prefWidth="90.0" style="-mfx-main: #999999; -fx-background-radius: 6; -fx-border-radius: 6; -fx-padding: 2 8 2 8;" />
+                        <MFXTextField fx:id="searchTxtField" floatMode="BORDER" floatingText="Quick Search" maxHeight="25.0" maxWidth="90.0" minHeight="25.0" minWidth="90.0" prefHeight="25.0" prefWidth="90.0" style="-mfx-main: #999999; -fx-background-radius: 6; -fx-border-radius: 6; -fx-padding: 2 8 2 8;" />
+                        <MFXButton fx:id="newOrderBTN" buttonType="RAISED" onAction="#createNewOrder" prefHeight="25.0" prefWidth="85.0" style="-fx-background-color: #0097A7; -fx-text-fill: white; -fx-background-radius: 6;" text="+ New WO" />
                      </children>
                   </HBox>
 
@@ -91,14 +91,14 @@
                         <!-- Dashboard table -->
                         <AnchorPane style="-fx-background-color: #f5f7fa; -fx-padding: 12;">
                            <children>
-                              <MFXPaginatedTableView fx:id="table" prefWidth="841.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <MFXPaginatedTableView fx:id="table" prefWidth="986.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               <!-- Plain scrollable table for filter results too large for MFXPaginatedTableView's pagination (it throws internally past a certain row count) -->
-                              <MFXTableView fx:id="tableScrollable" managed="false" visible="false" prefWidth="841.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <MFXTableView fx:id="tableScrollable" managed="false" visible="false" prefWidth="986.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children>
                         </AnchorPane>
 
                         <!-- My Work panel -->
-                        <AnchorPane fx:id="personalwork" managed="false" prefHeight="621.0" prefWidth="860.0" style="-fx-background-color: #f5f7fa;" visible="false">
+                        <AnchorPane fx:id="personalwork" managed="false" prefHeight="621.0" prefWidth="1010.0" style="-fx-background-color: #f5f7fa;" visible="false">
                            <children>
 
                               <!-- Top controls bar -->
