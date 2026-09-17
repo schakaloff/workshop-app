@@ -133,24 +133,25 @@ public class PrintRepairController {
         double labour       = repairData.stream().mapToDouble(WorkTable::getPrice).sum();
         double partsDisplay = partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
 
-// warranty = parts not included in bill at all
-        double taxBase = hasWarranty ? labour : labour + partsDisplay;
-        double billParts = hasWarranty ? 0.0 : partsDisplay;
+        // Parts and their tax must always be counted here, same as Pay/Billing
+        // (DB.ShopSettings.calcTaxes, used by ViewOrderController.finalDueDb())
+        // — this used to zero parts out under warranty, so a warranty repair's
+        // printed total silently didn't match what Pay would actually charge.
+        double[] taxes = DB.ShopSettings.calcTaxes(labour, partsDisplay, hasWarranty, hasPstNum, hasGstNum);
+        double pst = taxes[0];
+        double gst = taxes[1];
 
-        double pst = ShopSettings.get().calcPst(taxBase, hasPstNum);
-        double gst = ShopSettings.get().calcGst(taxBase, hasGstNum);
-
-        double total = labour + billParts + pst + gst;
+        double total = labour + partsDisplay + pst + gst;
 
         totalLabour = String.format(CURRENCY_FMT, labour);
-        totalParts  = String.format(CURRENCY_FMT, billParts); // shows $0.00 if warranty
+        totalParts  = String.format(CURRENCY_FMT, partsDisplay);
         totalPST    = String.format(CURRENCY_FMT, pst);
         totalGST    = String.format(CURRENCY_FMT, gst);
         totalTotal  = String.format(CURRENCY_FMT, total);
 
         buildLabourRows(repairData);
 
-        buildBillingSummary(wo, co, labour, billParts, pst, gst);
+        buildBillingSummary(wo, co, labour, partsDisplay, pst, gst);
 
 
         Platform.runLater(() -> {
