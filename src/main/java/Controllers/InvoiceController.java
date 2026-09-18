@@ -64,7 +64,8 @@ public class InvoiceController {
 
         // header meta
         salesPersonTXT.setText(tech);
-        PONumberTXT.setText(String.valueOf(wo.getWorkorderNumber()));
+        String po = wo.getPoNumber();
+        PONumberTXT.setText(po == null || po.isBlank() ? "None" : po);
         woNumberTXT.setText(String.valueOf(wo.getWorkorderNumber()));
         dateTXT.setText(date);
         woRefTXT.setText(String.valueOf(wo.getWorkorderNumber()));

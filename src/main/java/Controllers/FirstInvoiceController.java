@@ -29,7 +29,8 @@ public class FirstInvoiceController {
         cxPhoneTXT.setText(co.getPhone() != null ? co.getPhone() : "");
 
         salesPersonTXT.setText(tech);
-        PONumberTXT.setText(String.valueOf(wo.getWorkorderNumber()));
+        String po = wo.getPoNumber();
+        PONumberTXT.setText(po == null || po.isBlank() ? "None" : po);
         paymentMethodTXT.setText(method);
         depositTXT.setText(String.format("CDN $%.2f", amount));
         totalTXT.setText(String.format("CDN $%.2f", amount));
