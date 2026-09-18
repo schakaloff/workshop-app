@@ -49,30 +49,33 @@
                <font><Font size="13" /></font>
             </Label>
 
-            <Label fx:id="wrongLogin"
-                   layoutX="40" layoutY="158"
-                   style="-fx-text-fill: #ee0101;">
-               <font><Font size="12" /></font>
-            </Label>
-
             <MFXTextField fx:id="usernameField"
                           floatMode="BORDER"
                           floatingText="Username"
-                          layoutX="40" layoutY="175"
+                          layoutX="40" layoutY="165"
+                          onAction="#userLogin"
                           prefWidth="310" />
 
             <MFXPasswordField fx:id="passwordField"
                               floatMode="BORDER"
                               floatingText="Password"
-                              layoutX="40" layoutY="230"
+                              layoutX="40" layoutY="220"
+                              onAction="#userLogin"
                               prefWidth="310" />
 
             <MFXButton text="Log In"
                        onAction="#userLogin"
                        buttonType="RAISED"
-                       layoutX="40" layoutY="300"
+                       layoutX="40" layoutY="290"
                        prefWidth="310" prefHeight="36"
                        style="-fx-background-color: #0097A7; -fx-text-fill: white;" />
+
+            <Label fx:id="wrongLogin"
+                   layoutX="40" layoutY="336"
+                   prefWidth="310" alignment="CENTER"
+                   visible="false" managed="false">
+               <font><Font size="12" /></font>
+            </Label>
 
             <Label fx:id="versionLabel"
                    text="v0.0.8"

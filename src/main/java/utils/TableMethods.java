@@ -298,13 +298,30 @@
             MFXTableColumn<Technicians> roleCol = new MFXTableColumn<>("Role");
             roleCol.setMinWidth(180);
             roleCol.setRowCellFactory(item -> {
-                MFXTableRowCell<Technicians, String> cell = new MFXTableRowCell<>(Technicians::getRole);
+                // MFXTableRowCell nodes (including this cell's ComboBox graphic) get
+                // recycled across different rows as the table scrolls/re-renders —
+                // only update(T) is called on reuse, the graphic itself is left as-is.
+                // A permanent bindBidirectional() to the item captured at creation
+                // time therefore keeps editing whichever technician originally built
+                // this cell, even after it's been recycled to display someone else —
+                // that's what caused roles to silently swap onto the wrong user.
+                // Track the "current" item in a holder that update() refreshes.
+                Technicians[] current = { item };
 
                 ComboBox<String> box = new ComboBox<>();
                 box.setItems(roleOptions);
-                box.valueProperty().bindBidirectional(item.roleProperty());
+                box.setValue(item.getRole());
                 box.setMaxWidth(Double.MAX_VALUE);
+                box.setOnAction(e -> current[0].setRole(box.getValue()));
 
+                MFXTableRowCell<Technicians, String> cell = new MFXTableRowCell<>(Technicians::getRole) {
+                    @Override
+                    public void update(Technicians newItem) {
+                        super.update(newItem);
+                        current[0] = newItem;
+                        box.setValue(newItem.getRole());
+                    }
+                };
                 cell.setGraphic(box);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 return cell;

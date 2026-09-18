@@ -57,7 +57,7 @@ public class LoginController {
 
         // disable button to prevent double click
         ((Node) e.getSource()).setDisable(true);
-            wrongLogin.setText("Logging in...");
+        setLoginStatus("Logging in…", Status.INFO);
 
         Task<Boolean> loginTask = new Task<>() {
             @Override
@@ -81,18 +81,37 @@ public class LoginController {
                 try { launchWorkshop(e); }
                 catch (IOException ex) { ex.printStackTrace(); }
             } else {
-                wrongLogin.setText("Invalid Data");
+                setLoginStatus("Invalid username or password", Status.ERROR);
                 ((Node) e.getSource()).setDisable(false);
             }
         });
 
         loginTask.setOnFailed(ev -> {
             loginTask.getException().printStackTrace();
-            wrongLogin.setText("Connection error.");
+            setLoginStatus("Can't reach the database — check your connection", Status.ERROR);
             ((Node) e.getSource()).setDisable(false);
         });
 
         new Thread(loginTask).start();
+    }
+
+    private enum Status { INFO, ERROR }
+
+    // The login status used to be a permanent bare red label wedged between the
+    // subtitle and the username field — always red even for the benign
+    // "Logging in..." message, and always taking up space whether or not there
+    // was anything to say. Moved below the button as a badge that only appears
+    // when there's something to show, styled per status instead of always red.
+    private void setLoginStatus(String message, Status status) {
+        wrongLogin.setText(message);
+        wrongLogin.setVisible(true);
+        wrongLogin.setManaged(true);
+        String base = "-fx-background-radius: 6; -fx-padding: 6 10 6 10; -fx-font-size: 12;";
+        if (status == Status.ERROR) {
+            wrongLogin.setStyle(base + "-fx-background-color: #fdecea; -fx-text-fill: #c0392b;");
+        } else {
+            wrongLogin.setStyle(base + "-fx-background-color: #e8f8f9; -fx-text-fill: #0097A7;");
+        }
     }
     // Dashboard's fx:id="rootStack" is fixed at this size (main.fxml min/max/pref
     // all locked to it). Rather than rewrite every screen to reflow, we scale the

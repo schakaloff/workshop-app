@@ -1174,6 +1174,8 @@ public class ActualWorkshopController {
         btnOldNew.setManaged(true);
         btnRepairedNotPaid.setVisible(true);
         btnRepairedNotPaid.setManaged(true);
+        btnWarrantyUnpaid.setVisible(true);
+        btnWarrantyUnpaid.setManaged(true);
         btnShowMyWO.setVisible(true);
         btnShowMyWO.setManaged(true);
         searchTxtField.setVisible(true);
@@ -1195,6 +1197,8 @@ public class ActualWorkshopController {
         btnOldNew.setManaged(false);
         btnRepairedNotPaid.setVisible(false);
         btnRepairedNotPaid.setManaged(false);
+        btnWarrantyUnpaid.setVisible(false);
+        btnWarrantyUnpaid.setManaged(false);
         btnShowMyWO.setVisible(false);
         btnShowMyWO.setManaged(false);
         searchTxtField.setVisible(false);
