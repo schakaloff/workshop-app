@@ -128,5 +128,14 @@ public class InvoiceController {
                     .append(String.format("%.2f", labour+parts+pst+gst)).append("\n");
         }
         billingNotesTXT.setText(sb.toString());
+
+        // Amounts are left-anchored in the FXML, so a wide value ("CDN $1234.56")
+        // runs into the bold label beside it — pin each one to the box's right edge.
+        for (Text t : new Text[] { labourTXT, partsTXT, pstTXT, gstTXT, subtotalTXT,
+                depositDeductTXT, totalDueTXT, labourSubTXT, partsSubTXT }) {
+            t.setLayoutX(AMOUNT_RIGHT_X - t.getLayoutBounds().getWidth());
+        }
     }
+
+    private static final double AMOUNT_RIGHT_X = 575.0;
 }

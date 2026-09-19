@@ -83,6 +83,8 @@ public class DocumentOutput {
                     Parent page2 = null;
                     if (controller instanceof PrintRepairController) {
                         page2 = ((PrintRepairController) controller).buildPage2();
+                    } else if (controller instanceof Controllers.PrintEstimateController) {
+                        page2 = ((Controllers.PrintEstimateController) controller).buildPage2();
                     }
                     if (choice == OutputChoice.PRINTER) {
                         printNodes(owner, node, page2);

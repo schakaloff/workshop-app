@@ -38,5 +38,12 @@ public class FirstInvoiceController {
         dateTXT.setText(date);
         woRefTXT.setText(String.valueOf(wo.getWorkorderNumber()));
         dateRefTXT.setText(date);
+
+        // Amounts are left-anchored in the FXML, so a wide value ("CDN $1234.56")
+        // runs into the bold label beside it — pin each one to the box's right edge.
+        depositTXT.setLayoutX(AMOUNT_RIGHT_X - depositTXT.getLayoutBounds().getWidth());
+        totalTXT.setLayoutX(AMOUNT_RIGHT_X - totalTXT.getLayoutBounds().getWidth());
     }
+
+    private static final double AMOUNT_RIGHT_X = 575.0;
 }

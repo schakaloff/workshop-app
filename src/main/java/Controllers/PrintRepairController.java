@@ -37,6 +37,7 @@ public class PrintRepairController {
 
     // ─── Warranty ────────────────────────────────────────────────────────────────
     @FXML private Text yesOrNoTXT;
+    @FXML private Text vendorLabel;
     @FXML private Text vendorTXT;
     @FXML private Text warrantyRefLabel;
     @FXML private Text warrantyNumTXT;
@@ -78,6 +79,19 @@ public class PrintRepairController {
     private final List<AnchorPane> overflowRows = new ArrayList<>();
     // Tail of the problem/complaint text that didn't fit in its box on page 1
     private String problemOverflowText = "";
+    // Y position right after the last parts row actually drawn on page 1
+    // (or the parts header Y, if no parts rows fit) — used to place the
+    // billing summary below whatever labour/parts content actually rendered,
+    // instead of at a fixed Y that can collide with a long labour description.
+    private double partsPageEndY = 0;
+    // True when every part row overflowed to page 2 (none fit on page 1) —
+    // the page 1 parts header is hidden in that case so the table isn't
+    // drawn twice (empty header on page 1, real table on page 2).
+    private boolean allPartsOverflowed = false;
+    // Billing summary lines, and whether they had to move to page 2 because
+    // page 1 was already full (labour/parts content ran too long).
+    private List<String> billingLines = new ArrayList<>();
+    private boolean billingOnPage2 = false;
 
     private static final double PROBLEM_BOX_W = 265.0;
     private static final double PROBLEM_BOX_H = 118.0;
@@ -151,18 +165,19 @@ public class PrintRepairController {
 
         buildLabourRows(repairData);
 
-        buildBillingSummary(wo, co, labour, partsDisplay, pst, gst);
-
-
         Platform.runLater(() -> {
             double partsHeaderY = repositionParts(repairData.size());
             buildPartsRowsWithOverflow(partsData, partsHeaderY);
+            // Billing summary is placed only after we know where parts
+            // content actually ended on page 1 (and whether it overflowed),
+            // so it can never land on top of a long labour description.
+            buildBillingSummary(wo, co, labour, partsDisplay, pst, gst);
             populateTotals();
         });
     }
 
     public AnchorPane buildPage2() {
-        if (overflowRows.isEmpty() && problemOverflowText.isEmpty()) return null;
+        if (overflowRows.isEmpty() && problemOverflowText.isEmpty() && !billingOnPage2) return null;
 
         AnchorPane page = new AnchorPane();
         page.setPrefWidth(PAGE_W);
@@ -190,7 +205,9 @@ public class PrintRepairController {
             y += continued.getLayoutBounds().getHeight() + 20;
         }
 
-        // Parts header, if any parts rows overflowed off page 1
+        // Parts header, if any parts rows overflowed off page 1. Labelled
+        // "(continued)" only when some rows already showed on page 1 —
+        // if everything overflowed, this is the only copy of the table.
         if (!overflowRows.isEmpty()) {
             Rectangle hdrRect = new Rectangle(4, y, 590, HEADER_H);
             hdrRect.setFill(Color.LIGHTGRAY);
@@ -198,8 +215,9 @@ public class PrintRepairController {
             hdrRect.setStrokeWidth(0.5);
             page.getChildren().add(hdrRect);
 
+            String partLabel = allPartsOverflowed ? "Part" : "Part (continued)";
             page.getChildren().addAll(
-                    staticText("Part (continued)", 6,   y + 12, true),
+                    staticText(partLabel, 6,   y + 12, true),
                     staticText("Qty",              354,  y + 12, true),
                     staticText("Unit Price",       424,  y + 12, true),
                     staticText("Total",            524,  y + 12, true)
@@ -211,13 +229,25 @@ public class PrintRepairController {
                 row.setLayoutX(4);
                 row.setLayoutY(y);
                 page.getChildren().add(row);
-                y += row.getPrefHeight() <= 0 ? ROW_H : row.getPrefHeight();
+                // Force layout so wrapped part names report their real
+                // height instead of the USE_COMPUTED_SIZE placeholder.
+                row.applyCss();
+                row.layout();
+                double h = row.getBoundsInLocal().getHeight();
+                y += h > 0 ? h : ROW_H;
             }
         }
 
         // Totals box at bottom of page 2 — taller to fit 5 lines
         // (pushed down further if the content above ran long)
         double totalsY = Math.max(PAGE_H - 120, y + 20);
+
+        // Billing summary sits in the same bottom band as the totals box
+        // (left half of the page, same idea as page 1) instead of trailing
+        // right after the parts table, so it never overlaps it.
+        if (billingOnPage2) {
+            drawBillingSummary(page, billingLines, totalsY);
+        }
 
         Rectangle totalsRect = new Rectangle(465, totalsY, 129, 109);
         totalsRect.setFill(Color.WHITE);
@@ -292,7 +322,12 @@ public class PrintRepairController {
         // Vendor names vary in length — push the Warranty Ref# / PO# columns
         // (label + value together) out based on the measured width of what
         // comes before them instead of sitting at fixed x and risking overlap.
-        double x = vendorTXT.getLayoutX() + vendorTXT.getLayoutBounds().getWidth() + WARRANTY_GAP;
+        // "Vendor" (label row) and vendorTXT (value row) sit on separate rows,
+        // so use whichever is wider — a blank vendor value must not collapse
+        // the offset down to the "Vendor" label's own width.
+        double vendorWidth = Math.max(vendorLabel.getLayoutBounds().getWidth(),
+                vendorTXT.getLayoutBounds().getWidth());
+        double x = vendorTXT.getLayoutX() + vendorWidth + WARRANTY_GAP;
         warrantyRefLabel.setLayoutX(x);
         warrantyNumTXT.setLayoutX(x);
 
@@ -437,6 +472,20 @@ public class PrintRepairController {
             }
         }
 
+        partsPageEndY = currentY;
+
+        // Nothing fit on page 1 — hide the parts header/labels there too, so
+        // the table shows up exactly once (on page 2), not as an empty
+        // header on page 1 plus the real table again on page 2.
+        allPartsOverflowed = !overflowRows.isEmpty() && partsVBox.getChildren().isEmpty();
+        if (allPartsOverflowed) {
+            partsHeaderRect.setVisible(false);
+            partsLabelPart.setVisible(false);
+            partsLabelQty.setVisible(false);
+            partsLabelUnit.setVisible(false);
+            partsLabelTotal.setVisible(false);
+        }
+
         // If there are overflow rows, hide the entire totals box and footer on page 1
         if (!overflowRows.isEmpty()) {
             totalLabourTXT.setVisible(false);
@@ -540,19 +589,42 @@ public class PrintRepairController {
                     String.format("$%.2f", total));
         }
 
-        // render box in FXML AnchorPane — add nodes dynamically
-        // billing header rect at Y=755 (below totals)
-        double bY = 755.0;
+        billingLines = lines;
+
+        // Default spot is just below the totals box, but a long labour
+        // description or a full parts table can push content further down —
+        // start below whatever actually got drawn on page 1 instead of a
+        // fixed Y, so this box never lands on top of that content.
+        double bY = Math.max(BILLING_DEFAULT_Y, partsPageEndY + PARTS_GAP);
+        double neededHeight = HEADER_H + lines.size() * 14.0;
+
+        // If parts already overflowed to page 2, page 1 is spoken for —
+        // and if the box wouldn't clear the footer, it doesn't fit either.
+        // Either way, move the whole summary to page 2 instead of drawing
+        // it over whatever else is on page 1.
+        if (!overflowRows.isEmpty() || bY + neededHeight > FOOTER_Y - 10.0) {
+            billingOnPage2 = true;
+            return;
+        }
+
+        billingOnPage2 = false;
         AnchorPane root = (AnchorPane) totalsRect.getParent();
+        drawBillingSummary(root, lines, bY);
+    }
+
+    private static final double BILLING_DEFAULT_Y = 755.0;
+    private static final double FOOTER_Y          = 805.0;
+
+    private void drawBillingSummary(AnchorPane target, List<String> lines, double startY) {
+        double bY = startY;
 
         Rectangle hdr = new Rectangle(4, bY, 460, 14);
         hdr.setFill(Color.LIGHTGRAY);
         hdr.setStroke(Color.BLACK);
         hdr.setStrokeWidth(0.5);
-        root.getChildren().add(hdr);
+        target.getChildren().add(hdr);
 
-        Text hdrTxt = staticText("BILLING SUMMARY", 6, bY + 11, true);
-        root.getChildren().add(hdrTxt);
+        target.getChildren().add(staticText("BILLING SUMMARY", 6, bY + 11, true));
 
         bY += 14;
         for (String line : lines) {
@@ -560,8 +632,8 @@ public class PrintRepairController {
             row.setFill(Color.WHITE);
             row.setStroke(Color.BLACK);
             row.setStrokeWidth(0.5);
-            root.getChildren().add(row);
-            root.getChildren().add(staticText(line, 6, bY + 11, false));
+            target.getChildren().add(row);
+            target.getChildren().add(staticText(line, 6, bY + 11, false));
             bY += 14;
         }
     }

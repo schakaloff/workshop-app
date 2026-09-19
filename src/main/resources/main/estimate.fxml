@@ -70,7 +70,7 @@
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="52.0" layoutY="0.759" stroke="BLACK" strokeType="INSIDE" width="590.0" />
             <Text layoutX="2.0" layoutY="12.0" text="Warranty" wrappingWidth="59.0"><font><Font size="11.0" /></font></Text>
             <Text fx:id="yesOrNoTXT" layoutX="3.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
-            <Text layoutX="78.0" layoutY="12.0" text="Vendor"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="vendorLabel" layoutX="78.0" layoutY="12.0" text="Vendor"><font><Font size="11.0" /></font></Text>
             <Text fx:id="vendorTXT" layoutX="78.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
             <Text fx:id="warrantyRefLabel" layoutX="153.0" layoutY="12.0" text="Warranty Ref#"><font><Font size="11.0" /></font></Text>
             <Text fx:id="warrantyNumTXT" layoutX="153.0" layoutY="29.759"><font><Font size="11.0" /></font></Text>
@@ -96,7 +96,12 @@
                </clip>
             </Text>
             <Text layoutX="320.0" layoutY="15.241" text="Problem/Complaint"><font><Font size="11.0" /></font></Text>
-            <Text fx:id="problemTXTArea" layoutX="320.0" layoutY="30.0" wrappingWidth="265.0"><font><Font size="11.0" /></font></Text>
+            <Text fx:id="problemTXTArea" layoutX="320.0" layoutY="22.0" textOrigin="TOP" wrappingWidth="265.0">
+               <font><Font size="11.0" /></font>
+               <clip>
+                  <Rectangle width="265.0" height="118.0" />
+               </clip>
+            </Text>
          </children>
       </Group>
 
