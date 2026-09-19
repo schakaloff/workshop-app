@@ -143,3 +143,49 @@
     -fx-text-fill: #333333;
 }
 
+
+/* ─── High-contrast text for the open Work Order view ───────────────────
+   Applied via styleClass="wo-contrast" on viewOrder.fxml's root dialog, so
+   other screens keep the normal gray theme. ─────────────────────────── */
+.wo-contrast .mfx-text-field .text-field,
+.wo-contrast .mfx-text-field:disabled .text-field,
+.wo-contrast .mfx-combo-box .text-field {
+    -fx-text-inner-color: black;
+    -fx-text-fill: black;
+    -fx-prompt-text-fill: black;
+}
+
+.wo-contrast .mfx-text-field .floating-text,
+.wo-contrast .mfx-text-field:disabled .floating-text,
+.wo-contrast .mfx-text-field .measure-unit,
+.wo-contrast .mfx-combo-box .floating-text {
+    -fx-text-fill: black;
+}
+
+.wo-contrast .text-area,
+.wo-contrast .text-area:disabled {
+    -fx-text-fill: black;
+}
+
+.wo-contrast .text-area .text,
+.wo-contrast .text-area:disabled .text {
+    -fx-fill: black;
+    -fx-font-smoothing-type: lcd;
+}
+
+.wo-contrast .mfx-checkbox .label,
+.wo-contrast .mfx-checkbox:disabled .label {
+    -fx-text-fill: black;
+}
+
+.wo-contrast .mfx-table-column .label,
+.wo-contrast .mfx-table-row-cell .label,
+.wo-contrast .mfx-table-row-cell:disabled .label,
+.wo-contrast .mfx-list-cell .label {
+    -fx-text-fill: black;
+}
+
+.wo-contrast .tab-pane .tab .tab-label,
+.wo-contrast .tab-pane .tab:selected .tab-label {
+    -fx-text-fill: black;
+}

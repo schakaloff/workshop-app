@@ -24,6 +24,7 @@
         onClose="#closeDialog"
         prefHeight="538.0" prefWidth="780.0"
         showAlwaysOnTop="false" showClose="true" showMinimize="false"
+        styleClass="wo-contrast"
         style="-fx-background-color: #f5f7fa;"
         xmlns="http://javafx.com/javafx/21"
         xmlns:fx="http://javafx.com/fxml/1"
@@ -151,7 +152,7 @@
                                     style="-fx-background-color: #fafbfc; -fx-padding: 8 16 8 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                                  <children>
                                     <Text text="Order Contact (if different from account):"
-                                          style="-fx-font-size: 11; -fx-fill: #888;" />
+                                          style="-fx-font-size: 11; -fx-fill: black;" />
                                     <MFXTextField fx:id="contactNameTXF"
                                                   floatMode="BORDER" floatingText="Contact Name"
                                                   prefHeight="32" prefWidth="160" />
@@ -177,7 +178,7 @@
                                     style="-fx-background-color: white; -fx-padding: 10 16 10 16;"
                                     prefHeight="52">
                                  <children>
-                                    <Text text="Deposit:" style="-fx-font-size: 12; -fx-fill: #666;" />
+                                    <Text text="Deposit:" style="-fx-font-size: 12; -fx-fill: black;" />
                                     <MFXTextField fx:id="depositTXF"
                                                   allowEdit="false"
                                                   floatMode="BORDER" floatingText="Deposit"
@@ -186,7 +187,7 @@
                                                onAction="#collectDeposit"
                                                prefHeight="32" prefWidth="140"
                                                text="Additional Deposit"
-                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
+                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: black; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <MFXButton buttonType="RAISED"
                                                onAction="#Pay"
@@ -197,7 +198,7 @@
                                                onAction="#openPrintOptions"
                                                prefHeight="32" prefWidth="80"
                                                text="Print"
-                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
+                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: black; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
                                     <MFXButton buttonType="RAISED"
                                                onAction="#updateOrder"
                                                prefHeight="32" prefWidth="80"
@@ -235,7 +236,7 @@
                                     <MFXButton onAction="#onAddStep"
                                                prefHeight="28" prefWidth="140"
                                                text="Add Repair Desc"
-                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: #333; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
+                                               style="-fx-background-color: #f5f7fa; -fx-text-fill: black; -fx-background-radius: 6; -fx-border-color: #ddd; -fx-border-radius: 6; -fx-border-width: 0.5;" />
                                     <MFXButton onAction="#repairComplete"
                                                prefHeight="28" prefWidth="130"
                                                text="Repair Complete"
@@ -337,35 +338,35 @@
 
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
                                        <children>
-                                          <Text text="Labour:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Text text="Labour:" style="-fx-font-size: 13; -fx-fill: black;" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Text fx:id="labourAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
                                        <children>
-                                          <Text text="Parts:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Text text="Parts:" style="-fx-font-size: 13; -fx-fill: black;" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Text fx:id="partsAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
                                        <children>
-                                          <Text text="PST:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Text text="PST:" style="-fx-font-size: 13; -fx-fill: black;" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Text fx:id="pstAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
                                        <children>
-                                          <Text text="GST:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Text text="GST:" style="-fx-font-size: 13; -fx-fill: black;" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Text fx:id="gstAmountTXT" text="\$0.00" style="-fx-font-size: 13;" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 0 10 0;">
                                        <children>
-                                          <Text text="Deposit Paid:" style="-fx-font-size: 13; -fx-fill: #555;" />
+                                          <Text text="Deposit Paid:" style="-fx-font-size: 13; -fx-fill: black;" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Text fx:id="depositAmountTXT" text="-$0.00" style="-fx-font-size: 13;" />
                                        </children>
@@ -375,9 +376,9 @@
 
                                     <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 14 0 0 0;">
                                        <children>
-                                          <Text text="Total Due:" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: #333;" />
+                                          <Text text="Total Due:" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: black;" />
                                           <Region HBox.hgrow="ALWAYS" />
-                                          <Text fx:id="totalDueTXT" text="\$0.00" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: #0097A7;" />
+                                          <Text fx:id="totalDueTXT" text="\$0.00" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-fill: black;" />
                                        </children>
                                     </HBox>
 
