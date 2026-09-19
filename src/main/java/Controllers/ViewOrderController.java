@@ -88,6 +88,7 @@ public class ViewOrderController {
     // Status / tech / tabs
     @FXML private TabPane              tabPane;
     @FXML private MFXComboBox<String>  statusCombo;
+    @FXML private Text                 createdAtTXT;
     @FXML private MFXComboBox<String>  techIdCombo;
     @FXML private TextArea             serviceNotesTXT;
 
@@ -460,6 +461,8 @@ public class ViewOrderController {
         String woNum    = String.valueOf(wo.getWorkorderNumber());
 
         mainNumberTFX.setText(woNum);
+        String created = wo.getCreatedAt();
+        createdAtTXT.setText(created != null && !created.isBlank() ? "Created: " + created : "");
 
         customerTFX.setText(fullName);
         statusTFX.setText(wo.getStatus());

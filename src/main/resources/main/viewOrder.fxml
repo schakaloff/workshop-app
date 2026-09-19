@@ -50,6 +50,7 @@
                   <MFXComboBox fx:id="techIdCombo"
                                floatMode="BORDER" floatingText="Tech"
                                prefHeight="28" prefWidth="120" />
+                  <Text fx:id="createdAtTXT" style="-fx-fill: rgba(255,255,255,0.9); -fx-font-size: 12;" />
                </children>
             </HBox>
 
