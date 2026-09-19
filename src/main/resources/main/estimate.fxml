@@ -26,8 +26,8 @@
       </Text>
 
       <!-- ESTIMATE badge -->
-      <Rectangle arcHeight="5.0" arcWidth="5.0" height="52.0" layoutX="288.0" layoutY="4.0" stroke="BLACK" strokeType="INSIDE" width="192.0" />
-      <Text fill="WHITE" layoutX="293.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ESTIMATE" textAlignment="CENTER" wrappingWidth="180.0">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" height="52.0" layoutX="310.0" layoutY="4.0" stroke="BLACK" strokeType="INSIDE" width="168.0" />
+      <Text fill="WHITE" layoutX="312.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ESTIMATE" textAlignment="CENTER" wrappingWidth="160.0">
          <font><Font size="32.0" /></font>
       </Text>
 

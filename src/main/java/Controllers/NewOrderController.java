@@ -105,6 +105,7 @@ public class NewOrderController {
 
         Scene scene = new Scene(dialog);
         dialogStage.setScene(scene);
+        dialogStage.setMaximized(true);
         dialogStage.showAndWait();
 
         CustomersController picker = loader.getController();
@@ -145,7 +146,9 @@ public class NewOrderController {
             new Alert(Alert.AlertType.WARNING, "Please select a Repair Type", ButtonType.OK).showAndWait();
             return;
         }
-        if(conditionTXF.getText() == null || conditionTXF.getText().isBlank()){
+        // Condition can't be known for an in-home repair — the unit isn't in the shop to inspect.
+        boolean inHome = "In-Home Repair Check".equalsIgnoreCase(repairTypeDb);
+        if(!inHome && (conditionTXF.getText() == null || conditionTXF.getText().isBlank())){
             new Alert(Alert.AlertType.WARNING, "Please specify the Condition", ButtonType.OK).showAndWait();
             conditionTXF.requestFocus();
             return;
@@ -175,8 +178,12 @@ public class NewOrderController {
         wo.setContactPhone(contactPhoneDb);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
-        //pay
-        openPaymentDialog(wo, co, InvoiceType.DEPOSIT);
+        //pay — a warranty repair (vendor set) takes no deposit, so only open the
+        //payment dialog for it if someone entered a deposit amount anyway
+        boolean isWarranty = vendorIdDb != null && !vendorIdDb.isBlank();
+        if (!isWarranty || depositDB > 0) {
+            openPaymentDialog(wo, co, InvoiceType.DEPOSIT);
+        }
 
         //print wo
         //Print.printWorkOrder(wo, co, dialogInstance.getScene().getWindow());
