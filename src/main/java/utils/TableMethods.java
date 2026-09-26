@@ -136,7 +136,7 @@
             priceCol.setRowCellFactory(item -> {
                 MFXTableRowCell<WorkTable, Double> cell = new MFXTableRowCell<>(WorkTable::getPrice);
                 TextField field = new TextField();
-                field.textProperty().bindBidirectional(item.priceProperty(), new NumberStringConverter());
+                field.textProperty().bindBidirectional(item.priceProperty(), new BlankZeroNumberConverter());
                 field.setAlignment(Pos.CENTER_RIGHT);
                 cell.setGraphic(field);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -146,6 +146,22 @@
             repairData.add(new WorkTable(LocalDate.now(), "", "", 0.0));
             repairTable.getTableColumns().addAll(dateCol, techCol, descCol, priceCol);
             repairTable.setItems(repairData);
+        }
+
+        // Same formatting as NumberStringConverter, but a zero value shows as an
+        // empty field and an empty field reads back as 0 — so new rows start blank.
+        private static class BlankZeroNumberConverter extends javafx.util.StringConverter<Number> {
+            private final NumberStringConverter delegate = new NumberStringConverter();
+
+            @Override
+            public String toString(Number value) {
+                return value == null || value.doubleValue() == 0 ? "" : delegate.toString(value);
+            }
+
+            @Override
+            public Number fromString(String text) {
+                return text == null || text.isBlank() ? Double.valueOf(0) : delegate.fromString(text);
+            }
         }
 
         public static void loadPartsTable(MFXTableView<PartTable> partsTable, ObservableList<PartTable> partsData) {
@@ -175,7 +191,7 @@
             qtyCol.setPrefWidth(140);
             qtyCol.setRowCellFactory(item -> {
                 MFXTableRowCell<PartTable, Integer> cell = new MFXTableRowCell<>(PartTable::getQuantity);
-                TextField tf = new TextField(String.valueOf(item.getQuantity()));
+                TextField tf = new TextField(item.getQuantity() == 0 ? "" : String.valueOf(item.getQuantity()));
 
                 tf.textProperty().addListener((obs, oldVal, newVal) -> {
                     if (!newVal.matches("\\d*")) {
@@ -197,7 +213,7 @@
             priceCol.setPrefWidth(140);
             priceCol.setRowCellFactory(item -> {
                 MFXTableRowCell<PartTable, Double> cell = new MFXTableRowCell<>(PartTable::getPrice);
-                TextField tf = new TextField(String.valueOf(item.getPrice()));
+                TextField tf = new TextField(item.getPrice() == 0 ? "" : String.valueOf(item.getPrice()));
 
                 tf.textProperty().addListener((obs, oldVal, newVal) -> {
                     if (!newVal.matches("\\d*(\\.\\d*)?")) {
@@ -219,13 +235,13 @@
             totalCol.setPrefWidth(140);
             totalCol.setRowCellFactory(item -> {
                 MFXTableRowCell<PartTable, Double> cell = new MFXTableRowCell<>(PartTable::getTotalPrice);
-                TextField tf = new TextField(String.valueOf(item.getTotalPrice()));
+                TextField tf = new TextField(item.getTotalPrice() == 0 ? "" : String.valueOf(item.getTotalPrice()));
 
                 tf.setEditable(false);
                 tf.setFocusTraversable(false);
 
                 item.totalPriceProperty().addListener((obs, oldVal, newVal) -> {
-                    tf.setText(String.valueOf(newVal.doubleValue()));
+                    tf.setText(newVal.doubleValue() == 0 ? "" : String.valueOf(newVal.doubleValue()));
                 });
 
                 cell.setGraphic(tf);
