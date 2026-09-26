@@ -230,7 +230,7 @@ public class CustomersController {
         NewCustomerController ctrl = loader.getController();
         Customer created = ctrl.getCustomer();
         if (created != null) {
-            allData.add(created);
+            allData.add(0, created); // list is newest-first (ORDER BY id DESC)
             showDefaultItems();
         }
     }

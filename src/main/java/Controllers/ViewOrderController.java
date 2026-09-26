@@ -76,7 +76,6 @@ public class ViewOrderController {
     @FXML private MFXComboBox<String>  repairTypeCombo;
 
     // Customer info
-    @FXML private MFXTextField         idTFX;
     @FXML private MFXTextField         firstNameTXF;
     @FXML private MFXTextField         lastNameTXF;
     @FXML private MFXTextField         phoneTFX;
@@ -106,13 +105,9 @@ public class ViewOrderController {
 
     // Labour tab header
     @FXML private MFXTextField         customerTFX;
-    @FXML private MFXTextField         statusTFX;
-    @FXML private MFXTextField         numberTFX;
 
     // Parts tab header
     @FXML private MFXTextField         partsCustomerTFX;
-    @FXML private MFXTextField         partsStatusTFX;
-    @FXML private MFXTextField         partsNumberTFX;
 
     // Tables & file list
     @FXML private MFXTableView<WorkTable>   repairTable;
@@ -338,6 +333,14 @@ public class ViewOrderController {
                     return;
                 }
 
+                // Guard 3 — half-filled labour / part rows need an explicit OK
+                if (!confirmIncompleteRows()) {
+                    isLoading = true;
+                    statusCombo.selectItem(oldStatus);
+                    isLoading = false;
+                    return;
+                }
+
                 updateStatusInDb(newStatus);
                 return;
             }
@@ -382,7 +385,7 @@ public class ViewOrderController {
 
     private void setupCustomerDoubleClick() {
         for (MFXTextField field : new MFXTextField[]{
-                firstNameTXF, lastNameTXF, phoneTFX, addressTFX, townTFX, zipTFX, idTFX
+                firstNameTXF, lastNameTXF, phoneTFX, addressTFX, townTFX, zipTFX
         }) {
             field.setOnMouseClicked(e -> {
                 if (e.getClickCount() == 2) {
@@ -411,7 +414,6 @@ public class ViewOrderController {
     // ─── POPULATE UI ────────────────────────────────────────────────────────────
 
     private void populateCustomerFields(Customer co) {
-        idTFX.setText(co.getId());
         firstNameTXF.setText(co.getFirstName());
         lastNameTXF.setText(co.getLastName());
         phoneTFX.setText(co.getPhone());
@@ -465,12 +467,8 @@ public class ViewOrderController {
         createdAtTXT.setText(created != null && !created.isBlank() ? "Created: " + created : "");
 
         customerTFX.setText(fullName);
-        statusTFX.setText(wo.getStatus());
-        numberTFX.setText(woNum);
 
         partsCustomerTFX.setText(fullName);
-        partsStatusTFX.setText(wo.getStatus());
-        partsNumberTFX.setText(woNum);
 
         if (wo.getTechId() > 0) {
             techIdCombo.selectItem(ViewControllerQueries.getTechUsernameById(wo.getTechId()));
@@ -590,6 +588,9 @@ public class ViewOrderController {
             locationTXF.requestFocus();
             return;
         }
+
+        // Guard 3 — half-filled labour / part rows need an explicit OK
+        if (!confirmIncompleteRows()) return;
 
         updateStatusInDb("Repair Complete");
         statusCombo.selectItem("Repair Complete");
@@ -816,8 +817,6 @@ public class ViewOrderController {
         );
 
         currentWorkOrder.setStatus(newStatus);
-        statusTFX.setText(newStatus);
-        partsStatusTFX.setText(newStatus);
         mainController.LoadOrders();
         applyBillingLockUI();
     }
@@ -1018,7 +1017,6 @@ public class ViewOrderController {
         vendorId.setText("");
         warrantyCheckBox.setSelected(false);
 
-        idTFX.setText("");
         firstNameTXF.setText("");
         lastNameTXF.setText("");
         phoneTFX.setText("");
@@ -1157,6 +1155,50 @@ public class ViewOrderController {
     }
 
     /** Shows a WARNING alert with a single OK button. */
+    /**
+     * Before marking Repair Complete: a labour row that has a tech but no description
+     * or no amount, or a part row with a name but no amount (or an amount but no name),
+     * is probably a mistake. Ask whether that's intentional; "No" sends the user to the
+     * offending tab to fix it. Rows that are completely blank are ignored.
+     * Returns true if it's OK to proceed.
+     */
+    private boolean confirmIncompleteRows() {
+        boolean labourIncomplete = repairData.stream().anyMatch(r ->
+                notBlank(r.getTech())
+                        && (!notBlank(r.getDescription()) || r.getPrice() == 0));
+        if (labourIncomplete && !askYesNo(
+                "Some labour lines have a tech assigned but an empty description or an empty amount.\n\n"
+                        + "Did you leave them like that on purpose?")) {
+            tabPane.getSelectionModel().select(1);
+            return false;
+        }
+
+        boolean partsIncomplete = partsData.stream().anyMatch(p -> {
+            boolean noName   = !notBlank(p.getName());
+            boolean noAmount = p.getPrice() == 0 || p.getQuantity() == 0;
+            boolean untouched = noName && p.getPrice() == 0 && p.getQuantity() == 0;
+            return !untouched && (noName || noAmount);
+        });
+        if (partsIncomplete && !askYesNo(
+                "Some parts have an empty name or an empty amount.\n\n"
+                        + "Did you leave them like that on purpose?")) {
+            tabPane.getSelectionModel().select(2);
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean notBlank(String s) {
+        return s != null && !s.isBlank();
+    }
+
+    private boolean askYesNo(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
+        alert.setHeaderText("Incomplete entries");
+        return alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
+    }
+
     private void showWarning(String message) {
         new Alert(Alert.AlertType.WARNING, message, ButtonType.OK).showAndWait();
     }

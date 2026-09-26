@@ -119,10 +119,6 @@
                               <HBox spacing="12" alignment="CENTER_LEFT"
                                     style="-fx-background-color: white; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                                  <children>
-                                    <MFXTextField fx:id="idTFX"
-                                                  allowEdit="false"
-                                                  floatMode="BORDER" floatingText="ID"
-                                                  prefHeight="32" prefWidth="70" />
                                     <MFXTextField fx:id="firstNameTXF"
                                                   allowEdit="false"
                                                   floatMode="BORDER" floatingText="First Name"
@@ -134,16 +130,16 @@
                                     <MFXTextField fx:id="phoneTFX"
                                                   allowEdit="false"
                                                   floatMode="BORDER" floatingText="Phone"
-                                                  prefHeight="32" prefWidth="110" />
+                                                  prefHeight="32" prefWidth="120" />
                                     <MFXTextField fx:id="addressTFX"
                                                   floatMode="BORDER" floatingText="Address"
-                                                  prefHeight="32" prefWidth="110" />
+                                                  prefHeight="32" prefWidth="170" />
                                     <MFXTextField fx:id="townTFX"
                                                   floatMode="BORDER" floatingText="Town"
                                                   prefHeight="32" prefWidth="100" />
                                     <MFXTextField fx:id="zipTFX"
                                                   floatMode="BORDER" floatingText="ZIP"
-                                                  prefHeight="32" prefWidth="80" />
+                                                  prefHeight="32" prefWidth="78" />
                                  </children>
                               </HBox>
 
@@ -226,12 +222,6 @@
                                     <MFXTextField fx:id="customerTFX"
                                                   floatMode="BORDER" floatingText="Customer"
                                                   prefHeight="28" prefWidth="160" />
-                                    <MFXTextField fx:id="statusTFX"
-                                                  floatMode="BORDER" floatingText="Status"
-                                                  prefHeight="28" prefWidth="130" />
-                                    <MFXTextField fx:id="numberTFX"
-                                                  floatMode="BORDER" floatingText="W/O"
-                                                  prefHeight="28" prefWidth="80" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <MFXButton onAction="#onAddStep"
                                                prefHeight="28" prefWidth="140"
@@ -290,12 +280,6 @@
                                     <MFXTextField fx:id="partsCustomerTFX"
                                                   floatMode="BORDER" floatingText="Customer"
                                                   prefHeight="28" prefWidth="160" />
-                                    <MFXTextField fx:id="partsStatusTFX"
-                                                  floatMode="BORDER" floatingText="Status"
-                                                  prefHeight="28" prefWidth="130" />
-                                    <MFXTextField fx:id="partsNumberTFX"
-                                                  floatMode="BORDER" floatingText="W/O"
-                                                  prefHeight="28" prefWidth="80" />
                                     <Region HBox.hgrow="ALWAYS" />
                                     <MFXButton onAction="#addPart"
                                                prefHeight="28" prefWidth="80"
