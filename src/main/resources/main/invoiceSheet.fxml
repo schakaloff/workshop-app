@@ -182,12 +182,22 @@
          <font><Font size="11.0" /></font>
       </Text>
 
+      <!-- Payment received this visit — blank when this invoice is just a reprint, not an actual payment -->
+      <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="522.0"
+                 stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text fx:id="paidMethodLabelTXT" layoutX="386.0" layoutY="538.0" text="">
+         <font><Font size="11.0" /></font>
+      </Text>
+      <Text fx:id="paidAmountTXT" layoutX="470.0" layoutY="538.0" text="">
+         <font><Font size="11.0" /></font>
+      </Text>
+
       <!-- Balance Due -->
-      <Rectangle fill="WHITE" height="28.0" layoutX="380.0" layoutY="522.0" stroke="BLACK" strokeType="INSIDE" width="201.0" />
-      <Text layoutX="386.0" layoutY="540.0" text="BALANCE DUE:">
+      <Rectangle fill="WHITE" height="28.0" layoutX="380.0" layoutY="546.0" stroke="BLACK" strokeType="INSIDE" width="201.0" />
+      <Text layoutX="386.0" layoutY="564.0" text="BALANCE DUE:">
          <font><Font name="Arial Bold" size="12.0" /></font>
       </Text>
-      <Text fx:id="totalDueTXT" layoutX="470.0" layoutY="540.0" text="">
+      <Text fx:id="totalDueTXT" layoutX="470.0" layoutY="564.0" text="">
          <font><Font name="Arial Bold" size="12.0" /></font>
       </Text>
 
@@ -200,30 +210,30 @@
       </Text>
 
       <!-- ─── Billing summary ───────────────────────────────────────── -->
-      <Rectangle fill="WHITE" height="16.0" layoutX="14.0" layoutY="556.0" stroke="BLACK" strokeType="INSIDE" width="360.0" />
-      <Text layoutX="18.0" layoutY="568.0" text="BILLING SUMMARY">
+      <Rectangle fill="WHITE" height="16.0" layoutX="14.0" layoutY="580.0" stroke="BLACK" strokeType="INSIDE" width="360.0" />
+      <Text layoutX="18.0" layoutY="592.0" text="BILLING SUMMARY">
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
-      <Rectangle fill="WHITE" height="44.0" layoutX="14.0" layoutY="572.0"
+      <Rectangle fill="WHITE" height="44.0" layoutX="14.0" layoutY="596.0"
                  stroke="BLACK" strokeType="INSIDE" width="360.0" />
-      <Text fx:id="billingNotesTXT" layoutX="18.0" layoutY="586.0" wrappingWidth="350.0">
+      <Text fx:id="billingNotesTXT" layoutX="18.0" layoutY="610.0" wrappingWidth="350.0">
          <font><Font size="10.0" /></font>
       </Text>
 
       <!-- ─── Divider before footer ────────────────────────────────── -->
-      <Line endX="560.0" layoutX="14.0" layoutY="628.0" startX="0" stroke="BLACK" />
+      <Line endX="560.0" layoutX="14.0" layoutY="652.0" startX="0" stroke="BLACK" />
 
       <!-- ─── Footer ───────────────────────────────────────────────── -->
-      <Text layoutX="14.0" layoutY="644.0"
+      <Text layoutX="14.0" layoutY="668.0"
             text="- Dependable Service -   - Professional People -">
          <font><Font name="Arial Bold" size="11.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="660.0"
+      <Text layoutX="14.0" layoutY="684.0"
             text="Any units not picked up after six months will be disposed of."
             wrappingWidth="560.0">
          <font><Font size="10.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="676.0"
+      <Text layoutX="14.0" layoutY="700.0"
             text="Teltronics Service Centre will not be held liable in instances of any internal or external damages sustained during repair time."
             wrappingWidth="560.0">
          <font><Font size="10.0" /></font>

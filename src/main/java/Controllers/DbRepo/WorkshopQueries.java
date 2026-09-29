@@ -282,9 +282,9 @@ public class WorkshopQueries {
                                        String problemDesc, int customerId, String vendorId,
                                        String warrantyNumber, double deposit, String repairType,
                                        String accessories, String condition,
-                                       String contactName, String contactPhone) {
-        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, repair_type, accessories, `condition`, contact_name, contact_phone, createdAt) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                                       String contactName, String contactPhone, String poNumber) {
+        String sql = "INSERT INTO work_order (status, type, model, serialNumber, problemDesc, customer_id, vendorId, warrantyNumber, deposit_amount, repair_type, accessories, `condition`, contact_name, contact_phone, po_number, createdAt) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         try (Connection conn = DataSourceProvider.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -302,6 +302,7 @@ public class WorkshopQueries {
             stmt.setString(12, condition == null ? "" : condition);
             stmt.setString(13, contactName == null ? "" : contactName);
             stmt.setString(14, contactPhone == null ? "" : contactPhone);
+            stmt.setString(15, poNumber == null ? "" : poNumber);
 
             stmt.executeUpdate();
 

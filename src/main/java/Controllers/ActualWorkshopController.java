@@ -856,10 +856,10 @@ public class ActualWorkshopController {
             String problemDesc, int customerId, String vendorId,
             String warrantyNumber, double deposit, String repairType,
             String accessories, String condition,
-            String contactName, String contactPhone) {
+            String contactName, String contactPhone, String poNumber) {
         return workshopQueries.insertOrderIntoDatabase(status, type, model, serialNumber,
                 problemDesc, customerId, vendorId, warrantyNumber, deposit, repairType,
-                accessories, condition, contactName, contactPhone);
+                accessories, condition, contactName, contactPhone, poNumber);
     }
 
     // Columns/filters can't be shared between two table instances, so this builds a
@@ -1089,6 +1089,14 @@ public class ActualWorkshopController {
     }
 
     public void createNewOrder() throws IOException {
+        createNewOrder(null, null);
+    }
+
+    // "Recreate WO" (ViewOrderController) reuses the same New Order dialog, but
+    // pre-filled from the old order — a repeat repair on the same unit, treated
+    // as a fresh intake (new deposit, no leftover warranty) rather than reopening
+    // the closed-out order.
+    public void createNewOrder(WorkOrder prefillFrom, Customer prefillCustomer) throws IOException {
         contentPane.setEffect(new GaussianBlur(4));
         contentPane.setDisable(true);
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main/newOrder.fxml"));
@@ -1096,6 +1104,9 @@ public class ActualWorkshopController {
         NewOrderController dialogController = loader.getController();
         dialogController.setMainController(this);
         dialogController.setDialogInstance(dialog);
+        if (prefillFrom != null && prefillCustomer != null) {
+            dialogController.prefillFrom(prefillFrom, prefillCustomer);
+        }
         dialog.setOpacity(0);
         dialog.setScaleX(0.8);
         dialog.setScaleY(0.8);

@@ -52,6 +52,11 @@
                                floatMode="BORDER" floatingText="Tech"
                                prefHeight="28" prefWidth="120" />
                   <Text fx:id="createdAtTXT" style="-fx-fill: rgba(255,255,255,0.9); -fx-font-size: 12;" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <MFXButton onAction="#recreateWorkOrder"
+                             prefHeight="28" prefWidth="110"
+                             text="Recreate WO"
+                             style="-fx-background-color: white; -fx-text-fill: #0097A7; -fx-background-radius: 6;" />
                </children>
             </HBox>
 

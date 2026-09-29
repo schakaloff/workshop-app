@@ -36,8 +36,19 @@ public class InvoiceController {
     @FXML private Text subtotalTXT;
     @FXML private Text depositDeductTXT;
     @FXML private Text totalDueTXT;
+    @FXML private Text paidMethodLabelTXT;
+    @FXML private Text paidAmountTXT;
 
     public void initData(WorkOrder wo, Customer co, String method, double amount, String tech, String date) {
+        initData(wo, co, method, amount, tech, date, 0);
+    }
+
+    // amountPaidNow is the payment actually just taken in this transaction (0 when
+    // this invoice is only being reprinted/previewed, not tied to a live payment) —
+    // shown as its own "{method}: $x.xx" line so it's clear what the customer paid,
+    // separately from the deposit and from the balance still due.
+    public void initData(WorkOrder wo, Customer co, String method, double amount, String tech, String date,
+                          double amountPaidNow) {
         // load line items from DB
         double labour  = ViewControllerQueries.labourTotalDb(wo.getWorkorderNumber());
         double parts   = ViewControllerQueries.partsTotalDb(wo.getWorkorderNumber());
@@ -85,6 +96,13 @@ public class InvoiceController {
         gstTXT.setText(String.format("CDN $%.2f", gst));
         subtotalTXT.setText(String.format("CDN $%.2f", subtotal));
         depositDeductTXT.setText(deposit > 0 ? String.format("- CDN $%.2f", deposit) : "—");
+        if (amountPaidNow > 0) {
+            paidMethodLabelTXT.setText("Paid (" + method + "):");
+            paidAmountTXT.setText(String.format("CDN $%.2f", amountPaidNow));
+        } else {
+            paidMethodLabelTXT.setText("");
+            paidAmountTXT.setText("");
+        }
         totalDueTXT.setText(String.format("CDN $%.2f", totalDue));
         labourSubTXT.setText(String.format("CDN $%.2f", labour));
         partsSubTXT.setText(String.format("CDN $%.2f", parts));
@@ -139,7 +157,7 @@ public class InvoiceController {
         // Amounts are left-anchored in the FXML, so a wide value ("CDN $1234.56")
         // runs into the bold label beside it — pin each one to the box's right edge.
         for (Text t : new Text[] { labourTXT, partsTXT, pstTXT, gstTXT, subtotalTXT,
-                depositDeductTXT, totalDueTXT, labourSubTXT, partsSubTXT }) {
+                depositDeductTXT, totalDueTXT, labourSubTXT, partsSubTXT, paidAmountTXT }) {
             t.setLayoutX(AMOUNT_RIGHT_X - t.getLayoutBounds().getWidth());
         }
     }

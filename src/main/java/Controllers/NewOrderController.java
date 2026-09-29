@@ -37,6 +37,7 @@ public class NewOrderController {
     @FXML private MFXComboBox<String> repairTypeCombo;
     @FXML private MFXTextField accessoriesTXF;
     @FXML private MFXTextField conditionTXF;
+    @FXML private MFXTextField poNumberTXF;
     @FXML private MFXTextField contactNameTXF;
     @FXML private MFXTextField contactPhoneTXF;
 
@@ -165,8 +166,9 @@ public class NewOrderController {
         String conditionDb = conditionTXF.getText();
         String contactNameDb = contactNameTXF.getText();
         String contactPhoneDb = contactPhoneTXF.getText();
+        String poNumberDb = poNumberTXF.getText();
 
-        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb, accessoriesDb, conditionDb, contactNameDb, contactPhoneDb);
+        int newId = mainController.insertOrderIntoDatabase("New", typeDB, modelDB, serialNumberDB, problemDescDB, customerId, vendorIdDb, warrantyNumberDb, depositDB, repairTypeDb, accessoriesDb, conditionDb, contactNameDb, contactPhoneDb, poNumberDb);
 
         mainController.reloadOrders();
 
@@ -176,12 +178,11 @@ public class NewOrderController {
         wo.setCondition(conditionDb);
         wo.setContactName(contactNameDb);
         wo.setContactPhone(contactPhoneDb);
+        wo.setPoNumber(poNumberDb);
         Customer co = new Customer(String.valueOf(customerId), firstNameTXF.getText(), lastNameTXF.getText(), "", phoneTFX.getText(), "", addressTFX.getText(), townTFX.getText(), zipTFX.getText());
 
-        //pay — a warranty repair (vendor set) takes no deposit, so only open the
-        //payment dialog for it if someone entered a deposit amount anyway
-        boolean isWarranty = vendorIdDb != null && !vendorIdDb.isBlank();
-        if (!isWarranty || depositDB > 0) {
+        // No deposit means no payment was actually taken, so there's nothing to invoice.
+        if (depositDB > 0) {
             openPaymentDialog(wo, co, InvoiceType.DEPOSIT);
         }
 
@@ -213,6 +214,31 @@ public class NewOrderController {
         stage.setTitle("Payment");
         stage.setScene(new Scene(root));
         stage.showAndWait();
+    }
+
+    // "Recreate WO" (ViewOrderController) — same unit coming back in, so device
+    // and customer details carry over, but this is a fresh intake: no warranty
+    // carried over. Deposit is left at the form's own default (0.00, editable)
+    // rather than copied or pinned — nothing has been paid yet on this new order.
+    public void prefillFrom(WorkOrder wo, Customer co) {
+        type.setText(wo.getType());
+        model.setText(wo.getModel());
+        serialNumber.setText(wo.getSerialNumber());
+        problemDesc.setText(wo.getProblemDesc());
+        accessoriesTXF.setText(wo.getAccessories());
+        conditionTXF.setText(wo.getCondition());
+        poNumberTXF.setText(wo.getPoNumber());
+        if (wo.getRepairType() != null && !wo.getRepairType().isBlank()) {
+            repairTypeCombo.selectItem(wo.getRepairType());
+        }
+
+        idTFX.setText(co.getId());
+        firstNameTXF.setText(co.getFirstName());
+        lastNameTXF.setText(co.getLastName());
+        phoneTFX.setText(co.getPhone());
+        addressTFX.setText(co.getAddress());
+        townTFX.setText(co.getTown());
+        zipTFX.setText(co.getPostalCode());
     }
 
     @FXML

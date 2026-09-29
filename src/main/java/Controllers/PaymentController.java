@@ -216,6 +216,13 @@ public class PaymentController {
             String method = getSelectedMethod();
             double amount = getEnteredAmount(method);
 
+            // The invoice's Balance Due is what's left AFTER this payment, not the
+            // amount just entered — printing the entered amount there made a fully
+            // paid final invoice claim a balance still owing equal to what was paid.
+            double balanceDue = invoiceType == InvoiceType.FINAL
+                    ? Math.max(0, (suggestedAmount != null ? suggestedAmount : 0) - amount)
+                    : amount;
+
             String tech = techIDTXF.getText();
             String date = dateTXF.getText();
 
@@ -241,7 +248,7 @@ public class PaymentController {
                             ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
                         } else {
                             InvoiceController ic = loader.getController();
-                            ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                            ic.initData(currentWorkOrder, currentCustomer, method, balanceDue, tech, date, amount);
                         }
                     }
             );
@@ -258,7 +265,7 @@ public class PaymentController {
                             ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
                         } else {
                             InvoiceController ic = loader.getController();
-                            ic.initData(currentWorkOrder, currentCustomer, method, amount, tech, date);
+                            ic.initData(currentWorkOrder, currentCustomer, method, balanceDue, tech, date, amount);
                         }
                     },
                     ownerWindow

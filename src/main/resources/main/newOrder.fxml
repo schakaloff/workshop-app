@@ -131,6 +131,9 @@
                   <MFXTextField fx:id="conditionTXF"
                                 floatMode="BORDER" floatingText="Condition"
                                 prefHeight="34" prefWidth="180" />
+                  <MFXTextField fx:id="poNumberTXF"
+                                floatMode="BORDER" floatingText="PO Number"
+                                prefHeight="34" prefWidth="120" />
                </children>
             </HBox>
 

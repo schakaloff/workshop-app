@@ -965,6 +965,35 @@ public class ViewOrderController {
         );
     }
 
+    // ─── RECREATE WO ────────────────────────────────────────────────────────────
+
+    // Same unit coming back in for another repair — closes this order and opens
+    // a New Order dialog pre-filled with its device/customer details, as a fresh
+    // intake (new deposit, no carried-over warranty), not a reopen of this one.
+    @FXML
+    public void recreateWorkOrder() throws Exception {
+        if (isDirty) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Unsaved Changes");
+            alert.setHeaderText("You have unsaved changes.");
+            alert.setContentText("Save before recreating this work order?");
+
+            ButtonType saveBtn    = new ButtonType("Yes (Save)");
+            ButtonType discardBtn = new ButtonType("No (Discard)");
+            ButtonType cancelBtn  = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(saveBtn, discardBtn, cancelBtn);
+
+            var choice = alert.showAndWait();
+            if (choice.isEmpty() || choice.get() == cancelBtn) return; // abort, dialog stays open
+            if (choice.get() == saveBtn) updateOrder();
+        }
+
+        WorkOrder woToCopy = currentWorkOrder;
+        Customer  coToCopy = currentCustomer;
+        actuallyCloseDialog();
+        mainController.createNewOrder(woToCopy, coToCopy);
+    }
+
     // ─── CLOSE DIALOG ───────────────────────────────────────────────────────────
 
     @FXML
