@@ -123,7 +123,7 @@ public class ViewOrderController {
     private final ObservableList<String>       techNames  = FXCollections.observableArrayList();
 
     public static final ObservableList<String> WORK_ORDER_STATUSES = FXCollections.observableArrayList(
-            "New", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed", "Cancelled"
+            "New", "Waiting", "In Progress", "Waiting Parts", "Repair Complete", "Billing Complete", "Closed", "Cancelled"
     );
 
     // ─── STATE ──────────────────────────────────────────────────────────────────
@@ -1088,7 +1088,17 @@ public class ViewOrderController {
         double[] taxes       = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
         // Keep the stored snapshot in sync with what's actually being charged.
         ViewControllerQueries.saveTaxesToDb(woNumber, taxes[0], taxes[1]);
-        return Math.max(0, labour + parts + taxes[0] + taxes[1] - deposit);
+        double customerOwed  = labour + parts + taxes[0] + taxes[1]
+                - vendorCoveredAmount(hasWarranty, labour, parts, taxes[0], taxes[1]);
+        return Math.max(0, customerOwed - deposit);
+    }
+
+    // Once the vendor has paid us for a warranty repair, the customer owes
+    // nothing more on it — zero out the whole bill rather than prorating by
+    // the vendor's individual pays-labour/parts/pst/gst flags.
+    private double vendorCoveredAmount(boolean hasWarranty, double labour, double parts, double pst, double gst) {
+        if (!hasWarranty || !currentWorkOrder.isVendorPaid()) return 0;
+        return labour + parts + pst + gst;
     }
 
     // ─── BILLING TAB ────────────────────────────────────────────────────────────
@@ -1102,14 +1112,19 @@ public class ViewOrderController {
         boolean  hasPstNum   = currentCustomer.getPstNumber() != null && !currentCustomer.getPstNumber().isBlank();
         boolean  hasGstNum   = currentCustomer.getGstNumber() != null && !currentCustomer.getGstNumber().isBlank();
         double[] taxes       = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
-        double   total       = Math.max(0, labour + parts + taxes[0] + taxes[1] - deposit);
+        double   customerOwed = labour + parts + taxes[0] + taxes[1]
+                - vendorCoveredAmount(hasWarranty, labour, parts, taxes[0], taxes[1]);
+        double   total       = Math.max(0, customerOwed - deposit);
 
         labourAmountTXT.setText(String.format("$%.2f", labour));
         partsAmountTXT.setText(String.format("$%.2f", parts));
         pstAmountTXT.setText(String.format("$%.2f", taxes[0]));
         gstAmountTXT.setText(String.format("$%.2f", taxes[1]));
         depositAmountTXT.setText(String.format("-$%.2f", deposit));
-        totalDueTXT.setText(String.format("$%.2f", total));
+
+        boolean vendorPaid = hasWarranty && currentWorkOrder.isVendorPaid();
+        totalDueTXT.setText(vendorPaid ? "PAID  —  $0.00" : String.format("$%.2f", total));
+        totalDueTXT.setFill(vendorPaid ? javafx.scene.paint.Color.web("#2e7d32") : javafx.scene.paint.Color.BLACK);
 
         // Only a warranty job has a vendor to be reimbursed by, so the checkbox
         // is meaningless (and hidden) for a regular customer-paid repair.
@@ -1126,6 +1141,17 @@ public class ViewOrderController {
         boolean paid = vendorPaidCheckBox.isSelected();
         currentWorkOrder.setVendorPaid(paid);
         ViewControllerQueries.saveVendorPaid(currentWorkOrder.getWorkorderNumber(), paid);
+
+        // The vendor covering the whole bill means there's nothing left for the
+        // customer to pay — go straight to Billing Complete, no separate Save.
+        if (paid && !isBillingComplete()) {
+            updateStatusInDb("Billing Complete");
+            isLoading = true;
+            statusCombo.selectItem("Billing Complete");
+            isLoading = false;
+        }
+
+        refreshBillingTab();
     }
 
     @FXML

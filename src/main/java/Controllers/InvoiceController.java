@@ -53,7 +53,10 @@ public class InvoiceController {
         double pst      = taxes[0];
         double gst      = taxes[1];
         double subtotal = labour + parts + pst + gst;
-        double totalDue = Math.max(0, subtotal - deposit);
+        // Balance Due comes from the caller's already-correct figure (accounts
+        // for the vendor having paid us on a warranty job), not recomputed here —
+        // recomputing it from subtotal - deposit ignored that entirely.
+        double totalDue = amount;
 
         // customer
         cxFullNameTXT.setText(co.getFirstName() + " " + co.getLastName());
@@ -94,7 +97,11 @@ public class InvoiceController {
                 : null;
         String customerName = co.getFirstName() + " " + co.getLastName();
         StringBuilder sb = new StringBuilder();
-        if (vendor != null) {
+        if (hasVendor && wo.isVendorPaid()) {
+            sb.append(vendorName).append(" (Warranty)  |  Paid in full  |  CDN $")
+                    .append(String.format("%.2f", labour + parts + pst + gst)).append("\n");
+            sb.append(customerName).append("  |  Balance Due  |  CDN $0.00\n");
+        } else if (vendor != null) {
             double vL = vendor.isPaysLabour() ? labour : 0;
             double vP = vendor.isPaysParts()  ? parts  : 0;
             double vPst2 = vendor.isPaysPst() ? pst    : 0;
