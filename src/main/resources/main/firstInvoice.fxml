@@ -24,8 +24,10 @@
       </Text>
 
       <!-- ─── Invoice title top right ──────────────────────────────── -->
-      <Text layoutX="380.0" layoutY="36.0" text="DEPOSIT INVOICE">
-         <font><Font name="Arial Bold" size="20.0" /></font>
+      <!-- Smaller/narrower than the old "DEPOSIT INVOICE" — "DIAGNOSTIC FEE
+           INVOICE" is too wide for the page at the original 20pt/x=380. -->
+      <Text layoutX="350.0" layoutY="36.0" text="DIAGNOSTIC FEE INVOICE">
+         <font><Font name="Arial Bold" size="16.0" /></font>
       </Text>
 
       <!-- ─── Invoice meta box ─────────────────────────────────────── -->
@@ -82,9 +84,9 @@
          <font><Font name="Arial Bold" size="10.0" /></font>
       </Text>
 
-      <!-- ─── Line item: Deposit ────────────────────────────────────── -->
+      <!-- ─── Line item: Diagnostic Fee ───────────────────────────── -->
       <Rectangle fill="WHITE" height="28.0" layoutX="14.0" layoutY="220.0" stroke="BLACK" strokeType="INSIDE" width="567.0" />
-      <Text layoutX="18.0" layoutY="238.0" text="Deposit on Account — Work Order Service">
+      <Text layoutX="18.0" layoutY="238.0" text="Diagnostic Fee on Account — Work Order Service">
          <font><Font size="11.0" /></font>
       </Text>
       <Text fx:id="depositTXT" layoutX="480.0" layoutY="238.0" text="">
@@ -120,7 +122,7 @@
       <Text layoutX="14.0" layoutY="398.0" text="- Dependable Service -   - Professional People -">
          <font><Font name="Arial Bold" size="11.0" /></font>
       </Text>
-      <Text layoutX="14.0" layoutY="418.0" text="No refunds on deposits." wrappingWidth="560.0">
+      <Text layoutX="14.0" layoutY="418.0" text="No refunds on diagnostic fees." wrappingWidth="560.0">
          <font><Font size="10.0" /></font>
       </Text>
       <Text layoutX="14.0" layoutY="434.0" text="Any units not picked up after six months will be disposed of." wrappingWidth="560.0">

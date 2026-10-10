@@ -138,6 +138,13 @@ public class ViewOrderController {
     private boolean isDirty   = false;
     private boolean isLoading = false;
 
+    // Live "Billing Complete" lock, read by the labour/parts table cell factories
+    // (TableMethods) so editable fields can be locked via editable=false/disable
+    // without needing the whole table disabled — that would also block opening
+    // the repair-description popup to just read past work.
+    private final javafx.beans.property.BooleanProperty billingLocked =
+            new javafx.beans.property.SimpleBooleanProperty(false);
+
     private static final long MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024; // 3 MB
 
     // ─── SETTERS ────────────────────────────────────────────────────────────────
@@ -254,11 +261,11 @@ public class ViewOrderController {
     private void setupTables() {
         isLoading = true;
         repairTable.setFooterVisible(false);
-        TableMethods.loadRepairsTable(repairTable, repairData, techNames);
+        TableMethods.loadRepairsTable(repairTable, repairData, techNames, billingLocked);
         repairTable.setItems(repairData);
 
         partsTable.setFooterVisible(false);
-        TableMethods.loadPartsTable(partsTable, partsData);
+        TableMethods.loadPartsTable(partsTable, partsData, billingLocked);
         partsTable.setItems(partsData);
 
         repairData.clear();
@@ -482,16 +489,22 @@ public class ViewOrderController {
         boolean locked      = isBillingComplete();
         boolean hasWarranty = warrantyCheckBox.isSelected();
 
+        billingLocked.set(locked);
+
         statusCombo.setDisable(locked);
         type.setDisable(locked);
         model.setDisable(locked);
         serialNumber.setDisable(locked);
-        problemDesc.setDisable(locked);
+        // editable (not disabled) so a long problem description stays scrollable
+        // and readable once locked, instead of graying out and freezing in place.
+        problemDesc.setEditable(!locked);
         warrantyCheckBox.setDisable(locked);
         vendorId.setDisable(locked || !hasWarranty);
         warrantyNumber.setDisable(locked || !hasWarranty);
-        partsTable.setDisable(locked);
-        repairTable.setDisable(locked);
+        // partsTable/repairTable themselves stay enabled — billingLocked (bound
+        // into each cell's editable/disable property by TableMethods) locks the
+        // individual editable fields instead, so the repair-description popup
+        // stays reachable for reading past work.
 
         // Location and PO locked after billing complete
         locationTXF.setDisable(locked);
@@ -849,7 +862,7 @@ public class ViewOrderController {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(dialogInstance.getScene().getWindow());
-        stage.setTitle("Additional Deposit");
+        stage.setTitle("Additional Diagnostic Fee");
         stage.setScene(new Scene(root));
         stage.showAndWait();
 

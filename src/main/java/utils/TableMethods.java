@@ -63,7 +63,9 @@
             return techs;
         }
 
-        public static void loadRepairsTable(MFXTableView<WorkTable> repairTable, ObservableList<WorkTable> repairData, ObservableList<String> techNames) {
+        public static void loadRepairsTable(MFXTableView<WorkTable> repairTable, ObservableList<WorkTable> repairData,
+                                            ObservableList<String> techNames,
+                                            javafx.beans.property.ReadOnlyBooleanProperty locked) {
             repairTable.getTableColumns().clear();
             repairData.clear();
 
@@ -79,6 +81,7 @@
                 MFXTableRowCell<WorkTable, LocalDate> cell = new MFXTableRowCell<>(WorkTable::getDate);
                 DatePicker picker = new DatePicker();
                 picker.valueProperty().bindBidirectional(item.dateProperty());
+                picker.disableProperty().bind(locked);
                 cell.setGraphic(picker);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 return cell;
@@ -90,6 +93,7 @@
                 ComboBox<String> box = new ComboBox<>();
                 box.setItems(techNames);
                 box.valueProperty().bindBidirectional(item.techProperty());
+                box.disableProperty().bind(locked);
                 cell.setGraphic(box);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 return cell;
@@ -110,21 +114,25 @@
                 preview.setCursor(javafx.scene.Cursor.HAND);
                 preview.setStyle(
                     "-fx-background-color: #eef8f9;" +
-                    "-fx-text-fill: #555;" +
+                    "-fx-text-fill: black;" +
                     "-fx-padding: 6 10 6 10;" +
                     "-fx-background-radius: 8;" +
                     "-fx-border-color: #0097A7;" +
                     "-fx-border-width: 0 0 0 3;" +
                     "-fx-font-size: 12;"
                 );
+                // Never disabled — once billing is locked, the rest of this row
+                // (date/tech/price) is, but the description must stay openable so
+                // techs can still read what work was actually done; the popup
+                // itself goes read-only instead.
                 preview.setOnMouseClicked(e -> {
-                    if (item.getTech() == null || item.getTech().isBlank()) {
+                    if (!locked.get() && (item.getTech() == null || item.getTech().isBlank())) {
                         new Alert(Alert.AlertType.WARNING,
                                 "Select a technician for this row before writing repair notes.",
                                 ButtonType.OK).showAndWait();
                         return;
                     }
-                    openDescriptionPopup(item, preview);
+                    openDescriptionPopup(item, preview, locked.get());
                 });
 
                 cell.setGraphic(preview);
@@ -138,6 +146,9 @@
                 TextField field = new TextField();
                 field.textProperty().bindBidirectional(item.priceProperty(), new BlankZeroNumberConverter());
                 field.setAlignment(Pos.CENTER_RIGHT);
+                // editable (not disabled) once locked — blocks changes without
+                // graying the text out.
+                field.editableProperty().bind(locked.not());
                 cell.setGraphic(field);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 return cell;
@@ -164,7 +175,8 @@
             }
         }
 
-        public static void loadPartsTable(MFXTableView<PartTable> partsTable, ObservableList<PartTable> partsData) {
+        public static void loadPartsTable(MFXTableView<PartTable> partsTable, ObservableList<PartTable> partsData,
+                                          javafx.beans.property.ReadOnlyBooleanProperty locked) {
             partsTable.getTableColumns().clear();
             partsData.clear();
 
@@ -181,6 +193,7 @@
                 MFXTableRowCell<PartTable, String> cell = new MFXTableRowCell<>(PartTable::getName);
                 TextField tf = new TextField();
                 tf.textProperty().bindBidirectional(item.nameProperty());
+                tf.editableProperty().bind(locked.not());
                 cell.setGraphic(tf);
                 cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 return cell;
@@ -192,6 +205,7 @@
             qtyCol.setRowCellFactory(item -> {
                 MFXTableRowCell<PartTable, Integer> cell = new MFXTableRowCell<>(PartTable::getQuantity);
                 TextField tf = new TextField(item.getQuantity() == 0 ? "" : String.valueOf(item.getQuantity()));
+                tf.editableProperty().bind(locked.not());
 
                 tf.textProperty().addListener((obs, oldVal, newVal) -> {
                     if (!newVal.matches("\\d*")) {
@@ -214,6 +228,7 @@
             priceCol.setRowCellFactory(item -> {
                 MFXTableRowCell<PartTable, Double> cell = new MFXTableRowCell<>(PartTable::getPrice);
                 TextField tf = new TextField(item.getPrice() == 0 ? "" : String.valueOf(item.getPrice()));
+                tf.editableProperty().bind(locked.not());
 
                 tf.textProperty().addListener((obs, oldVal, newVal) -> {
                     if (!newVal.matches("\\d*(\\.\\d*)?")) {
@@ -437,7 +452,7 @@
             vendorsTable.setFooterVisible(false);
         }
 
-        private static void openDescriptionPopup(WorkTable item, javafx.scene.Node anchor) {
+        private static void openDescriptionPopup(WorkTable item, javafx.scene.Node anchor, boolean readOnly) {
             Stage popup = new Stage();
             popup.initStyle(StageStyle.TRANSPARENT);
             popup.setAlwaysOnTop(true);
@@ -450,7 +465,7 @@
 
             String techName = item.getTech() != null && !item.getTech().isBlank() ? item.getTech() : "–";
 
-            Label title = new Label("Repair Description");
+            Label title = new Label(readOnly ? "Repair Description (view only)" : "Repair Description");
             title.setStyle("-fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold;");
 
             Label techBadge = new Label(techName);
@@ -474,6 +489,7 @@
 
             TextArea area = new TextArea(item.getDescription() != null ? item.getDescription() : "");
             area.setWrapText(true);
+            area.setEditable(!readOnly);
             area.setStyle(
                 "-fx-font-size: 13;" +
                 "-fx-background-color: #f8fafb;" +
@@ -496,7 +512,10 @@
                 "-fx-border-color: transparent;"
             );
 
-            Button doneBtn = new Button("Done");
+            cancelBtn.setVisible(!readOnly);
+            cancelBtn.setManaged(!readOnly);
+
+            Button doneBtn = new Button(readOnly ? "Close" : "Done");
             doneBtn.setStyle(
                 "-fx-background-color: #0097A7;" +
                 "-fx-text-fill: white;" +

@@ -231,7 +231,7 @@ public class PaymentController {
 
             if (invoiceType == InvoiceType.DEPOSIT) {
                 fxml  = "/main/firstInvoice.fxml";
-                title = "DEPOSIT_INVOICE_" + currentWorkOrder.getWorkorderNumber();
+                title = "DIAGNOSTIC_FEE_INVOICE_" + currentWorkOrder.getWorkorderNumber();
             } else if (invoiceType == InvoiceType.FINAL) {
                 fxml  = "/main/invoiceSheet.fxml";
                 title = "FINAL_INVOICE_" + currentWorkOrder.getWorkorderNumber();

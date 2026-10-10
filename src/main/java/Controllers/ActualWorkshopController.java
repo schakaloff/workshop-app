@@ -436,28 +436,28 @@ public class ActualWorkshopController {
     }
 
     private void searchByCustomerField(String value, String column) {
-        applyCustomerFilter(workshopQueries.getCustomerIdsByField(column, value));
+        runFilterQuery(() -> workshopQueries.getWorkOrdersByCustomerField(column, value), this::showSearchResults);
     }
 
     private void searchByFullName(String fullName) {
         String[] parts = fullName.split("\\s+", 2);
         if (parts.length < 2) {
-            List<Integer> ids = workshopQueries.getCustomerIdsByField("first_name", parts[0]);
-            ids.addAll(workshopQueries.getCustomerIdsByField("last_name", parts[0]));
-            applyCustomerFilter(ids);
+            runFilterQuery(() -> dedupeByWorkorderNumber(
+                    workshopQueries.getWorkOrdersByCustomerField("first_name", parts[0]),
+                    workshopQueries.getWorkOrdersByCustomerField("last_name", parts[0])
+            ), this::showSearchResults);
         } else {
-            applyCustomerFilter(workshopQueries.getCustomerIdsByFullName(parts[0], parts[1]));
+            runFilterQuery(() -> workshopQueries.getWorkOrdersByFullName(parts[0], parts[1]), this::showSearchResults);
         }
     }
 
-    private void applyCustomerFilter(List<Integer> customerIds) {
-        if (customerIds.isEmpty()) {
-            setTableItems(FXCollections.observableArrayList());
-            return;
-        }
-        ObservableList<WorkOrder> filtered = FXCollections.observableArrayList(
-                allData.stream().filter(wo -> customerIds.contains(wo.getCustomerId())).toList());
-        setTableItems(filtered);
+    // Merges two result lists (first-name match + last-name match) without
+    // duplicating a work order that happened to match both.
+    private List<WorkOrder> dedupeByWorkorderNumber(List<WorkOrder> a, List<WorkOrder> b) {
+        java.util.Map<Integer, WorkOrder> merged = new java.util.LinkedHashMap<>();
+        for (WorkOrder wo : a) merged.put(wo.getWorkorderNumber(), wo);
+        for (WorkOrder wo : b) merged.put(wo.getWorkorderNumber(), wo);
+        return new java.util.ArrayList<>(merged.values());
     }
 
     // ─── FILTER BUTTONS ─────────────────────────────────────────────────────────

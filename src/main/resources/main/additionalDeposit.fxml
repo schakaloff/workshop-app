@@ -30,7 +30,7 @@
                   spacing="10"
                   style="-fx-background-color: #0097A7; -fx-padding: 0 16 0 16;">
                <children>
-                  <Text text="Additional Deposit"
+                  <Text text="Additional Diagnostic Fee"
                         style="-fx-fill: white; -fx-font-size: 13; -fx-font-weight: bold;" />
                   <Region HBox.hgrow="ALWAYS" />
                   <Text text="Tech:"

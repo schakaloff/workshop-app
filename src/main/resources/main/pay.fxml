@@ -148,10 +148,10 @@
             <HBox spacing="12" alignment="CENTER_LEFT"
                   style="-fx-background-color: white; -fx-padding: 10 16 10 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
                <children>
-                  <MFXCheckbox fx:id="depositCB" onAction="#depositSelected" text="Apply Deposit" />
+                  <MFXCheckbox fx:id="depositCB" onAction="#depositSelected" text="Apply Diagnostic Fee" />
                   <MFXTextField fx:id="depositTXF"
-                                floatMode="BORDER" floatingText="Deposit Amount"
-                                prefHeight="32" prefWidth="160" />
+                                floatMode="BORDER" floatingText="Diagnostic Fee Amount"
+                                prefHeight="32" prefWidth="220" />
                </children>
             </HBox>
 

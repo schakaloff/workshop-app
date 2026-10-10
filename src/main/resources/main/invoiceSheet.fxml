@@ -172,11 +172,13 @@
          <font><Font name="Arial Bold" size="11.0" /></font>
       </Text>
 
-      <!-- Less Deposit -->
+      <!-- Less Diagnostic Fee — label font a touch smaller than its siblings;
+           "Less Diagnostic Fee:" is wide enough to crowd the right-aligned
+           value column at 11pt (checked against realistic deposit amounts). -->
       <Rectangle fill="WHITE" height="24.0" layoutX="380.0" layoutY="498.0"
                  stroke="BLACK" strokeType="INSIDE" width="201.0" />
-      <Text layoutX="386.0" layoutY="514.0" text="Less Deposit:">
-         <font><Font size="11.0" /></font>
+      <Text layoutX="386.0" layoutY="514.0" text="Less Diagnostic Fee:">
+         <font><Font size="10.0" /></font>
       </Text>
       <Text fx:id="depositDeductTXT" layoutX="470.0" layoutY="514.0" text="">
          <font><Font size="11.0" /></font>

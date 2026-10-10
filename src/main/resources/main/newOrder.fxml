@@ -153,11 +153,11 @@
                   style="-fx-background-color: white; -fx-padding: 10 16 10 16;"
                   prefHeight="52">
                <children>
-                  <Text text="Deposit:"
+                  <Text text="Diagnostic Fee:"
                         style="-fx-font-size: 12; -fx-fill: #666;" />
                   <MFXTextField fx:id="depositTXF"
-                                floatMode="BORDER" floatingText="Deposit"
-                                prefHeight="32" prefWidth="100" />
+                                floatMode="BORDER" floatingText="Diagnostic Fee"
+                                prefHeight="32" prefWidth="140" />
                   <Region HBox.hgrow="ALWAYS" />
                   <MFXButton onAction="#closeDialog"
                              prefHeight="32" prefWidth="80"

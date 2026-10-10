@@ -319,35 +319,17 @@ public class WorkshopQueries {
 
     // ─── SEARCH ──────────────────────────────────────────────────────────────────
 
-    public List<Integer> getCustomerIdsByField(String column, String value) {
-        List<Integer> ids = new ArrayList<>();
-        String sql = "SELECT id FROM customer WHERE " + column + " LIKE ?";
-        try (Connection conn = DataSourceProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + value + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) ids.add(rs.getInt("id"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ids;
+    // Queried straight from the DB (via queryFilteredOrders, unbounded) rather
+    // than filtering the dashboard's in-memory allData — that list is capped to
+    // the most recent 75 work orders, so a customer search against it silently
+    // missed anyone whose order wasn't that recent (reported as "no output").
+    public List<WorkOrder> getWorkOrdersByCustomerField(String column, String value) {
+        return queryFilteredOrders("WHERE c." + column + " LIKE ?", "%" + value + "%");
     }
 
-    public List<Integer> getCustomerIdsByFullName(String firstName, String lastName) {
-        List<Integer> ids = new ArrayList<>();
-        String sql = "SELECT id FROM customer WHERE first_name LIKE ? AND last_name LIKE ?";
-        try (Connection conn = DataSourceProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + firstName + "%");
-            ps.setString(2, "%" + lastName + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) ids.add(rs.getInt("id"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ids;
+    public List<WorkOrder> getWorkOrdersByFullName(String firstName, String lastName) {
+        return queryFilteredOrders("WHERE c.first_name LIKE ? AND c.last_name LIKE ?",
+                "%" + firstName + "%", "%" + lastName + "%");
     }
 
     // ─── GET SINGLE ORDER ────────────────────────────────────────────────────────
