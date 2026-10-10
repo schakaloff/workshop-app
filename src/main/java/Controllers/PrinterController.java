@@ -30,6 +30,11 @@ public class PrinterController {
     @FXML private Text serialNumberText;
     @FXML private Text problemTextArea;
 
+    @FXML private Text locationText;
+    @FXML private Text accessoriesText;
+    @FXML private Text conditionText;
+    @FXML private Text diagFeeFooterText;
+
 
     public void initData(WorkOrder wo, Customer co){
         String firstName = co.getFirstName();
@@ -65,6 +70,15 @@ public class PrinterController {
         serialNumberText.setText(wo.getSerialNumber());
         problemTextArea.setText(wo.getProblemDesc());
 
+        locationText.setText(nullSafe(wo.getLocation()));
+        accessoriesText.setText(nullSafe(wo.getAccessories()));
+        conditionText.setText(nullSafe(wo.getCondition()));
+
+        diagFeeFooterText.setText(String.format("Diagnostic Fee: $%.2f", wo.getDepositAmount()));
+    }
+
+    private static String nullSafe(String value) {
+        return value != null ? value : "";
     }
 
     // Formats to +1(XXX)XXX-XXXX regardless of how the phone digits were stored.

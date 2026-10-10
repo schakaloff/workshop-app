@@ -75,6 +75,12 @@
             <Font size="11.0" />
          </font>
       </Text>
+      <Text fx:id="locationText" layoutX="307.0" layoutY="137.0" strokeType="OUTSIDE" strokeWidth="0.0"
+            textOrigin="TOP" wrappingWidth="280.0">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
       <Text layoutX="3.0" layoutY="251.0" strokeType="OUTSIDE" strokeWidth="0.0" text="On-Site">
          <font>
             <Font size="15.0" />
@@ -101,7 +107,17 @@
             <Font size="11.0" />
          </font>
       </Text>
+      <Text fx:id="accessoriesText" layoutX="120.0" layoutY="427.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="460.0">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
       <Text layoutX="4.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Condition:">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
+      <Text fx:id="conditionText" layoutX="70.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="510.0">
          <font>
             <Font size="11.0" />
          </font>
@@ -134,6 +150,11 @@
             <Line endX="488.0" layoutX="-7.0" layoutY="191.0" startX="-100.0" />
          </children>
       </Group>
+      <Text fx:id="diagFeeFooterText" layoutX="15.0" layoutY="791.0" strokeType="OUTSIDE" strokeWidth="0.0" text="">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Text>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="34.0" layoutX="13.0" layoutY="796.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
       <Text layoutX="218.0" layoutY="810.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1 hour minimum charge applies to all items not covered under manufacture's warranty.">
          <font>

@@ -48,6 +48,12 @@ public class PrintEstimateController {
     @FXML private Text unitDescTXT;
     @FXML private Text serialNumberTXT;
     @FXML private Text problemTXTArea;
+    @FXML private Text locationLabel;
+    @FXML private Text locationTXT;
+    @FXML private Text accessoriesLabel;
+    @FXML private Text accessoriesTXT;
+    @FXML private Text conditionLabel;
+    @FXML private Text conditionTXT;
 
     // ─── Labour rows container ────────────────────────────────────────────────────
     @FXML private VBox labourVBox;
@@ -72,6 +78,7 @@ public class PrintEstimateController {
     @FXML private VBox      totalsLabelVBox;
     @FXML private VBox      totalsValueVBox;
     @FXML private Rectangle footerRect;
+    @FXML private Text      diagFeeFooterTXT;
 
     // ─── Pagination state ────────────────────────────────────────────────────────
     // Holds overflow parts rows that didn't fit on page 1
@@ -87,6 +94,9 @@ public class PrintEstimateController {
     // the page 1 parts header is hidden in that case so the table isn't
     // drawn twice (empty header on page 1, real table on page 2).
     private boolean allPartsOverflowed = false;
+    // Same text shown above the signature box on page 1 — repeated above
+    // page 2's own signature box when the estimate runs to a second page.
+    private String diagFeeFooterLabel = "";
     // Billing summary lines, and whether they had to move to page 2 because
     // page 1 was already full (labour/parts content ran too long).
     private List<String> billingLines = new ArrayList<>();
@@ -138,6 +148,8 @@ public class PrintEstimateController {
         populateWarranty(wo);
         populateDevice(wo);
         woTXT.setText(String.valueOf(wo.getWorkorderNumber()));
+        diagFeeFooterLabel = String.format("Diagnostic Fee: $%.2f", wo.getDepositAmount());
+        diagFeeFooterTXT.setText(diagFeeFooterLabel);
 
         boolean hasWarranty = wo.getVendorId() != null && !wo.getVendorId().isBlank();
         boolean hasPstNum   = co.getPstNumber() != null && !co.getPstNumber().isBlank();
@@ -272,6 +284,7 @@ public class PrintEstimateController {
         );
 
         // Footer line
+        page.getChildren().add(staticText(diagFeeFooterLabel, 4, PAGE_H - 42, false));
         Rectangle footer = new Rectangle(2, PAGE_H - 37, 200, 34);
         footer.setFill(Color.WHITE);
         footer.setStroke(Color.BLACK);
@@ -340,10 +353,37 @@ public class PrintEstimateController {
     private void populateDevice(WorkOrder wo) {
         unitDescTXT.setText(wo.getType() + "  " + wo.getModel());
         serialNumberTXT.setText(nullSafe(wo.getSerialNumber()));
+        locationTXT.setText(nullSafe(wo.getLocation()));
+        accessoriesTXT.setText(nullSafe(wo.getAccessories()));
+        conditionTXT.setText(nullSafe(wo.getCondition()));
+        layoutLocationBoxRows();
 
         String[] split = splitTextToFit(nullSafe(wo.getProblemDesc()), PROBLEM_BOX_W, PROBLEM_BOX_H, 11.0);
         problemTXTArea.setText(split[0]);
         problemOverflowText = split[1];
+    }
+
+    private static final double LOCATION_BOX_FIRST_ROW_Y = 120.0;
+    private static final double LOCATION_BOX_ROW_MIN_H   = 17.0;
+    private static final double LOCATION_BOX_ROW_GAP     = 4.0;
+
+    // Location/Accessories/Condition stack inside the "Repair Location" box —
+    // any of them can wrap to 2+ lines, so each row starts below wherever the
+    // row above it actually ended instead of a fixed offset, or a long
+    // Accessories value runs straight into the Condition row below it.
+    private void layoutLocationBoxRows() {
+        double y = LOCATION_BOX_FIRST_ROW_Y;
+
+        locationLabel.setLayoutY(y);
+        locationTXT.setLayoutY(y);
+        y += Math.max(LOCATION_BOX_ROW_MIN_H, locationTXT.getLayoutBounds().getHeight() + LOCATION_BOX_ROW_GAP);
+
+        accessoriesLabel.setLayoutY(y);
+        accessoriesTXT.setLayoutY(y);
+        y += Math.max(LOCATION_BOX_ROW_MIN_H, accessoriesTXT.getLayoutBounds().getHeight() + LOCATION_BOX_ROW_GAP);
+
+        conditionLabel.setLayoutY(y);
+        conditionTXT.setLayoutY(y);
     }
 
     // Splits text at the last word boundary that still fits within maxHeight

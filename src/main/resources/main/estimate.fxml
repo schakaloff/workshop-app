@@ -62,7 +62,12 @@
 
       <!-- Repair location box -->
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="80.0" layoutX="303.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="290.0" />
-      <Text layoutX="305.0" layoutY="120.0" text="Repair Location"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="locationLabel" layoutX="305.0" layoutY="120.0" text="Location:"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="locationTXT" layoutX="360.0" layoutY="120.0" wrappingWidth="228.0"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="accessoriesLabel" layoutX="305.0" layoutY="137.0" text="Accessories:"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="accessoriesTXT" layoutX="375.0" layoutY="137.0" wrappingWidth="213.0"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="conditionLabel" layoutX="305.0" layoutY="154.0" text="Condition:"><font><Font size="11.0" /></font></Text>
+      <Text fx:id="conditionTXT" layoutX="360.0" layoutY="154.0" wrappingWidth="228.0"><font><Font size="11.0" /></font></Text>
 
       <!-- ─── Warranty row ─────────────────────────────────────────── -->
       <Group layoutX="3.0" layoutY="202.241">
@@ -153,6 +158,9 @@
       </VBox>
 
       <!-- Footer signature line -->
+      <Text fx:id="diagFeeFooterTXT" layoutX="4.0" layoutY="800.0" text="">
+         <font><Font size="11.0" /></font>
+      </Text>
       <Rectangle fx:id="footerRect" arcHeight="5.0" arcWidth="5.0" fill="WHITE"
                  height="34.0" layoutX="2.0" layoutY="805.0"
                  stroke="BLACK" strokeType="INSIDE" width="200.0" />
