@@ -159,17 +159,20 @@ public class PrintEstimateController {
         double partsDisplay = partsData.stream().mapToDouble(PartTable::getTotalPrice).sum();
 
         // Parts and their tax must always be counted here, same as Pay/Billing
-        // (DB.ShopSettings.calcTaxes, used by ViewOrderController.finalDueDb())
+        // (DB.ShopSettings.calcBill, used by ViewOrderController.finalDueDb())
         // — this used to zero parts out under warranty, so a warranty estimate's
         // printed total silently didn't match what Pay would actually charge.
-        double[] taxes = DB.ShopSettings.calcTaxes(labour, partsDisplay, hasWarranty, hasPstNum, hasGstNum);
-        double pst = taxes[0];
-        double gst = taxes[1];
+        Skeletons.Vendor vendor = hasWarranty
+                ? Controllers.DbRepo.VendorsQueries.getVendorByName(wo.getVendorId())
+                : null;
+        DB.ShopSettings.Bill bill = DB.ShopSettings.calcBill(labour, partsDisplay, vendor, hasPstNum, hasGstNum);
+        double pst = bill.pst;
+        double gst = bill.gst;
 
-        double total = labour + partsDisplay + pst + gst;
+        double total = bill.total();
 
-        totalLabour = String.format(CURRENCY_FMT, labour);
-        totalParts  = String.format(CURRENCY_FMT, partsDisplay);
+        totalLabour = String.format(CURRENCY_FMT, bill.labour);
+        totalParts  = String.format(CURRENCY_FMT, bill.parts);
         totalPST    = String.format(CURRENCY_FMT, pst);
         totalGST    = String.format(CURRENCY_FMT, gst);
         totalTotal  = String.format(CURRENCY_FMT, total);
@@ -182,7 +185,7 @@ public class PrintEstimateController {
             // Billing summary is placed only after we know where parts
             // content actually ended on page 1 (and whether it overflowed),
             // so it can never land on top of a long labour description.
-            buildBillingSummary(wo, co, labour, partsDisplay, pst, gst);
+            buildBillingSummary(wo, co, bill.labour, bill.parts, pst, gst);
             populateTotals();
         });
     }
@@ -604,23 +607,6 @@ public class PrintEstimateController {
                 lines.add(vendorName + " (Warranty)  |  " +
                         String.join("+", covers) + "  |  " +
                         String.format("$%.2f", vTotal));
-            }
-
-            double cLabour = vendor.isPaysLabour() ? 0 : labour;
-            double cParts  = vendor.isPaysParts()  ? 0 : parts;
-            double cPst    = vendor.isPaysPst()    ? 0 : pst;
-            double cGst    = vendor.isPaysGst()    ? 0 : gst;
-            double cTotal  = cLabour + cParts + cPst + cGst;
-
-            if (cTotal > 0) {
-                List<String> covers = new ArrayList<>();
-                if (cLabour > 0) covers.add("Labour");
-                if (cParts  > 0) covers.add("Parts");
-                if (cPst    > 0) covers.add("PST");
-                if (cGst    > 0) covers.add("GST");
-                lines.add(customerName + "  |  " +
-                        String.join("+", covers) + "  |  " +
-                        String.format("$%.2f", cTotal));
             }
         } else {
             double total = labour + parts + pst + gst;

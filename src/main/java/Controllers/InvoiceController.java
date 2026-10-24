@@ -54,16 +54,19 @@ public class InvoiceController {
         double parts   = ViewControllerQueries.partsTotalDb(wo.getWorkorderNumber());
         double deposit = wo.getDepositAmount();
 
-        // get saved taxes from DB via ShopSettings calc
-        double[] taxes = DB.ShopSettings.calcTaxes(
-                labour, parts,
-                wo.getVendorId() != null && !wo.getVendorId().isBlank(),
+        Skeletons.Vendor billVendor = wo.getVendorId() != null && !wo.getVendorId().isBlank()
+                ? Controllers.DbRepo.VendorsQueries.getVendorByName(wo.getVendorId())
+                : null;
+        DB.ShopSettings.Bill bill = DB.ShopSettings.calcBill(
+                labour, parts, billVendor,
                 co.getPstNumber() != null && !co.getPstNumber().isBlank(),
                 co.getGstNumber() != null && !co.getGstNumber().isBlank()
         );
-        double pst      = taxes[0];
-        double gst      = taxes[1];
-        double subtotal = labour + parts + pst + gst;
+        labour = bill.labour;
+        parts  = bill.parts;
+        double pst      = bill.pst;
+        double gst      = bill.gst;
+        double subtotal = bill.total();
         // Balance Due comes from the caller's already-correct figure (accounts
         // for the vendor having paid us on a warranty job), not recomputed here —
         // recomputing it from subtotal - deposit ignored that entirely.
@@ -133,20 +136,6 @@ public class InvoiceController {
                 sb.append(vendorName).append(" (Warranty)  |  ")
                         .append(String.join("+", c)).append("  |  CDN $")
                         .append(String.format("%.2f", vL+vP+vPst2+vG)).append("\n");
-            }
-            double cL = vendor.isPaysLabour() ? 0 : labour;
-            double cP = vendor.isPaysParts()  ? 0 : parts;
-            double cPst2 = vendor.isPaysPst() ? 0 : pst;
-            double cG = vendor.isPaysGst()    ? 0 : gst;
-            if (cL+cP+cPst2+cG > 0) {
-                List<String> c = new ArrayList<>();
-                if (cL>0) c.add("Labour");
-                if (cP>0) c.add("Parts");
-                if (cPst2>0) c.add("PST");
-                if (cG>0) c.add("GST");
-                sb.append(customerName).append("  |  ")
-                        .append(String.join("+", c)).append("  |  CDN $")
-                        .append(String.format("%.2f", cL+cP+cPst2+cG)).append("\n");
             }
         } else {
             sb.append(customerName).append("  |  Labour+Parts+Tax  |  CDN $")

@@ -381,6 +381,33 @@
             }
         }
 
+        // Same recycling rule as the technician role cell: MFXTableRowCell nodes are reused
+        // for different rows and only update(T) is called, so the checkbox must follow the
+        // item update() hands over — never a binding made once against the first item.
+        private static MFXTableRowCell<Skeletons.Vendor, Boolean> vendorCheckCell(
+                Skeletons.Vendor item,
+                java.util.function.Predicate<Skeletons.Vendor> getter,
+                java.util.function.Function<Skeletons.Vendor, javafx.beans.property.BooleanProperty> property
+        ) {
+            Skeletons.Vendor[] current = { item };
+
+            CheckBox cb = new CheckBox();
+            cb.setSelected(getter.test(item));
+            cb.setOnAction(e -> property.apply(current[0]).set(cb.isSelected()));
+
+            MFXTableRowCell<Skeletons.Vendor, Boolean> cell = new MFXTableRowCell<>(getter::test) {
+                @Override
+                public void update(Skeletons.Vendor newItem) {
+                    super.update(newItem);
+                    current[0] = newItem;
+                    cb.setSelected(getter.test(newItem));
+                }
+            };
+            cell.setGraphic(cb);
+            cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            return cell;
+        }
+
         public static void loadVendorsTable(MFXTableView<Skeletons.Vendor> vendorsTable,
                                             ObservableList<Skeletons.Vendor> vendorData) {
             vendorsTable.getTableColumns().clear();
@@ -407,45 +434,14 @@
                     new MFXTableRowCell<>(Skeletons.Vendor::getName)
             );
 
-            labourCol.setRowCellFactory(item -> {
-                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
-                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysLabour);
-                CheckBox cb = new CheckBox();
-                cb.selectedProperty().bindBidirectional(item.paysLabourProperty());
-                cell.setGraphic(cb);
-                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                return cell;
-            });
-
-            partsCol.setRowCellFactory(item -> {
-                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
-                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysParts);
-                CheckBox cb = new CheckBox();
-                cb.selectedProperty().bindBidirectional(item.paysPartsProperty());
-                cell.setGraphic(cb);
-                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                return cell;
-            });
-
-            pstCol.setRowCellFactory(item -> {
-                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
-                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysPst);
-                CheckBox cb = new CheckBox();
-                cb.selectedProperty().bindBidirectional(item.paysPstProperty());
-                cell.setGraphic(cb);
-                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                return cell;
-            });
-
-            gstCol.setRowCellFactory(item -> {
-                MFXTableRowCell<Skeletons.Vendor, Boolean> cell =
-                        new MFXTableRowCell<>(Skeletons.Vendor::isPaysGst);
-                CheckBox cb = new CheckBox();
-                cb.selectedProperty().bindBidirectional(item.paysGstProperty());
-                cell.setGraphic(cb);
-                cell.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                return cell;
-            });
+            labourCol.setRowCellFactory(item -> vendorCheckCell(item,
+                    Skeletons.Vendor::isPaysLabour, Skeletons.Vendor::paysLabourProperty));
+            partsCol.setRowCellFactory(item -> vendorCheckCell(item,
+                    Skeletons.Vendor::isPaysParts, Skeletons.Vendor::paysPartsProperty));
+            pstCol.setRowCellFactory(item -> vendorCheckCell(item,
+                    Skeletons.Vendor::isPaysPst, Skeletons.Vendor::paysPstProperty));
+            gstCol.setRowCellFactory(item -> vendorCheckCell(item,
+                    Skeletons.Vendor::isPaysGst, Skeletons.Vendor::paysGstProperty));
 
             vendorsTable.getTableColumns().addAll(nameCol, labourCol, partsCol, pstCol, gstCol);
             vendorsTable.setItems(vendorData);

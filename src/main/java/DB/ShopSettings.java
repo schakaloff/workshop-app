@@ -6,7 +6,7 @@ public class ShopSettings {
     private double gst = 0.05;
 
     // ─── Single source of truth for app version ──────────────────────────────────
-    public static final String VERSION = "1.2.2";
+    public static final String VERSION = "1.2.3";
 
     private ShopSettings() {
     }
@@ -43,13 +43,39 @@ public class ShopSettings {
         return hasGstNumber ? 0.0 : subtotal * gst;
     }
 
-    public static double[] calcTaxes(double labour, double parts,
-            boolean hasWarranty,
+    /**
+     * The one place a work order's billable amounts are decided.
+     * Warranty (vendor) job: only the lines the vendor is set to pay are billed at all,
+     * and PST/GST are calculated only if the vendor pays them, on the billed lines.
+     * Regular job: everything is billed; a customer PST/GST number removes that tax.
+     */
+    public static Bill calcBill(double labour, double parts, Skeletons.Vendor vendor,
             boolean hasPstNum, boolean hasGstNum) {
         ShopSettings s = get();
-        double taxBase = labour + parts;
-        double pst = s.calcPst(taxBase, hasPstNum);
-        double gst = s.calcGst(taxBase, hasGstNum);
-        return new double[] { pst, gst };
+        if (vendor != null) {
+            double l = vendor.isPaysLabour() ? labour : 0;
+            double p = vendor.isPaysParts() ? parts : 0;
+            double base = l + p;
+            return new Bill(l, p,
+                    vendor.isPaysPst() ? base * s.pst : 0.0,
+                    vendor.isPaysGst() ? base * s.gst : 0.0);
+        }
+        double base = labour + parts;
+        return new Bill(labour, parts, s.calcPst(base, hasPstNum), s.calcGst(base, hasGstNum));
+    }
+
+    public static final class Bill {
+        public final double labour, parts, pst, gst;
+
+        Bill(double labour, double parts, double pst, double gst) {
+            this.labour = labour;
+            this.parts = parts;
+            this.pst = pst;
+            this.gst = gst;
+        }
+
+        public double total() {
+            return labour + parts + pst + gst;
+        }
     }
 }

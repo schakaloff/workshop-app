@@ -53,6 +53,7 @@
         private final ObservableList<Vendor> vendorData = FXCollections.observableArrayList();
 
         private boolean techTableInitialized = false;
+        private boolean vendorTableInitialized = false;
 
         // ─── SETTERS ─────────────────────────────────────────────────────────────────
 
@@ -151,7 +152,10 @@
         private void loadVendorsTable() {
             vendorsTable.setItems(FXCollections.observableArrayList());
             vendorData.setAll(VendorsQueries.getAllVendors());
-            TableMethods.loadVendorsTable(vendorsTable, vendorData);
+            if (!vendorTableInitialized) {
+                TableMethods.loadVendorsTable(vendorsTable, vendorData);
+                vendorTableInitialized = true;
+            }
             vendorsTable.setItems(vendorData);
             // NO setupVendorRowOpen() here
         }

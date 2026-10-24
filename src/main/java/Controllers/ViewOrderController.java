@@ -805,21 +805,11 @@ public class ViewOrderController {
         if ("Repair Complete".equalsIgnoreCase(newStatus) ||
                 "Billing Complete".equalsIgnoreCase(newStatus)) {
 
-            boolean hasWarranty = currentWorkOrder.getVendorId() != null
-                    && !currentWorkOrder.getVendorId().isBlank();
-            boolean hasPstNum = currentCustomer.getPstNumber() != null
-                    && !currentCustomer.getPstNumber().isBlank();
-            boolean hasGstNum = currentCustomer.getGstNumber() != null
-                    && !currentCustomer.getGstNumber().isBlank();
-
-            double labour = ViewControllerQueries.labourTotalDb(currentWorkOrder.getWorkorderNumber());
-            double parts  = ViewControllerQueries.partsTotalDb(currentWorkOrder.getWorkorderNumber());
-
-            double[] taxes = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
+            DB.ShopSettings.Bill bill = currentBill();
 
             ViewControllerQueries.saveTaxesToDb(
                     currentWorkOrder.getWorkorderNumber(),
-                    taxes[0], taxes[1]
+                    bill.pst, bill.gst
             );
         }
 
@@ -1121,47 +1111,51 @@ public class ViewOrderController {
     // undercharges. Recompute live from current totals instead of trusting it.
     private double finalDueDb() {
         int      woNumber    = currentWorkOrder.getWorkorderNumber();
-        double   labour      = ViewControllerQueries.labourTotalDb(woNumber);
-        double   parts       = ViewControllerQueries.partsTotalDb(woNumber);
         double   deposit     = ViewControllerQueries.depositFromDb(woNumber);
         boolean  hasWarranty = currentWorkOrder.getVendorId() != null && !currentWorkOrder.getVendorId().isBlank();
-        boolean  hasPstNum   = currentCustomer.getPstNumber() != null && !currentCustomer.getPstNumber().isBlank();
-        boolean  hasGstNum   = currentCustomer.getGstNumber() != null && !currentCustomer.getGstNumber().isBlank();
-        double[] taxes       = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
+        DB.ShopSettings.Bill bill = currentBill();
         // Keep the stored snapshot in sync with what's actually being charged.
-        ViewControllerQueries.saveTaxesToDb(woNumber, taxes[0], taxes[1]);
-        double customerOwed  = labour + parts + taxes[0] + taxes[1]
-                - vendorCoveredAmount(hasWarranty, labour, parts, taxes[0], taxes[1]);
+        ViewControllerQueries.saveTaxesToDb(woNumber, bill.pst, bill.gst);
+        double customerOwed  = bill.total() - vendorCoveredAmount(hasWarranty, bill.total());
         return Math.max(0, customerOwed - deposit);
     }
 
+    /** Billable amounts for the open work order — the single calculation every screen uses. */
+    private DB.ShopSettings.Bill currentBill() {
+        int woNumber = currentWorkOrder.getWorkorderNumber();
+        String vendorName = currentWorkOrder.getVendorId();
+        Skeletons.Vendor vendor = vendorName != null && !vendorName.isBlank()
+                ? Controllers.DbRepo.VendorsQueries.getVendorByName(vendorName)
+                : null;
+        return DB.ShopSettings.calcBill(
+                ViewControllerQueries.labourTotalDb(woNumber),
+                ViewControllerQueries.partsTotalDb(woNumber),
+                vendor,
+                currentCustomer.getPstNumber() != null && !currentCustomer.getPstNumber().isBlank(),
+                currentCustomer.getGstNumber() != null && !currentCustomer.getGstNumber().isBlank());
+    }
+
     // Once the vendor has paid us for a warranty repair, the customer owes
-    // nothing more on it — zero out the whole bill rather than prorating by
-    // the vendor's individual pays-labour/parts/pst/gst flags.
-    private double vendorCoveredAmount(boolean hasWarranty, double labour, double parts, double pst, double gst) {
+    // nothing more on it.
+    private double vendorCoveredAmount(boolean hasWarranty, double billTotal) {
         if (!hasWarranty || !currentWorkOrder.isVendorPaid()) return 0;
-        return labour + parts + pst + gst;
+        return billTotal;
     }
 
     // ─── BILLING TAB ────────────────────────────────────────────────────────────
 
     private void refreshBillingTab() {
         int      woNumber    = currentWorkOrder.getWorkorderNumber();
-        double   labour      = ViewControllerQueries.labourTotalDb(woNumber);
-        double   parts       = ViewControllerQueries.partsTotalDb(woNumber);
         double   deposit     = ViewControllerQueries.depositFromDb(woNumber);
         boolean  hasWarranty = currentWorkOrder.getVendorId() != null && !currentWorkOrder.getVendorId().isBlank();
-        boolean  hasPstNum   = currentCustomer.getPstNumber() != null && !currentCustomer.getPstNumber().isBlank();
-        boolean  hasGstNum   = currentCustomer.getGstNumber() != null && !currentCustomer.getGstNumber().isBlank();
-        double[] taxes       = DB.ShopSettings.calcTaxes(labour, parts, hasWarranty, hasPstNum, hasGstNum);
-        double   customerOwed = labour + parts + taxes[0] + taxes[1]
-                - vendorCoveredAmount(hasWarranty, labour, parts, taxes[0], taxes[1]);
+        DB.ShopSettings.Bill bill = currentBill();
+        double   customerOwed = bill.total() - vendorCoveredAmount(hasWarranty, bill.total());
         double   total       = Math.max(0, customerOwed - deposit);
 
-        labourAmountTXT.setText(String.format("$%.2f", labour));
-        partsAmountTXT.setText(String.format("$%.2f", parts));
-        pstAmountTXT.setText(String.format("$%.2f", taxes[0]));
-        gstAmountTXT.setText(String.format("$%.2f", taxes[1]));
+        labourAmountTXT.setText(String.format("$%.2f", bill.labour));
+        partsAmountTXT.setText(String.format("$%.2f", bill.parts));
+        pstAmountTXT.setText(String.format("$%.2f", bill.pst));
+        gstAmountTXT.setText(String.format("$%.2f", bill.gst));
         depositAmountTXT.setText(String.format("-$%.2f", deposit));
 
         boolean vendorPaid = hasWarranty && currentWorkOrder.isVendorPaid();
